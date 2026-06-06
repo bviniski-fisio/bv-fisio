@@ -546,6 +546,7 @@
             window.db = cloudData;
             window.db._updated = cloudTs;
             try { localStorage.setItem('bv_master_v1', JSON.stringify(window.db)); } catch(e) {}
+            if (typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
             if (typeof renderList === 'function') renderList();
             if (typeof showWelcome === 'function') showWelcome();
             console.log('✅ Nuvem aplicada:', cloudData.patients.length, 'pacientes, ts:', cloudTs);
@@ -582,6 +583,7 @@
         if (cloudTs >= localTs) {
           window.db = cloudData;
           try { localStorage.setItem('bv_master_v1', JSON.stringify(cloudData)); } catch(e) {}
+          if (typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
           if (typeof renderList === 'function') renderList();
           if (window.curView === 'patient' && window.curPid) {
             var p = window.db.patients.find(function(pt){ return pt.id === window.curPid; });
@@ -683,8 +685,22 @@ function parseDB(p){
     _updated:(p._updated||''),
     appointments:(p.appointments||[]),
     pagamentos:(p.pagamentos||[]),
-    evolutions:(p.evolutions||[])
+    evolutions:(p.evolutions||[]),
+    photos:(p.photos||{})
   };
+}
+function restorePhotosFromDB(){
+  if(!db.photos)return;
+  Object.keys(db.photos).forEach(function(key){
+    var photos=db.photos[key];
+    if(!photos||!photos.length)return;
+    // key = 'bv_photos_EVALID'
+    var evalId=key.replace('bv_photos_','');
+    photoStore[evalId]=photos;
+    // Persistir local também
+    try{localStorage.setItem(key,JSON.stringify(photos));}catch(e){}
+    if(idb){try{var tx=idb.transaction(['app'],'readwrite');tx.objectStore('app').put(JSON.stringify(photos),key);}catch(e){}}
+  });
 }
 async function loadDB(){
   await initDB();
@@ -4981,7 +4997,7 @@ function showAvisos(){
         +'<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff0e8;color:var(--ac)">'+diasAtras+' dia(s) atrás</span>'
         +'<div style="display:flex;gap:4px">'
         +(phone?'<button class="btn" style="background:#25D366;color:#fff;font-size:10px;padding:3px 8px" onclick="sendWhatsAppAviso(\''+phone+'\',\''+nome+'\')">💬 Cobrar</button>':'')
-        +'<button class="btn" style="background:var(--or);color:#fff;font-size:10px;padding:3px 8px" onclick="showEvolution('+a.patientId+')">+ Evolução</button>'
+        +'<button class="btn" style="background:var(--or);color:#fff;font-size:10px;padding:3px 8px" onclick="selPatient('+a.patientId+');setTimeout(function(){showEvolution('+a.patientId+')},150)">+ Evolução</button>'
         +'</div>'
         +'</div>';
     });
@@ -5413,7 +5429,8 @@ function renderCalendar(year,month){
         +'<div style="font-size:10px;color:#E53935">'+d+' às '+a.time+(a.type?' · '+a.type:'')+'</div></div>'
         +'<div style="display:flex;gap:6px">'
         +(p?'<button class="btn" style="background:#25D366;color:#fff;font-size:10px;padding:4px 8px" onclick="sendWhatsAppToPatient('+a.patientId+')">💬 WA</button>':'')
-        +(p?'<button class="btn" style="background:#E8844A;color:#fff;font-size:10px;padding:4px 8px" onclick="showEvolution('+a.patientId+')">📋 Evolução</button>':'')
+        +(p?'<button class="btn" style="background:#E8844A;color:#fff;font-size:10px;padding:4px 8px" onclick="selPatient('+a.patientId+');setTimeout(function(){showEvolution('+a.patientId+')},150)">📋 Evolução</button>':'')
+        +'<button class="btn btn-del" style="font-size:10px;padding:4px 8px" onclick="deleteAppointment('+a.id+')">🗑</button>'
         +'</div></div>';
     });
     html+='</div>';
@@ -6287,6 +6304,7 @@ function savePhotos(evalId){
   var photos=photoStore[evalId]||[];
   var key='bv_photos_'+evalId;
   var json=JSON.stringify(photos);
+  // Salva local
   if(idb){
     try{
       var tx=idb.transaction(['app'],'readwrite');
@@ -6297,9 +6315,14 @@ function savePhotos(evalId){
     localStorage.setItem(key,json);
   }catch(e){
     if(e && (e.name==='QuotaExceededError'||e.code===22)){
-      console.warn('localStorage cheio – fotos não salvas localmente. Use exportar backup.');
+      console.warn('localStorage cheio – fotos não salvas localmente.');
     }
   }
+  // Sincroniza com Firebase via db.photos
+  if(!db.photos)db.photos={};
+  db.photos[key]=photos;
+  if(window._photoSaveTimer)clearTimeout(window._photoSaveTimer);
+  window._photoSaveTimer=setTimeout(function(){saveDB();},1500);
 }
 function loadPhotos(evalId,callback){
   var key='bv_photos_'+evalId;
