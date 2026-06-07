@@ -793,6 +793,50 @@ function buildExtraField(c){if(window._APP._r[c]&&window._APP._r[c].buildExtraFi
 function getPBadge(c,p){return (window._APP._r[c]||{}).getPBadge?window._APP._r[c].getPBadge(p):'';}
 function recalcAll(c){if(window._APP._r[c]&&window._APP._r[c].recalcAll)window._APP._r[c].recalcAll();}
 
+// ══════════════════════════════════════════════════════════════════
+// MOTOR DE INTERPRETAÇÃO CLÍNICA (read-only — não altera nenhum cálculo)
+// Faixas de corte validadas na literatura. Cada regra recebe o valor numérico
+// e devolve {txt:'classificação', lvl:'ok|warn|alert'} ou null se fora de escopo.
+// ══════════════════════════════════════════════════════════════════
+var CLINICAL_REF = {
+  // chave da métrica (mt.key) -> função interpretadora
+  // --- Equilíbrio / marcha / quedas ---
+  'berg_total':   function(v){ if(v>=45)return{txt:'Baixo risco de queda',lvl:'ok'}; if(v>=21)return{txt:'Risco moderado de queda',lvl:'warn'}; return{txt:'Alto risco de queda / dependente',lvl:'alert'}; },
+  'tug_media':    function(v){ if(v<12)return{txt:'Mobilidade normal',lvl:'ok'}; if(v<20)return{txt:'Risco aumentado de queda',lvl:'warn'}; return{txt:'Mobilidade reduzida / alto risco',lvl:'alert'}; },
+  'tug_med':      function(v){ if(v<12)return{txt:'Mobilidade normal',lvl:'ok'}; if(v<20)return{txt:'Risco aumentado de queda',lvl:'warn'}; return{txt:'Mobilidade reduzida / alto risco',lvl:'alert'}; },
+  'tc10m_vel':    function(v){ if(v>=1.0)return{txt:'Velocidade comunitária',lvl:'ok'}; if(v>=0.4)return{txt:'Marcha domiciliar limitada',lvl:'warn'}; return{txt:'Marcha muito limitada',lvl:'alert'}; },
+  // --- Independência funcional / AVD ---
+  'barthel':      function(v){ if(v>=90)return{txt:'Independente',lvl:'ok'}; if(v>=60)return{txt:'Dependência leve',lvl:'warn'}; if(v>=21)return{txt:'Dependência moderada/grave',lvl:'alert'}; return{txt:'Dependência total',lvl:'alert'}; },
+  'fim_total':    function(v){ if(v>=108)return{txt:'Independência completa/modificada',lvl:'ok'}; if(v>=54)return{txt:'Dependência modificada',lvl:'warn'}; return{txt:'Dependência completa',lvl:'alert'}; },
+  'lawton_total': function(v){ if(v>=8)return{txt:'Independente (AIVD)',lvl:'ok'}; if(v>=5)return{txt:'Dependência parcial',lvl:'warn'}; return{txt:'Dependência (AIVD)',lvl:'alert'}; },
+  // --- Cognição --- (cutoffs gerais; MEEM idealmente ajustado por escolaridade)
+  'meem':         function(v){ if(v>=24)return{txt:'Sem comprometimento (ajustar p/ escolaridade)',lvl:'ok'}; return{txt:'Possível comprometimento cognitivo',lvl:'warn'}; },
+  'meem_pk_total':function(v){ if(v>=24)return{txt:'Sem comprometimento (ajustar p/ escolaridade)',lvl:'ok'}; return{txt:'Possível comprometimento cognitivo',lvl:'warn'}; },
+  'moca':         function(v){ if(v>=26)return{txt:'Normal',lvl:'ok'}; return{txt:'Possível comprometimento cognitivo',lvl:'warn'}; },
+  // --- AVC ---
+  'nihss':        function(v){ if(v===0)return{txt:'Sem déficit',lvl:'ok'}; if(v<=4)return{txt:'AVC leve',lvl:'warn'}; if(v<=15)return{txt:'AVC moderado',lvl:'alert'}; if(v<=20)return{txt:'AVC moderado-grave',lvl:'alert'}; return{txt:'AVC grave',lvl:'alert'}; },
+  // --- Lesão medular ---
+  'asia_motor_total': function(v){ if(v>=90)return{txt:'Função motora preservada',lvl:'ok'}; if(v>=50)return{txt:'Déficit motor moderado',lvl:'warn'}; return{txt:'Déficit motor importante',lvl:'alert'}; },
+  // --- Escoliose / coluna ---
+  'cobb_principal': function(v){ if(v<10)return{txt:'Sem escoliose (<10°)',lvl:'ok'}; if(v<25)return{txt:'Escoliose leve — observação',lvl:'warn'}; if(v<45)return{txt:'Moderada — considerar colete',lvl:'alert'}; return{txt:'Grave (≥45°) — avaliar cirurgia',lvl:'alert'}; },
+  'cifose_cobb':  function(v){ if(v>=20&&v<=45)return{txt:'Cifose torácica normal',lvl:'ok'}; if(v<20)return{txt:'Hipocifose',lvl:'warn'}; if(v<=60)return{txt:'Hipercifose leve-moderada',lvl:'warn'}; return{txt:'Hipercifose acentuada',lvl:'alert'}; }
+};
+// aceita aliases comuns de chave usados nos módulos
+var CLINICAL_ALIAS = { 'berg':'berg_total','tug':'tug_i','tc10':'tc10m_vel','barthel_ger':'barthel','barthel_avc':'barthel','barthel_alz':'barthel','fim':'fim_total','asia_motor':'asia_motor_total','cobb':'cobb_principal' };
+function interpretMetric(key, rawVal){
+  if(rawVal===''||rawVal==null)return null;
+  var v=parseFloat(rawVal); if(isNaN(v))return null;
+  var fn=CLINICAL_REF[key]||CLINICAL_REF[CLINICAL_ALIAS[key]];
+  if(!fn)return null;
+  try{ return fn(v); }catch(e){ return null; }
+}
+function clinBadgeHtml(interp){
+  if(!interp)return '';
+  var c={ok:'#6B8F5E',warn:'#D4894A',alert:'#C62828'}[interp.lvl]||'#9a9a90';
+  var bg={ok:'#eef3ea',warn:'#fbf0e6',alert:'#fcebea'}[interp.lvl]||'#f3f3f0';
+  return '<span style="display:inline-block;font-size:8.5px;font-weight:700;color:'+c+';background:'+bg+';padding:1px 6px;border-radius:6px;line-height:1.4;margin-top:3px">'+interp.txt+'</span>';
+}
+
 // ── CSS ACCENT (per form view) ──
 function setAccent(cond){
   var m=COND_META[cond]||{};
@@ -1578,6 +1622,7 @@ function _doGenerateReport(pid,p){
           +(mt.unit?'<span style="font-size:9px;color:#9a9a90">'+mt.unit+'</span>':'')
           +trendHtml+'</div>'
           +'<div style="font-size:9px;color:#9a9a90;margin-top:2px">1ª: '+(v1||'—')+'</div>'
+          +(function(){var ip=interpretMetric(mt.key,vN);return ip?'<div>'+clinBadgeHtml(ip)+'</div>':'';})()
           +'</div>';
       });
       html+='</div></div>';
@@ -1587,7 +1632,7 @@ function _doGenerateReport(pid,p){
     if(chk('tab_'+cond)){
       html+='<div style="overflow-x:auto;padding:0 16px 14px"><table class="rpt-table"><tr><th>Escala</th><th>Unid.</th>';
       evs.forEach(function(ev){html+='<th>'+ev.type.replace('Reavaliação','Reav.')+'<br><small>'+fmtDate(ev.date)+'</small></th>';});
-      html+='<th>Tendência</th></tr>';
+      html+='<th>Tendência</th><th>Interpretação (última)</th></tr>';
       metrics.forEach(function(mt){
         var vals=evs.map(function(ev){return ev.data&&ev.data[mt.key]||'';});
         if(!vals.some(function(v){return v!=='';}))return;
@@ -1607,7 +1652,9 @@ function _doGenerateReport(pid,p){
           if(v!==''&&nums.length>=2&&i>0){var n=parseFloat(v),ref=parseFloat(vals[0]);if(!isNaN(n)&&!isNaN(ref)&&n!==ref){cls=' class="'+(((n>ref&&!mt.inv)||(n<ref&&mt.inv))?'rpt-imp':'rpt-wrs')+'"';}}
           html+='<td'+cls+'>'+(v||'—')+'</td>';
         });
-        html+='<td class="'+tClass+'">'+trend+'</td></tr>';
+        var lastVal=vals.slice().reverse().find(function(v){return v!=='';})||'';
+        var ipt=interpretMetric(mt.key,lastVal);
+        html+='<td class="'+tClass+'">'+trend+'</td><td style="font-size:9px">'+(ipt?clinBadgeHtml(ipt):'<span style="color:#c8c8c0">—</span>')+'</td></tr>';
       });
       html+='</table></div>';
     }
@@ -4325,8 +4372,46 @@ function buildSections(){
          ['Progressão vs avaliação anterior (°)','progressao_cobb','number',null,{step:'0.1',ph:'Ex: +2°'}],
          ['Status','status_progressao','select',['—','Estável (<5° em 6 meses)','Progressiva (≥5°/6 meses)','Em regressão','Pós-cirúrgica'],null],
          ['Obs. radiográficas','obs_rx','textarea',null,{full:true}]]))
+    +sub('Imagens Radiográficas')
+    +'<div class="ib" style="margin-bottom:8px">Adicione as imagens da radiografia AP (frente) e sagital (perfil). As imagens ficam vinculadas a esta avaliação e aparecem no relatório.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px" id="rx_img_wrap_'+evalId+'">'
+    +'<div style="background:var(--g0);border-radius:10px;border:1.5px solid var(--g2);overflow:hidden;text-align:center" id="rx_ap_card_'+evalId+'">'
+    +'<div style="background:var(--g4);color:#fff;font-size:9px;font-weight:700;padding:5px 8px">🩻 Rx AP (frontal)</div>'
+    +'<div style="padding:8px;cursor:pointer" id="rx_ap_img_'+evalId+'" onclick="viewEscPhotoByKey(\''+evalId+'\',\'rx_ap\')">'
+    +'<div style="height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--g4)" id="rx_ap_ph_'+evalId+'"><div style="font-size:28px">🩻</div><div style="font-size:9px;margin-top:4px">Sem imagem</div></div>'
+    +'</div>'
+    +'<div style="padding:4px 8px 8px;display:flex;gap:4px">'
+    +'<button style="flex:1;padding:5px;background:var(--or);color:#fff;border:none;border-radius:6px;font-size:10px;cursor:pointer" id="rx_ap_btn_'+evalId+'" onclick="uploadEscPhoto(\''+evalId+'\',\'rx_ap\')">📷 Adicionar</button>'
+    +'</div></div>'
+    +'<div style="background:var(--g0);border-radius:10px;border:1.5px solid var(--g2);overflow:hidden;text-align:center" id="rx_sag_card_'+evalId+'">'
+    +'<div style="background:var(--g4);color:#fff;font-size:9px;font-weight:700;padding:5px 8px">🩻 Rx Sagital (perfil)</div>'
+    +'<div style="padding:8px;cursor:pointer" id="rx_sag_img_'+evalId+'" onclick="viewEscPhotoByKey(\''+evalId+'\',\'rx_sagital\')">'
+    +'<div style="height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--g4)" id="rx_sag_ph_'+evalId+'"><div style="font-size:28px">🩻</div><div style="font-size:9px;margin-top:4px">Sem imagem</div></div>'
+    +'</div>'
+    +'<div style="padding:4px 8px 8px;display:flex;gap:4px">'
+    +'<button style="flex:1;padding:5px;background:var(--or);color:#fff;border:none;border-radius:6px;font-size:10px;cursor:pointer" id="rx_sag_btn_'+evalId+'" onclick="uploadEscPhoto(\''+evalId+'\',\'rx_sagital\')">📷 Adicionar</button>'
+    +'</div></div>'
+    +'</div>'
 
-  +sec('🧍','3. Avaliação Postural e Clínica',
+  +sec('🔄','3. Avaliação de Cifose Torácica',
+    how('<strong>Como avaliar:</strong> Na radiografia em perfil: ângulo de Cobb entre T4 e T12 (cifose torácica). Normal: 20–45°. Use o inclinômetro clínico ou escoliômetro na posição sagital para avaliação clínica. Verificar flexibilidade (cifose estrutural vs postural).')
+    +fg([['Ângulo de cifose — Rx perfil (°)','cifose_cobb','number',null,{step:'0.1',ph:'Ex: 52°'}],
+         ['Classificação','cifose_class','select',['—','Normal (20–45°)','Hipocifose (<20°)','Hipercifose leve (46–60°)','Hipercifose moderada (61–80°)','Hipercifose grave (>80°)'],null],
+         ['Vértebra limite superior','cifose_vlim_sup','text',null,{ph:'Ex: T4'}],
+         ['Vértebra limite inferior','cifose_vlim_inf','text',null,{ph:'Ex: T12'}],
+         ['Tipo de cifose','cifose_tipo','select',['—','Postural (flexível)','Estrutural (rígida)','Scheuermann','Congênita','Neuromuscular','Pós-cirúrgica'],null]])
+    +sub('Avaliação Clínica da Cifose')
+    +fg([['Teste de extensão ativa (Tx. Prona)','cifose_extensao','select',['—','Corrige completamente — postural','Corrige parcialmente — misto','Não corrige — estrutural'],null],
+         ['Hipercifose visível em AP','cifose_visivel','select',['Não visível','Leve','Moderada','Acentuada'],null],
+         ['Lordose lombar compensatória','lordose_comp','select',['—','Ausente','Presente — leve','Presente — moderada','Presente — acentuada'],null],
+         ['Anteriorização de cabeça','anter_cabeca','select',['Ausente','Presente'],null],
+         ['Protração de ombros','protr_ombros','select',['Ausente','Unilateral D','Unilateral E','Bilateral'],null]])
+    +sub('Progressão da Cifose')
+    +fg([['Progressão vs avaliação anterior (°)','cifose_progressao','number',null,{step:'0.1',ph:'Ex: +3°'}],
+         ['Status cifose','cifose_status','select',['—','Estável','Progressiva','Em melhora'],null],
+         ['Obs. cifose','obs_cifose','textarea',null,{full:true}]]))
+
+  +sec('🧍','4. Avaliação Postural e Clínica',
     how('<strong>Como realizar:</strong> Avaliação postural completa em biped estático. Use fio de prumo para avaliar alinhamento. Marcar referencias ósseas: EIAS, EIPS, ombros, escápulas, joelhos.')
     +fg([['Desnivelamento de ombros','desniv_ombros','select',['Simétrico','Ombro D elevado','Ombro E elevado'],null],
          ['Desnivelamento de pelve','desniv_pelve','select',['Simétrico','EIAS D elevada','EIAS E elevada'],null],
@@ -4346,7 +4431,7 @@ function buildSections(){
          ['Comprimento de MMII E (cm)','mmii_e','number',null,{step:'0.1'}],
          ['Discrepância de MMII (cm)','disc_mmii','ro',null,{id:'disc_mmii_out'}]]))
 
-  +sec('💪','4. Avaliação Muscular e Funcional',
+  +sec('💪','5. Avaliação Muscular e Funcional',
     how('<strong>Como avaliar:</strong> Avaliar força dos músculos paravertebrais, abdominais e estabilizadores do core. Testar flexibilidade dos isquiotibiais (teste de afastamento dedo-chão, ângulo poplíteo) e flexibilidade da coluna.')
     +fg([['Força paravertebrais (MRC)','forca_paraver','select',['—','0','1','2','3','4','5'],null],
          ['Força abdominais (MRC)','forca_abdom','select',['—','0','1','2','3','4','5'],null],
@@ -4371,10 +4456,10 @@ function buildSections(){
         ['Uso de colete (ortese)','colete','select',['Não','Sim — Milwaukee','Sim — Boston','Sim — Providence','Sim — SpineCor','Sim — outro'],null],
         ['Horas colete/dia','colete_horas','number',null,{step:'0.5',ph:'Horas/dia'}]]))
 
-  +sec('📸','6. Evolução Fotográfica',
+  +sec('📸','7. Evolução Fotográfica',
     '<div class="ib"><strong>Como usar:</strong> Adicione fotos desta avaliação. As fotos ficam vinculadas a esta avaliação específica e aparecem no comparativo do relatório.</div>'
     +'<div id="photo_wrap_'+evalId+'"></div>')
-  +sec('📝','7. Plano Terapêutico',planoHTML())
+  +sec('📝','8. Plano Terapêutico',planoHTML())
 }
 
 
@@ -4392,8 +4477,10 @@ function getChips(ev){
 function getMetrics(){return [
   {label:'Cobb principal (°)',key:'cobb_principal',unit:'°',inv:true},
   {label:'Cobb secundária (°)',key:'cobb_secundaria',unit:'°',inv:true},
+  {label:'Cifose torácica (°)',key:'cifose_cobb',unit:'°',inv:true},
   {label:'ART escoliômetro (°)',key:'escoliometro',unit:'°',inv:true},
   {label:'Progressão Cobb (°)',key:'progressao_cobb',unit:'°',inv:true},
+  {label:'Progressão cifose (°)',key:'cifose_progressao',unit:'°',inv:true},
   {label:'EVA dor',key:'dor_eva',unit:'',inv:true},
   {label:'CVF (% previsto)',key:'cvf',unit:'%',inv:false},
   {label:'Expansibilidade torácica',key:'expans_torac',unit:'cm',inv:false},
@@ -6492,7 +6579,9 @@ var ESCOLIOSE_VISTAS=[
   {key:'posterior',label:'Vista Posterior',icon:'🔙'},
   {key:'adams',label:'Adams',icon:'🤸'},
   {key:'adams_dir',label:'Adams Lateral Direita',icon:'↗'},
-  {key:'adams_esq',label:'Adams Lateral Esquerda',icon:'↖'}];
+  {key:'adams_esq',label:'Adams Lateral Esquerda',icon:'↖'},
+  {key:'rx_ap',label:'Rx AP (frontal)',icon:'🩻'},
+  {key:'rx_sagital',label:'Rx Sagital (perfil)',icon:'🩻'}];
 function cleanPhotoStore(evalId){
   if(!photoStore[evalId])return;
   var changed=false;
@@ -6541,6 +6630,8 @@ function renderPhotos(evalId,cond){
         +'</div></div>';
     });
     h+='</div>';
+    wrap.innerHTML=h;
+    setTimeout(function(){updateRxCards(evalId);},50);
   } else {
     h+='<div class="photo-timeline">';
     photos.forEach(function(ph,idx){
@@ -6559,8 +6650,8 @@ function renderPhotos(evalId,cond){
     });
     h+='<div class="photo-add" onclick="addPhotoSlot(\''+evalId+'\')"><div class="pa-ic">📷</div><p>Adicionar foto</p><p style="font-size:9px;opacity:.7">Toque para selecionar</p></div>';
     h+='</div>';
+    wrap.innerHTML=h;
   }
-  wrap.innerHTML=h;
 }
 function resizeImageFile(file,maxW,callback){
   // Detect HEIC/HEIF files (camera photos on iPhone saved as HEIC)
@@ -6697,6 +6788,61 @@ function deleteEscPhoto(evalId,vKey){
   if(ph){ph.src='';ph.desc='';}
   renderPhotos(evalId,'escoliose');
   savePhotos(evalId);
+}
+function viewEscPhotoByKey(evalId,vKey){
+  var photos=photoStore[evalId]||[];
+  var ph=photos.find(function(p){return p.key===vKey;});
+  if(ph&&ph.src){
+    var idx=photos.indexOf(ph);
+    viewPhoto(evalId,idx);
+  }
+}
+function updateRxCards(evalId){
+  var photos=photoStore[evalId]||[];
+  ['rx_ap','rx_sagital'].forEach(function(key){
+    var prefix=(key==='rx_ap')?'rx_ap':'rx_sag';
+    var card=document.getElementById(prefix+'_card_'+evalId);
+    if(!card)return;
+    var ph=photos.find(function(p){return p.key===key;})||{};
+    var imgDiv=document.getElementById(prefix+'_img_'+evalId);
+    var btn=document.getElementById(prefix+'_btn_'+evalId);
+    var header=card.querySelector('div:first-child');
+    if(imgDiv){
+      if(ph.src){
+        imgDiv.innerHTML='<img src="'+ph.src+'" style="width:100%;height:130px;object-fit:cover;border-radius:6px" onerror="this.style.opacity=0">';
+        if(header)header.style.background='var(--or)';
+        card.style.borderColor='var(--or)';
+      } else {
+        var lbl=(key==='rx_ap')?'Rx AP (frontal)':'Rx Sagital (perfil)';
+        imgDiv.innerHTML='<div id="'+prefix+'_ph_'+evalId+'" style="height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--g4)"><div style="font-size:28px">🩻</div><div style="font-size:9px;margin-top:4px">Sem imagem</div></div>';
+        if(header)header.style.background='var(--g4)';
+        card.style.borderColor='var(--g2)';
+      }
+    }
+    if(btn){
+      if(ph.src){
+        btn.style.background='#FFEBEE';btn.style.color='#C62828';
+        btn.textContent='🗑 Remover';
+        btn.onclick=function(){deleteEscPhoto(evalId,key);};
+        // Add replace button
+        var existReplace=btn.parentNode.querySelector('.rx-replace-btn');
+        if(!existReplace){
+          var replBtn=document.createElement('button');
+          replBtn.className='rx-replace-btn';
+          replBtn.style.cssText='padding:5px 7px;background:var(--g1);color:var(--g6);border:none;border-radius:6px;font-size:10px;cursor:pointer';
+          replBtn.textContent='🔄';
+          replBtn.onclick=function(){uploadEscPhoto(evalId,key);};
+          btn.parentNode.appendChild(replBtn);
+        }
+      } else {
+        btn.style.background='var(--or)';btn.style.color='#fff';
+        btn.textContent='📷 Adicionar';
+        btn.onclick=function(){uploadEscPhoto(evalId,key);};
+        var oldRepl=btn.parentNode.querySelector('.rx-replace-btn');
+        if(oldRepl)oldRepl.parentNode.removeChild(oldRepl);
+      }
+    }
+  });
 }
 function addPhotoSlot(evalId){
   // Remove any leftover hidden input from a previous call
