@@ -7102,28 +7102,41 @@ function pvStartCrop(evalId,idx){
     if(mode==='move'){var nl=Math.max(0,Math.min(orig.l+dx,bw-orig.w)),nt=Math.max(0,Math.min(orig.t+dy,bh-orig.h));sel.style.left=nl+'px';sel.style.top=nt+'px';sel.style.width=orig.w+'px';sel.style.height=orig.h+'px';}
     else{var nw=Math.max(40,Math.min(orig.w+dx,bw-orig.l)),nh=Math.max(40,Math.min(orig.h+dy,bh-orig.t));sel.style.width=nw+'px';sel.style.height=nh+'px';}}
   function onUp(){mode=null;document.removeEventListener('mousemove',onMove);document.removeEventListener('touchmove',onMove);document.removeEventListener('mouseup',onUp);document.removeEventListener('touchend',onUp);}
-  sel.addEventListener('mousedown',function(e){if(e.target===handle)return;onDown(e,'move');});
-  sel.addEventListener('touchstart',function(e){if(e.target===handle)return;onDown(e,'move');},{passive:false});
+  sel.addEventListener('mousedown',function(e){if(e.target===handle||bar.contains(e.target))return;onDown(e,'move');});
+  sel.addEventListener('touchstart',function(e){if(e.target===handle||bar.contains(e.target))return;onDown(e,'move');},{passive:false});
   handle.addEventListener('mousedown',function(e){onDown(e,'resize');});
   handle.addEventListener('touchstart',function(e){onDown(e,'resize');},{passive:false});
-  document.getElementById('pv_cropcancel').onclick=function(e){e.stopPropagation();sel.remove();};
-  document.getElementById('pv_cropok').onclick=function(e){
-    e.stopPropagation();
-    var rect=img.getBoundingClientRect();
-    var sl=sel.offsetLeft/img.clientWidth, st=sel.offsetTop/img.clientHeight;
-    var sw=sel.offsetWidth/img.clientWidth, sh=sel.offsetHeight/img.clientHeight;
+  // Liga ação tanto ao toque (touchend) quanto ao clique — no celular o clique
+  // dentro da área de recorte era engolido pelo gesto de arrastar.
+  function _bindTap(el,fn){
+    if(!el)return;
+    var handled=false;
+    el.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();handled=true;fn();},{passive:false});
+    el.addEventListener('click',function(e){e.stopPropagation();if(handled){handled=false;return;}fn();});
+  }
+  _bindTap(document.getElementById('pv_cropcancel'),function(){if(sel.parentNode)sel.remove();});
+  _bindTap(document.getElementById('pv_cropok'),function(){
+    var iw=img.clientWidth||img.naturalWidth, ih=img.clientHeight||img.naturalHeight;
+    var sl=sel.offsetLeft/iw, st=sel.offsetTop/ih;
+    var sw=sel.offsetWidth/iw, sh=sel.offsetHeight/ih;
     var im=new Image();
     im.onload=function(){
-      var cx=sl*im.naturalWidth, cy=st*im.naturalHeight, cw=sw*im.naturalWidth, ch=sh*im.naturalHeight;
-      var cv=document.createElement('canvas');cv.width=Math.round(cw);cv.height=Math.round(ch);
-      cv.getContext('2d').drawImage(im,cx,cy,cw,ch,0,0,cw,ch);
-      var out=cv.toDataURL('image/jpeg',0.9);
-      var photos=photoStore[evalId]||[];if(photos[idx]){if(!photos[idx].orig)photos[idx].orig=photos[idx].src;photos[idx].src=out;savePhotos(evalId);renderPhotos(evalId,curCond);}
-      var ov=document.querySelector('.photo-fullscreen');if(ov)ov.remove();
-      toast('Imagem enquadrada e salva!','ok');
+      try{
+        var cx=Math.max(0,sl*im.naturalWidth), cy=Math.max(0,st*im.naturalHeight);
+        var cw=Math.min(sw*im.naturalWidth, im.naturalWidth-cx), ch=Math.min(sh*im.naturalHeight, im.naturalHeight-cy);
+        if(cw<2||ch<2){toast('Área de recorte muito pequena','warn');return;}
+        var cv=document.createElement('canvas');cv.width=Math.round(cw);cv.height=Math.round(ch);
+        cv.getContext('2d').drawImage(im,cx,cy,cw,ch,0,0,Math.round(cw),Math.round(ch));
+        var out=cv.toDataURL('image/jpeg',0.9);
+        var photos=photoStore[evalId]||[];
+        if(photos[idx]){if(!photos[idx].orig)photos[idx].orig=photos[idx].src;photos[idx].src=out;savePhotos(evalId);if(typeof renderPhotos==='function')renderPhotos(evalId,curCond);}
+        var ov=document.querySelector('.photo-fullscreen');if(ov)ov.remove();
+        toast('Imagem enquadrada e salva!','ok');
+      }catch(err){console.warn('crop error',err);toast('Não foi possível recortar esta imagem','err');}
     };
+    im.onerror=function(){toast('Erro ao carregar a imagem para recorte','err');};
     im.src=img.src;
-  };
+  });
 }
 function savePhotos(evalId){
   var photos=photoStore[evalId]||[];
