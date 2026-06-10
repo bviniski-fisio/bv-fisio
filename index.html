@@ -7022,12 +7022,58 @@ function viewPhoto(evalId,idx){
       +'<button onclick="event.stopPropagation();pvToggleGrid()" style="padding:6px 12px;border:none;border-radius:7px;background:#E8844A;color:#fff;font-size:11px;font-weight:700;cursor:pointer">▦ Grade</button>'
       +'<button onclick="event.stopPropagation();pvTogglePlumb()" style="padding:6px 12px;border:none;border-radius:7px;background:#C62828;color:#fff;font-size:11px;font-weight:700;cursor:pointer">| Fio de prumo</button>'
       +'<button onclick="event.stopPropagation();pvStartCrop(\''+evalId+'\','+idx+')" style="padding:6px 12px;border:none;border-radius:7px;background:#6B8F5E;color:#fff;font-size:11px;font-weight:700;cursor:pointer">✂ Enquadrar</button>'
+      +'<button onclick="event.stopPropagation();pvSaveAnnotations(\''+evalId+'\','+idx+')" style="padding:6px 12px;border:none;border-radius:7px;background:#3a2f22;color:#fff;font-size:11px;font-weight:700;cursor:pointer">💾 Salvar marcações</button>'
+      +(ph.orig?'<button onclick="event.stopPropagation();pvRestoreOriginal(\''+evalId+'\','+idx+')" style="padding:6px 12px;border:none;border-radius:7px;background:#777;color:#fff;font-size:11px;font-weight:700;cursor:pointer">↺ Original</button>':'')
       +'</div></div>';
   ov.onclick=function(){ov.remove();};
   document.body.appendChild(ov);
 }
 function pvToggleGrid(){var g=document.getElementById('pv_grid');if(g)g.style.display=(g.style.display==='none'?'block':'none');}
 function pvTogglePlumb(){var v=document.getElementById('pv_vline');if(v)v.style.display=(v.style.display==='none'?'block':'none');}
+function pvSaveAnnotations(evalId,idx){
+  var img=document.getElementById('pv_img');if(!img)return;
+  var grid=document.getElementById('pv_grid');var vline=document.getElementById('pv_vline');
+  var showGrid=grid&&grid.style.display!=='none';
+  var showPlumb=vline&&vline.style.display!=='none';
+  if(!showGrid&&!showPlumb){toast('Ative a grade ou o fio de prumo antes de salvar','warn');return;}
+  var im=new Image();
+  im.onload=function(){
+    var w=im.naturalWidth,h=im.naturalHeight;
+    var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+    var ctx=cv.getContext('2d');
+    ctx.drawImage(im,0,0,w,h);
+    if(showGrid){
+      ctx.strokeStyle='rgba(232,132,74,0.55)';ctx.lineWidth=Math.max(1,Math.round(w/750));
+      for(var i=1;i<10;i++){
+        var x=Math.round(i*w/10)+0.5;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();
+        var y=Math.round(i*h/10)+0.5;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();
+      }
+    }
+    if(showPlumb){
+      ctx.strokeStyle='rgba(198,40,40,0.78)';ctx.lineWidth=Math.max(2,Math.round(w/380));
+      var px=Math.round(w/2)+0.5;ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,h);ctx.stroke();
+    }
+    var out=cv.toDataURL('image/jpeg',0.92);
+    var photos=photoStore[evalId]||[];
+    if(photos[idx]){
+      if(!photos[idx].orig)photos[idx].orig=photos[idx].src;
+      photos[idx].src=out;savePhotos(evalId);
+      if(typeof renderPhotos==='function')renderPhotos(evalId,curCond);
+    }
+    var ov=document.querySelector('.photo-fullscreen');if(ov)ov.remove();
+    toast('Foto salva com as marcações!','ok');
+  };
+  im.src=img.src;
+}
+function pvRestoreOriginal(evalId,idx){
+  var photos=photoStore[evalId]||[];
+  if(photos[idx]&&photos[idx].orig){
+    photos[idx].src=photos[idx].orig;delete photos[idx].orig;savePhotos(evalId);
+    if(typeof renderPhotos==='function')renderPhotos(evalId,curCond);
+    var ov=document.querySelector('.photo-fullscreen');if(ov)ov.remove();
+    toast('Foto original restaurada','ok');
+  }else{toast('Esta foto não tem versão original salva','warn');}
+}
 function pvStartCrop(evalId,idx){
   var box=document.getElementById('pv_imgbox');var img=document.getElementById('pv_img');
   if(!box||!img)return;
@@ -7072,7 +7118,7 @@ function pvStartCrop(evalId,idx){
       var cv=document.createElement('canvas');cv.width=Math.round(cw);cv.height=Math.round(ch);
       cv.getContext('2d').drawImage(im,cx,cy,cw,ch,0,0,cw,ch);
       var out=cv.toDataURL('image/jpeg',0.9);
-      var photos=photoStore[evalId]||[];if(photos[idx]){photos[idx].src=out;savePhotos(evalId);renderPhotos(evalId,curCond);}
+      var photos=photoStore[evalId]||[];if(photos[idx]){if(!photos[idx].orig)photos[idx].orig=photos[idx].src;photos[idx].src=out;savePhotos(evalId);renderPhotos(evalId,curCond);}
       var ov=document.querySelector('.photo-fullscreen');if(ov)ov.remove();
       toast('Imagem enquadrada e salva!','ok');
     };
@@ -7203,10 +7249,11 @@ function _docContrato(p){var C=DOCS_CLINICA;
     +'<h2 class="ds">Cláusula 1ª — Do objeto</h2><p>O presente contrato tem por objeto a prestação de serviços de fisioterapia (avaliação, definição de plano terapêutico e atendimento) pela CONTRATADA ao CONTRATANTE, conforme indicação clínica e dentro das competências do(a) fisioterapeuta.</p>'
     +'<h2 class="ds">Cláusula 2ª — Das obrigações da CONTRATADA</h2><p>Realizar os atendimentos com zelo, técnica e de acordo com o Código de Ética e a legislação do COFFITO/CREFITO; manter sigilo profissional; registrar a evolução do tratamento; e orientar o CONTRATANTE quanto aos cuidados necessários.</p>'
     +'<h2 class="ds">Cláusula 3ª — Das obrigações do CONTRATANTE</h2><p>Comparecer aos atendimentos agendados; informar dados de saúde de forma verdadeira; seguir as orientações domiciliares; e efetuar o pagamento na forma ajustada. O cancelamento deve ser comunicado com antecedência mínima de 24 horas.</p>'
-    +'<h2 class="ds">Cláusula 4ª — Do valor e da forma de pagamento</h2><p>O valor por sessão/pacote é de R$ __________ , a ser pago via __________________________ . Sessões não desmarcadas no prazo poderão ser cobradas integralmente.</p>'
-    +'<h2 class="ds">Cláusula 5ª — Da vigência e rescisão</h2><p>Este contrato vigora a partir da assinatura e poderá ser rescindido por qualquer das partes, mediante comunicação prévia, quitadas as sessões já realizadas.</p>'
-    +'<h2 class="ds">Cláusula 6ª — Da proteção de dados (LGPD)</h2><p>Os dados pessoais e de saúde do CONTRATANTE serão tratados exclusivamente para fins do atendimento, com base no consentimento e na tutela da saúde, conforme a Lei nº 13.709/2018 (LGPD), sendo mantido o sigilo e garantidos os direitos de acesso, correção e exclusão.</p>'
-    +'<h2 class="ds">Cláusula 7ª — Do foro</h2><p>Fica eleito o foro da Comarca de '+C.cidade+'/PE para dirimir eventuais dúvidas oriundas deste contrato.</p>'
+    +'<h2 class="ds">Cláusula 4ª — Do valor e da forma de pagamento</h2><p>O valor por sessão/pacote é de R$ __________ , a ser pago via __________________________ , na data acordada entre as partes.</p>'
+    +'<h2 class="ds">Cláusula 5ª — Das faltas e cancelamentos</h2><p>O CONTRATANTE compromete-se a comunicar o cancelamento ou reagendamento de qualquer sessão com antecedência mínima de 24 (vinte e quatro) horas. <b>Em caso de falta sem aviso prévio</b> ou de cancelamento fora do prazo estabelecido, <b>a sessão será considerada realizada e cobrada integralmente</b>, uma vez que o horário foi reservado com exclusividade para o CONTRATANTE. Excetuam-se os casos de força maior ou urgência de saúde devidamente justificados.</p>'
+    +'<h2 class="ds">Cláusula 6ª — Da vigência e rescisão</h2><p>Este contrato vigora a partir da assinatura e poderá ser rescindido por qualquer das partes, mediante comunicação prévia, quitadas as sessões já realizadas ou devidas nos termos da Cláusula 5ª.</p>'
+    +'<h2 class="ds">Cláusula 7ª — Da proteção de dados (LGPD)</h2><p>Os dados pessoais e de saúde do CONTRATANTE serão tratados exclusivamente para fins do atendimento, com base no consentimento e na tutela da saúde, conforme a Lei nº 13.709/2018 (LGPD), sendo mantido o sigilo e garantidos os direitos de acesso, correção e exclusão.</p>'
+    +'<h2 class="ds">Cláusula 8ª — Do foro</h2><p>Fica eleito o foro da Comarca de '+C.cidade+'/PE para dirimir eventuais dúvidas oriundas deste contrato.</p>'
     +_docSignBlock(p)
     +'<div class="foot">'+C.nome+' · CREFITO '+C.crefito+' · '+C.tel+' · '+C.email+'</div></div>';
 }
