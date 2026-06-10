@@ -667,6 +667,7 @@ var db = {patients:[], nid:1};
 var curPid = null;       // current patient ID
 var curCond = null;      // current condition being viewed/edited
 var curEid  = null;      // current eval ID
+var curEvNum = 1;        // current eval number (1 = Avaliação Inicial)
 var curView = 'welcome'; // 'welcome'|'patient'|'form'|'guide'
 var condFilter = 'all';  // sidebar filter
 var saveT = null;
@@ -801,7 +802,7 @@ function recalcAll(c){if(window._APP._r[c]&&window._APP._r[c].recalcAll)window._
 var CLINICAL_REF = {
   // chave da métrica (mt.key) -> função interpretadora
   // --- Equilíbrio / marcha / quedas ---
-  'berg_total':   function(v){ if(v>=45)return{txt:'Baixo risco de queda',lvl:'ok'}; if(v>=21)return{txt:'Risco moderado de queda',lvl:'warn'}; return{txt:'Alto risco de queda / dependente',lvl:'alert'}; },
+  'berg_total':   function(v){ if(v>=45)return{txt:'Baixo risco de queda',lvl:'ok'}; if(v>=36)return{txt:'Risco moderado de queda',lvl:'warn'}; return{txt:'Alto risco de queda',lvl:'alert'}; },
   'tug_media':    function(v){ if(v<12)return{txt:'Mobilidade normal',lvl:'ok'}; if(v<20)return{txt:'Risco aumentado de queda',lvl:'warn'}; return{txt:'Mobilidade reduzida / alto risco',lvl:'alert'}; },
   'tug_med':      function(v){ if(v<12)return{txt:'Mobilidade normal',lvl:'ok'}; if(v<20)return{txt:'Risco aumentado de queda',lvl:'warn'}; return{txt:'Mobilidade reduzida / alto risco',lvl:'alert'}; },
   'tc10m_vel':    function(v){ if(v>=1.0)return{txt:'Velocidade comunitária',lvl:'ok'}; if(v>=0.4)return{txt:'Marcha domiciliar limitada',lvl:'warn'}; return{txt:'Marcha muito limitada',lvl:'alert'}; },
@@ -1162,6 +1163,7 @@ function openForm(pid,cond,eid){
   var p=db.patients.find(function(pt){return pt.id===pid;});
   var ev=p&&(p.condEvals[cond]||[]).find(function(e){return e.id===eid;});
   if(!p||!ev)return;
+  curEvNum=ev.num||1;
   setAccent(cond);
   renderList();
   var m=COND_META[cond]||{};
@@ -1186,18 +1188,15 @@ function openForm(pid,cond,eid){
   });
   // Use event delegation on mainArea to avoid accumulating listeners on document
   var mainArea=document.getElementById('mainArea');
-  mainArea.addEventListener('click',function(e){
-    var h=e.target.closest('.fsh');if(!h)return;
-    var id=h.getAttribute('data-sid');
-    var b=document.getElementById(id),c=document.getElementById('fschev_'+id);
-    if(b)b.classList.toggle('op');if(c)c.classList.toggle('op');
-  });
-  mainArea.addEventListener('click',function(e){
-    var h=e.target.closest('.gd-head');if(!h)return;
-    var id=h.getAttribute('data-gsid');
-    var b=document.getElementById(id),c=document.getElementById('gc_'+id);
-    if(b)b.classList.toggle('op');if(c)c.classList.toggle('op');
-  });
+  if(!mainArea._togglesBound){
+    mainArea._togglesBound=true;
+    mainArea.addEventListener('click',function(e){
+      var h=e.target.closest('.fsh');if(!h)return;
+      var id=h.getAttribute('data-sid');
+      var b=document.getElementById(id),c=document.getElementById('fschev_'+id);
+      if(b)b.classList.toggle('op');if(c)c.classList.toggle('op');
+    });
+  }
   recalcAll(cond);
   // Load photos for this eval
   setTimeout(function(){
@@ -1254,6 +1253,32 @@ function how(t){return '<div class="how-to">'+t+'</div>';}
 function sbx(key,label,max,sfx){return '<div class="sbox"><div class="sbox-lbl">'+label+'</div><input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0"><div class="sbox-max">/'+max+'</div></div>';}
 function sgrid(items,sfx,cols){var h='<div class="sg sg-'+(cols||3)+'">';items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});return h+'</div>';}
 function atbar(sfx,label,max){return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div><input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';}
+// ── ANAMNESE INICIAL (compartilhada — só renderiza na Avaliação Inicial) ──
+function chk(key,label){return '<label class="ff" style="flex-direction:row;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" data-key="'+key+'" style="width:auto;margin:0;accent-color:var(--ac)"><span style="font-size:12px">'+label+'</span></label>';}
+function anamneseInicial(){
+  if(curEvNum!==1){
+    return sec('📋','História Clínica (Avaliação Inicial)',
+      ib('Os dados de anamnese (ocupação, diagnóstico médico, história natural da doença, comorbidades, distúrbios associados e cirurgias/bloqueios) foram registrados na <strong>Avaliação Inicial</strong> e não se repetem nas reavaliações. Para revisá-los ou editá-los, abra a 1ª avaliação.',true));
+  }
+  return sec('📋','História Clínica e Antecedentes',
+    fg([['Ocupação','ocupacao','text',null,{full:true,ph:'Profissão / atividade'}],
+        ['Diagnóstico médico','diag_medico','textarea',null,{full:true,ph:'CID e diagnóstico clínico'}],
+        ['História Natural da Doença','historia_doenca','textarea',null,{full:true,ph:'Início, evolução, tratamentos prévios...'}]])
+    +sub('Comorbidades')
+    +'<div class="fg4">'
+      +chk('com_has','HAS')+chk('com_dm','DM')+chk('com_cardio','Cardiopatia')+chk('com_neo','Neoplasias')
+      +chk('com_resp','Dist. Respiratórios')+chk('com_emo','Dist. emocionais')+chk('com_fuma','Fumante')+chk('com_alcool','Alcoolismo')
+      +chk('com_sed','Sedentarismo')+chk('com_afis','Realiza atividade física')
+    +'</div>'
+    +fld('Outras comorbidades / observações','com_obs','textarea',null,{full:true})
+    +sub('Distúrbios associados')
+    +'<div class="fg4">'
+      +chk('dist_visao','Visão')+chk('dist_audicao','Audição')+chk('dist_linguagem','Linguagem')+chk('dist_outros','Outros')
+    +'</div>'
+    +fld('Especificar distúrbios associados','dist_obs','textarea',null,{full:true})
+    +fg([['Cirurgias / Bloqueios neurolíticos','cirurgias','textarea',null,{full:true,ph:'Procedimentos, bloqueios neurolíticos, datas...'}]])
+  ,true);
+}
 function calcSG(sfx){
   var els=document.querySelectorAll('.sc_'+sfx);if(!els.length)return;
   var total=0,max=0;
@@ -1284,13 +1309,16 @@ function collectSave(){
   var ev=(p.condEvals[curCond]||[]).find(function(e){return e.id===curEid;});
   if(!ev)return;
   var data={};
-  document.querySelectorAll('[data-key]').forEach(function(el){data[el.getAttribute('data-key')]=el.value;});
+  document.querySelectorAll('[data-key]').forEach(function(el){
+    if(el.type==='checkbox'){data[el.getAttribute('data-key')]=el.checked;}
+    else{data[el.getAttribute('data-key')]=el.value;}
+  });
   ev.data=data;if(data.date)ev.date=data.date;
   saveDB();
 }
 function saveNow(){collectSave();toast('Avaliação salva!','ok');}
 function populateForm(data){
-  Object.entries(data).forEach(function(entry){var k=entry[0],v=entry[1];var el=document.querySelector('[data-key="'+k+'"]');if(el)el.value=v||'';});
+  Object.entries(data).forEach(function(entry){var k=entry[0],v=entry[1];var el=document.querySelector('[data-key="'+k+'"]');if(el){if(el.type==='checkbox'){el.checked=(v===true||v==='true'||v==='on');}else{el.value=v||'';}}});
   setTimeout(function(){
     var sfx=curCond;
     var bergEls=document.querySelectorAll('.b_'+sfx);
@@ -1350,20 +1378,54 @@ function showGuide(pid){
   });
   html+='</div>';
   document.getElementById('mainArea').innerHTML=html;
-  // Accordion click handler for guide cards
+  // Accordion click handler for guide cards (bind once)
   var mainArea=document.getElementById('mainArea');
-  mainArea.addEventListener('click',function(e){
-    var h=e.target.closest('.gd-head');if(!h)return;
-    var id=h.getAttribute('data-gsid');
-    var b=document.getElementById(id),c=document.getElementById('gc_'+id);
-    if(b)b.classList.toggle('op');if(c)c.classList.toggle('op');
-  });
+  if(!mainArea._guideBound){
+    mainArea._guideBound=true;
+    mainArea.addEventListener('click',function(e){
+      var h=e.target.closest('.gd-head');if(!h)return;
+      var id=h.getAttribute('data-gsid');
+      var b=document.getElementById(id),c=document.getElementById('gc_'+id);
+      if(b)b.classList.toggle('op');if(c)c.classList.toggle('op');
+    });
+  }
 }
 function filterGuide(){
   var q=document.getElementById('gds').value.toLowerCase();
   document.querySelectorAll('.gd-card').forEach(function(c){c.classList.toggle('gd-hidden',q.length>0&&!c.getAttribute('data-gt').includes(q));});
 }
 
+// ── REPORT ──
+function esc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// Rótulos amigáveis para campos clínicos no relatório. Retorna null para ocultar.
+var FIELD_LABELS={
+  // Anamnese inicial
+  ocupacao:'Ocupação', diag_medico:'Diagnóstico médico', historia_doenca:'História Natural da Doença',
+  com_has:'Comorbidade — HAS', com_dm:'Comorbidade — DM', com_cardio:'Comorbidade — Cardiopatia',
+  com_neo:'Comorbidade — Neoplasias', com_resp:'Comorbidade — Dist. Respiratórios', com_emo:'Comorbidade — Dist. emocionais',
+  com_fuma:'Comorbidade — Fumante', com_alcool:'Comorbidade — Alcoolismo', com_sed:'Comorbidade — Sedentarismo',
+  com_afis:'Realiza atividade física', com_obs:'Outras comorbidades / obs.',
+  dist_visao:'Distúrbio — Visão', dist_audicao:'Distúrbio — Audição', dist_linguagem:'Distúrbio — Linguagem',
+  dist_outros:'Distúrbio — Outros', dist_obs:'Distúrbios associados — detalhe', cirurgias:'Cirurgias / Bloqueios neurolíticos',
+  // Identificação / queixa
+  queixa:'Queixa principal', tempo_diag:'Tempo de diagnóstico', diagnostico:'Diagnóstico / Condição',
+  medicacao:'Medicação', medicamento:'Medicação', medicamentos:'Medicação', obs_gerais:'Observações',
+  tempo_acomp:'Tempo de acompanhamento', n_medicamentos:'Nº de medicamentos',
+  hospitalizacoes:'Hospitalizações (12m)', quedas_12m:'Quedas (12m)', outras_comorbidades:'Outras comorbidades',
+  // Plano terapêutico
+  hipotese:'Hipótese diagnóstica', meta_curto:'Meta — curto prazo', meta_medio:'Meta — médio prazo',
+  meta_longo:'Meta — longo prazo', plano:'Plano de tratamento', freq:'Frequência', duracao:'Duração sessão (min)',
+  prognostico:'Prognóstico', obs_finais:'Observações finais',
+  // Observações de escalas
+  berg_obs:'Obs. Berg', obs_cifose:'Obs. cifose'
+};
+function fieldLabel(k){
+  if(FIELD_LABELS[k]!==undefined)return FIELD_LABELS[k];
+  // ocultar chaves internas de controle (somas, totais já exibidos, índices de checkbox)
+  if(/_total$|_out$|_d$|_e$|_obs$|_risco$|_class$|_pct|^berg_\d|^gds\d|^meem_|^moca_|^cdr_|^fast/.test(k))return null;
+  // fallback: transformar snake_case em texto legível
+  return k.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+}
 // ── REPORT ──
 function showReport(pid){
   var p=db.patients.find(function(pt){return pt.id===pid;});
@@ -1387,7 +1449,6 @@ function showReport(pid){
 }
 function _doShowReport(pid,p){
   function fmtDate(d){return d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';}
-
   // ── BUILD SELECTOR SCREEN ──────────────────────────────────────────
   var html='<div class="rpt-wrap" style="padding-bottom:40px">';
   html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">'
@@ -1430,6 +1491,9 @@ function _doShowReport(pid,p){
     // Tabela completa
     html+='<label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);background:#f7f4f0;cursor:pointer;font-size:12px">'
       +'<input type="checkbox" id="tab_'+cond+'" checked style="accent-color:'+m.ac+'"> 📋 Tabela completa ('+evs.length+' aval.)</label>';
+    // Dados clínicos completos (textos, anamnese, plano)
+    html+='<label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);background:#f7f4f0;cursor:pointer;font-size:12px">'
+      +'<input type="checkbox" id="full_'+cond+'" checked style="accent-color:'+m.ac+'"> 📝 Dados clínicos completos</label>';
 
     // Individual evals for table selection — toggle all
     html+='</div>';
@@ -1657,6 +1721,32 @@ function _doGenerateReport(pid,p){
         html+='<td class="'+tClass+'">'+trend+'</td><td style="font-size:9px">'+(ipt?clinBadgeHtml(ipt):'<span style="color:#c8c8c0">—</span>')+'</td></tr>';
       });
       html+='</table></div>';
+    }
+
+    // ── DADOS CLÍNICOS COMPLETOS (todos os campos preenchidos, por avaliação) ──
+    if(chk('full_'+cond)){
+      evs.forEach(function(ev){
+        var d=ev.data||{};
+        var rows='';
+        Object.keys(d).forEach(function(k){
+          var v=d[k];
+          if(v===''||v===null||v===undefined||v===false)return;
+          // pular campos numéricos já mostrados na tabela de escalas e campos de controle
+          if(metrics.some(function(mt){return mt.key===k;}))return;
+          if(k==='date')return;
+          var label=fieldLabel(k);
+          if(label===null)return; // campo interno/oculto
+          var disp = (v===true)?'Sim':(''+v);
+          if(disp.trim()==='')return;
+          rows+='<tr><td style="font-weight:600;color:var(--g6);width:38%;vertical-align:top;padding:5px 8px;border-bottom:1px solid var(--g1);font-size:11px">'+label+'</td>'
+              +'<td style="padding:5px 8px;border-bottom:1px solid var(--g1);font-size:11px;white-space:pre-wrap">'+esc(disp)+'</td></tr>';
+        });
+        if(rows){
+          html+='<div style="padding:6px 16px 14px">'
+            +'<div style="font-size:10px;font-weight:700;color:'+m.ac+';text-transform:uppercase;letter-spacing:.5px;margin:6px 0 6px">'+ev.type+' · '+fmtDate(ev.date)+' — dados completos</div>'
+            +'<table style="width:100%;border-collapse:collapse">'+rows+'</table></div>';
+        }
+      });
     }
 
     html+='</div>';
@@ -2617,7 +2707,7 @@ function atbar(sfx,label,max){
 }
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],['Fase medicação','fase_med','select',['ON','OFF','Flutuante'],null],
         ['Queixa principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa...'}],
         ['Tempo de diagnóstico','tempo_diag','text',null,{ph:'Ex: 3 anos'}],
@@ -2956,7 +3046,7 @@ document.addEventListener('input',function(e){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],
         ['Queixa principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa...'}],
         ['Tempo de diagnóstico','tempo_diag','text',null,{ph:'Ex: 2 anos'}],
@@ -3208,7 +3298,7 @@ document.addEventListener('input',function(e){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],
         ['Data do AVC','data_avc','date',null,null],
         ['Tipo','tipo_avc','select',['','Isquêmico','Hemorrágico','AIT'],null],
@@ -3473,7 +3563,7 @@ document.addEventListener('input',function(e){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],
         ['Data da lesão','data_lesao','date',null,null],
         ['Etiologia','etiologia','select',['','Traumática','Vascular','Tumoral','Inflamatória','Degenerativa','Congênita'],null],
@@ -3737,7 +3827,7 @@ document.addEventListener('input',function(e){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],
         ['Queixa principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa principal...'}],
         ['Motivo do encaminhamento','motivo','text',null,{ph:'Ex: prevenção de quedas, reabilitação...'}],
@@ -3745,13 +3835,13 @@ function buildSections(){
         ['Grau de dependência','dependencia','select',['Independente','Dependência leve','Dependência moderada','Dependência grave','Dependência total'],null],
         ['Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
-  +sec('🏥','2. História Clínica e Comorbidades',
-    how('<strong>Como avaliar:</strong> Levantamento sistemático de diagnósticos ativos, medicamentos e histórico de quedas. A polifarmácia (≥5 medicamentos) é fator de risco independente para quedas e comprometimento cognitivo. Investigar hospitalizações recentes — estão associadas a declínio funcional acelerado.')
+  +sec('🏥','2. Acompanhamento Clínico Atual',
+    how('<strong>Como avaliar:</strong> Levantamento dos dados que mudam entre avaliações — medicamentos em uso, hospitalizações e quedas recentes. A polifarmácia (≥5 medicamentos) é fator de risco independente para quedas. As comorbidades de base estão registradas na <em>História Clínica</em> (Avaliação Inicial).')
     +fg([['Tempo de acompanhamento','tempo_acomp','text',null,{ph:'Ex: 6 meses'}],
          ['Número de medicamentos','n_medicamentos','number',null,{min:0,ph:'Polifarmácia: ≥5'}],
          ['Hospitalizações últimos 12 meses','hospitalizacoes','number',null,{min:0}],
          ['Quedas últimos 12 meses','quedas_12m','number',null,{min:0}]])
-    +sub('Comorbidades')
+    +sub('Comorbidades — detalhamento geriátrico (atualizar se houver mudança)')
     +fg([['HAS','has','select',['Não','Sim — controlada','Sim — não controlada'],null],
          ['DM','dm','select',['Não','DM1','DM2 — controlada','DM2 — não controlada'],null],
          ['Osteoporose','osteoporose','select',['Não','Sim — em tratamento','Sim — sem tratamento'],null],
@@ -4099,7 +4189,7 @@ function loadPainMap(){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],
         ['Queixa principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa principal...'}],
         ['Tempo de diagnóstico','tempo_diag','text',null,{ph:'Ex: 2 anos'}],
@@ -4343,7 +4433,7 @@ document.addEventListener('input',function(e){
 });
 function buildSections(){
   const evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     fg([['Data','date','date',null,null],
         ['Queixa principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa...'}],
         ['Idade de início da escoliose','idade_inicio','text',null,{ph:'Ex: 12 anos'}],
@@ -4689,7 +4779,7 @@ function buildSections(){
     '<div id="trb3" style="display:none">'+regiaoBlock(3)+'</div>'+
     '</div>';
 
-  return sec('🗓️','1. Identificação e Queixa',
+  return anamneseInicial()+sec('🗓️','1. Identificação e Queixa',
     fg([['Data','date','date',null,null],['Queixa Principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa principal do paciente...'}],
         ['Mecanismo de lesão','mecanismo','select',['','Trauma direto','Entorse','Luxação','Fratura','Pós-operatório','Overuse/sobrecarga','Degenerativo','Outro'],null],
         ['Tempo de lesão','tempo_lesao','text',null,{ph:'Ex: 3 semanas, 2 meses'}],
@@ -4793,7 +4883,7 @@ function gmfmHTML(){
     {id:'D',label:'D — Em pé',max:39},
     {id:'E',label:'E — Andando, correndo, pulando',max:72},
   ];
-  var h=how('Cada item: 0=não inicia, 1=inicia, 2=completa parcialmente, 3=completa. Score=soma/max×100');
+  var h=how('<strong>Como aplicar:</strong> Observar a criança (descalça, roupa leve) executar 88 itens motores agrupados em 5 dimensões. Cada item: 0 = não inicia; 1 = inicia (&lt;10% da tarefa); 2 = completa parcialmente (10–&lt;100%); 3 = completa. Pode-se demonstrar e dar até 3 tentativas. <em>Cálculo:</em> % por dimensão = (soma ÷ máximo da dimensão) × 100; total = média das 5 dimensões (ou das metas, no GMFM-66). <em>Tempo:</em> 45–60 min.');
   dims.forEach(function(d){
     h+='<div class="fg2">'
       +'<div class="ff"><label>'+d.label+' (0–'+d.max+')</label><input type="number" data-key="gmfm_'+d.id.toLowerCase()+'" min="0" max="'+d.max+'" placeholder="0" class="sc_gmfm" oninput="calcGMFM()"></div>'
@@ -4809,7 +4899,7 @@ function gmfmHTML(){
 
 // ── PEDI (Pediatric Evaluation of Disability) ──
 function pediHTML(){
-  return how('Habilidades funcionais: 1=capaz, 0=incapaz. Assistência: 5=independente → 0=total.')+
+  return how('<strong>Como aplicar:</strong> Entrevista estruturada com os pais/cuidador (ou observação direta) sobre o desempenho típico da criança em 3 domínios — autocuidado, mobilidade e função social. <em>Escala de Habilidades Funcionais:</em> cada item 1 = capaz / 0 = incapaz. <em>Escala de Assistência do Cuidador:</em> 5 = independente; 4 = supervisão; 3 = assistência mínima; 2 = moderada; 1 = máxima; 0 = total. Some os pontos por domínio. <em>Tempo:</em> 20–30 min. Maior pontuação = melhor desempenho/menor necessidade de ajuda.')+
   '<div class="fg">'
   +'<div class="ff"><label>PEDI Auto-cuidado — Habilidades (0–73)</label><input type="number" data-key="pedi_ac_hab" min="0" max="73" placeholder="0"></div>'
   +'<div class="ff"><label>PEDI Auto-cuidado — Assistência (0–40)</label><input type="number" data-key="pedi_ac_ass" min="0" max="40" placeholder="0"></div>'
@@ -4825,7 +4915,7 @@ function ashworthHTML(){
   var segs=['Flexores cotovelo D','Flexores cotovelo E','Extensores joelho D','Extensores joelho E',
             'Flexores plantar D','Flexores plantar E','Adutores quadril D','Adutores quadril E'];
   var opts=['','0','1','1+','2','3','4'];
-  var h=how('0=sem tônus; 1=leve; 1+=leve+; 2=marcado; 3=considerável; 4=rígido')+
+  var h=how('<strong>Como aplicar:</strong> Com a criança relaxada, mover passivamente o segmento por toda a amplitude em ~1 segundo e graduar a resistência: 0 = tônus normal; 1 = leve aumento, sensação de "pega" no fim da ADM; 1+ = leve aumento em menos de metade da ADM; 2 = aumento mais marcado na maior parte da ADM (movimento ainda fácil); 3 = aumento considerável, movimento passivo difícil; 4 = rígido em flexão/extensão. Testar bilateralmente.')+
         '<div class="fg">';
   segs.forEach(function(s,i){
     var k='ash_'+i;
@@ -4839,7 +4929,7 @@ function ashworthHTML(){
 
 // ── Fugl-Meyer Motor ──
 function fuglMeyerHTML(){
-  return how('Cada item 0–2. Motor MS max 66, MI max 34. Sensitivo max 24. Equilíbrio max 14.')+
+  return how('<strong>Como aplicar:</strong> Avaliação do comprometimento sensório-motor pós-AVC, baseada na recuperação por estágios de Brunnstrom. Cada item pontua 0 = não realiza; 1 = realiza parcialmente; 2 = realiza completamente. <em>Domínios:</em> função motora MS (0–66) e MI (0–34), sensibilidade (0–24), equilíbrio (0–14), ADM e dor articular. Testar movimentos reflexos, sinergias flexora/extensora, movimentos fora de sinergia e coordenação. <em>Interpretação motora (0–100):</em> &lt;50 grave; 50–84 acentuado; 85–95 moderado; 96–99 leve. <em>Tempo:</em> 30–40 min.')+
   '<div class="fg">'
   +'<div class="ff"><label>Fugl-Meyer MS — Motor (0–66)</label><input type="number" data-key="fm_ms" min="0" max="66" placeholder="0" oninput="calcFuglMeyer()"></div>'
   +'<div class="ff"><label>Fugl-Meyer MI — Motor (0–34)</label><input type="number" data-key="fm_mi" min="0" max="34" placeholder="0" oninput="calcFuglMeyer()"></div>'
@@ -4852,7 +4942,7 @@ function fuglMeyerHTML(){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     '<div class="fg">'+
     '<div class="ff"><label>Data</label><input type="date" data-key="date"></div>'+
     '<div class="ff"><label>Idade (anos)</label><input type="number" data-key="idade" min="0" max="18"></div>'+
@@ -4950,7 +5040,7 @@ function bergHTML(){
     'Colocar pé alternado no degrau','Em pé com um pé à frente',
     'Em pé sobre um pé'
   ];
-  var h=how('0=incapaz → 4=independente. Score ≥45=baixo risco; 36–44=risco moderado; &lt;36=alto risco')+
+  var h=how('<strong>Como aplicar:</strong> 14 tarefas funcionais de equilíbrio. <em>Materiais:</em> cadeira com braços, cadeira sem braços, cronômetro, régua, degrau/banco, objeto no chão. Cada item pontua 0 (incapaz) a 4 (independente e seguro). Demonstre cada tarefa, permita 1 tentativa de treino. <em>Tempo:</em> 15–20 min. <em>Interpretação:</em> ≥45 = baixo risco de queda; 36–44 = risco moderado; &lt;36 = alto risco.')+
         '<div class="fg">';
   items.forEach(function(item,i){
     h+='<div class="ff"><label>'+(i+1)+'. '+item+' (0–4)</label>'
@@ -4964,7 +5054,7 @@ function bergHTML(){
 
 // ── TUG ──
 function tugHTML(){
-  return how('Paciente senta em cadeira, levanta, caminha 3m, retorna, senta. Crônico: &lt;12s normal; &gt;30s dependente.')+
+  return how('<strong>Como aplicar:</strong> Paciente sentado em cadeira com braços (assento ~46cm), costas apoiadas. Ao comando "vá", levanta-se, caminha 3 metros em ritmo confortável e seguro (pode usar calçado e dispositivo habituais), cruza uma marca no chão, retorna e senta. Cronometrar do "vá" até sentar. Registrar a média de 2–3 tentativas. <em>TUG Cognitivo:</em> repetir contando de trás para frente; <em>TUG Manual:</em> repetir segurando um copo com água. <em>Interpretação (idoso comunitário):</em> &lt;12s = normal; ≥12–13,5s = risco aumentado de queda; &gt;30s = dependência.')+
   '<div class="fg">'
   +'<div class="ff"><label>TUG — Tentativa 1 (s)</label><input type="number" data-key="tug_1" min="0" step="0.1" placeholder="0.0"></div>'
   +'<div class="ff"><label>TUG — Tentativa 2 (s)</label><input type="number" data-key="tug_2" min="0" step="0.1" placeholder="0.0"></div>'
@@ -4977,7 +5067,7 @@ function tugHTML(){
 
 // ── DASH (Disabilities of Arm Shoulder Hand) ──
 function dashHTML(){
-  return how('30 itens, escala 1–5. Score=(soma/30−1)×25. 0=sem incapacidade, 100=incapacidade total.')+
+  return how('<strong>Como aplicar:</strong> Questionário autorrespondido de 30 itens sobre dificuldade em atividades do membro superior na última semana, cada um de 1 (sem dificuldade) a 5 (incapaz). É necessário responder ≥27 dos 30 itens. <em>Cálculo:</em> Score = [(soma das respostas ÷ nº respondidos) − 1] × 25. Módulos opcionais Trabalho e Esporte/Música (4 itens cada). <em>Interpretação:</em> 0 = sem incapacidade; 100 = incapacidade total. MCID ≈ 10–15 pontos.')+
   '<div class="fg">'
   +'<div class="ff"><label>DASH — Soma itens (30–150)</label><input type="number" data-key="dash_soma" min="30" max="150" placeholder="30" oninput="calcDASH()"></div>'
   +'<div class="ff"><label>DASH Score (0–100)</label><input data-key="dash_score" readonly class="ro" placeholder="Calculado..."></div>'
@@ -4990,7 +5080,7 @@ function dashHTML(){
 
 // ── WOMAC ──
 function womacHTML(){
-  return how('Dor (0–20), Rigidez (0–8), Função (0–68). Total máx 96. Maior=pior.')+
+  return how('<strong>Como aplicar:</strong> Questionário autorrespondido para osteoartrite de joelho/quadril, 24 itens em 3 subescalas avaliando as últimas 48h. <em>Dor</em> (5 itens, 0–20), <em>Rigidez</em> (2 itens, 0–8) e <em>Função física</em> (17 itens, 0–68), cada item de 0 (nenhuma) a 4 (extrema) na versão Likert. Some cada subescala. <em>Interpretação:</em> Total 0–96; quanto maior, pior. Pode-se normalizar para 0–100. MCID ≈ 12% da escala.')+
   '<div class="fg">'
   +'<div class="ff"><label>WOMAC Dor (0–20)</label><input type="number" data-key="womac_dor" min="0" max="20" placeholder="0" oninput="calcWOMAC()"></div>'
   +'<div class="ff"><label>WOMAC Rigidez (0–8)</label><input type="number" data-key="womac_rig" min="0" max="8" placeholder="0" oninput="calcWOMAC()"></div>'
@@ -5001,7 +5091,7 @@ function womacHTML(){
 
 function buildSections(){
   var evalId=curEid||0;
-  return sec('🗓️','1. Identificação',
+  return anamneseInicial()+sec('🗓️','1. Identificação',
     '<div class="fg">'
     +'<div class="ff"><label>Data</label><input type="date" data-key="date"></div>'
     +'<div class="ff"><label>Diagnóstico / Condição</label><input data-key="diagnostico"></div>'
@@ -6920,10 +7010,72 @@ function viewPhoto(evalId,idx){
   var ph=(photoStore[evalId]||[])[idx];if(!ph||!ph.src)return;
   var ov=document.createElement('div');ov.className='photo-fullscreen';
   ov.innerHTML='<button class="photo-fs-close" onclick="this.parentNode.remove()">✕</button>'
-    +'<img src="'+ph.src+'" onclick="event.stopPropagation()">'
-    +'<div class="photo-fs-info">'+(ph.desc||ph.view||'')+'</div>';
+    +'<div style="position:relative;display:inline-block;max-width:92vw;max-height:78vh" id="pv_imgbox" onclick="event.stopPropagation()">'
+      +'<img id="pv_img" src="'+ph.src+'" style="max-width:92vw;max-height:78vh;display:block">'
+      +'<div id="pv_grid" style="position:absolute;inset:0;pointer-events:none;display:none;background-image:linear-gradient(to right,rgba(232,132,74,.45) 1px,transparent 1px),linear-gradient(to bottom,rgba(232,132,74,.45) 1px,transparent 1px);background-size:10% 10%"></div>'
+      +'<div id="pv_vline" style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(198,40,40,.6);pointer-events:none;display:none"></div>'
+    +'</div>'
+    +'<div class="photo-fs-info" onclick="event.stopPropagation()">'+(ph.desc||ph.view||'')
+      +'<div style="margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
+      +'<button onclick="event.stopPropagation();pvToggleGrid()" style="padding:6px 12px;border:none;border-radius:7px;background:#E8844A;color:#fff;font-size:11px;font-weight:700;cursor:pointer">▦ Grade</button>'
+      +'<button onclick="event.stopPropagation();pvTogglePlumb()" style="padding:6px 12px;border:none;border-radius:7px;background:#C62828;color:#fff;font-size:11px;font-weight:700;cursor:pointer">| Fio de prumo</button>'
+      +'<button onclick="event.stopPropagation();pvStartCrop(\''+evalId+'\','+idx+')" style="padding:6px 12px;border:none;border-radius:7px;background:#6B8F5E;color:#fff;font-size:11px;font-weight:700;cursor:pointer">✂ Enquadrar</button>'
+      +'</div></div>';
   ov.onclick=function(){ov.remove();};
   document.body.appendChild(ov);
+}
+function pvToggleGrid(){var g=document.getElementById('pv_grid');if(g)g.style.display=(g.style.display==='none'?'block':'none');}
+function pvTogglePlumb(){var v=document.getElementById('pv_vline');if(v)v.style.display=(v.style.display==='none'?'block':'none');}
+function pvStartCrop(evalId,idx){
+  var box=document.getElementById('pv_imgbox');var img=document.getElementById('pv_img');
+  if(!box||!img)return;
+  // remove grids durante o recorte
+  var g=document.getElementById('pv_grid');if(g)g.style.display='none';
+  var v=document.getElementById('pv_vline');if(v)v.style.display='none';
+  var sel=document.createElement('div');
+  sel.id='pv_crop';
+  sel.style.cssText='position:absolute;border:2px dashed #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.45);left:15%;top:15%;width:70%;height:70%;cursor:move;touch-action:none';
+  box.appendChild(sel);
+  // alça de redimensionamento
+  var handle=document.createElement('div');
+  handle.style.cssText='position:absolute;right:-9px;bottom:-9px;width:20px;height:20px;background:#E8844A;border:2px solid #fff;border-radius:50%;cursor:nwse-resize;touch-action:none';
+  sel.appendChild(handle);
+  var bar=document.createElement('div');
+  bar.style.cssText='position:absolute;left:0;right:0;bottom:-46px;display:flex;gap:8px;justify-content:center';
+  bar.innerHTML='<button id="pv_cropok" style="padding:7px 14px;border:none;border-radius:7px;background:#6B8F5E;color:#fff;font-size:12px;font-weight:700;cursor:pointer">✓ Aplicar recorte</button>'
+    +'<button id="pv_cropcancel" style="padding:7px 14px;border:none;border-radius:7px;background:#777;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Cancelar</button>';
+  sel.appendChild(bar);
+  function pt(e){var t=e.touches?e.touches[0]:e;return{x:t.clientX,y:t.clientY};}
+  var mode=null,start=null,orig=null;
+  function onDown(e,m){e.preventDefault();e.stopPropagation();mode=m;start=pt(e);orig={l:sel.offsetLeft,t:sel.offsetTop,w:sel.offsetWidth,h:sel.offsetHeight};
+    document.addEventListener('mousemove',onMove);document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('mouseup',onUp);document.addEventListener('touchend',onUp);}
+  function onMove(e){if(!mode)return;e.preventDefault();var p=pt(e);var dx=p.x-start.x,dy=p.y-start.y;var bw=box.clientWidth,bh=box.clientHeight;
+    if(mode==='move'){var nl=Math.max(0,Math.min(orig.l+dx,bw-orig.w)),nt=Math.max(0,Math.min(orig.t+dy,bh-orig.h));sel.style.left=nl+'px';sel.style.top=nt+'px';sel.style.width=orig.w+'px';sel.style.height=orig.h+'px';}
+    else{var nw=Math.max(40,Math.min(orig.w+dx,bw-orig.l)),nh=Math.max(40,Math.min(orig.h+dy,bh-orig.t));sel.style.width=nw+'px';sel.style.height=nh+'px';}}
+  function onUp(){mode=null;document.removeEventListener('mousemove',onMove);document.removeEventListener('touchmove',onMove);document.removeEventListener('mouseup',onUp);document.removeEventListener('touchend',onUp);}
+  sel.addEventListener('mousedown',function(e){if(e.target===handle)return;onDown(e,'move');});
+  sel.addEventListener('touchstart',function(e){if(e.target===handle)return;onDown(e,'move');},{passive:false});
+  handle.addEventListener('mousedown',function(e){onDown(e,'resize');});
+  handle.addEventListener('touchstart',function(e){onDown(e,'resize');},{passive:false});
+  document.getElementById('pv_cropcancel').onclick=function(e){e.stopPropagation();sel.remove();};
+  document.getElementById('pv_cropok').onclick=function(e){
+    e.stopPropagation();
+    var rect=img.getBoundingClientRect();
+    var sl=sel.offsetLeft/img.clientWidth, st=sel.offsetTop/img.clientHeight;
+    var sw=sel.offsetWidth/img.clientWidth, sh=sel.offsetHeight/img.clientHeight;
+    var im=new Image();
+    im.onload=function(){
+      var cx=sl*im.naturalWidth, cy=st*im.naturalHeight, cw=sw*im.naturalWidth, ch=sh*im.naturalHeight;
+      var cv=document.createElement('canvas');cv.width=Math.round(cw);cv.height=Math.round(ch);
+      cv.getContext('2d').drawImage(im,cx,cy,cw,ch,0,0,cw,ch);
+      var out=cv.toDataURL('image/jpeg',0.9);
+      var photos=photoStore[evalId]||[];if(photos[idx]){photos[idx].src=out;savePhotos(evalId);renderPhotos(evalId,curCond);}
+      var ov=document.querySelector('.photo-fullscreen');if(ov)ov.remove();
+      toast('Imagem enquadrada e salva!','ok');
+    };
+    im.src=img.src;
+  };
 }
 function savePhotos(evalId){
   var photos=photoStore[evalId]||[];
