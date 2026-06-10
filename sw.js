@@ -1,93 +1,63 @@
-// ═══════════════════════════════════════════════════════════
-//  BV Fisioterapia — Service Worker v2
-//  https://bviniski-fisio.github.io/bv-fisio
-// ═══════════════════════════════════════════════════════════
+/* BV Fisioterapia — Service Worker
+   Estratégia network-first para o HTML: o aparelho sempre busca a versão
+   mais nova do index.html quando está online, e usa o cache só offline.
+   Isso resolve o problema de "não atualiza em todos os dispositivos". */
+const CACHE = 'bv-fisio-v3';
+const CORE = ['./', './index.html', './manifest.json'];
 
-const CACHE_NAME = 'bv-fisio-v2';
+self.addEventListener('install', function (e) {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(function (c) {
+    return c.addAll(CORE).catch(function () {});
+  }));
+});
 
-const STATIC_ASSETS = [
-  'https://bviniski-fisio.github.io/bv-fisio/',
-  'https://bviniski-fisio.github.io/bv-fisio/index.html',
-  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap'
-];
-
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return Promise.allSettled(
-        STATIC_ASSETS.map(function(url) {
-          return cache.add(url).catch(function(e) {
-            console.warn('[SW] Nao foi possivel cachear:', url, e);
-          });
-        })
-      );
-    }).then(function() {
-      return self.skipWaiting();
-    })
+self.addEventListener('activate', function (e) {
+  e.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.map(function (k) {
+        if (k !== CACHE) return caches.delete(k);
+      }));
+    }).then(function () { return self.clients.claim(); })
   );
 });
 
-self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_NAME; })
-            .map(function(k) { return caches.delete(k); })
-      );
-    }).then(function() {
-      return self.clients.claim();
-    })
-  );
+self.addEventListener('message', function (e) {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-self.addEventListener('fetch', function(event) {
-  var url = event.request.url;
+self.addEventListener('fetch', function (e) {
+  var req = e.request;
+  if (req.method !== 'GET') return;
 
-  if (url.includes('firestore.googleapis.com') ||
-      url.includes('firebase') ||
-      url.includes('googleapis.com/identitytoolkit')) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
+  var accept = req.headers.get('accept') || '';
+  var isHTML = req.mode === 'navigate' || accept.indexOf('text/html') !== -1;
 
-  if (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
-    event.respondWith(
-      caches.match(event.request).then(function(cached) {
-        return cached || fetch(event.request).then(function(response) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
-          return response;
-        });
+  if (isHTML) {
+    // Rede primeiro → sempre pega o index.html mais novo quando online
+    e.respondWith(
+      fetch(req).then(function (res) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        return res;
+      }).catch(function () {
+        return caches.match(req).then(function (r) { return r || caches.match('./index.html'); });
       })
     );
     return;
   }
 
-  if (event.request.mode === 'navigate' ||
-      url.endsWith('.html') || url === 'https://bviniski-fisio.github.io/bv-fisio/') {
-    event.respondWith(
-      fetch(event.request).then(function(response) {
-        var clone = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
-        return response;
-      }).catch(function() {
-        return caches.match(event.request).then(function(cached) {
-          return cached || caches.match('https://bviniski-fisio.github.io/bv-fisio/index.html');
-        });
-      })
-    );
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request).catch(function() {
-      return caches.match(event.request);
+  // Demais recursos → cache primeiro, atualizando em segundo plano
+  e.respondWith(
+    caches.match(req).then(function (cached) {
+      var net = fetch(req).then(function (res) {
+        if (res && res.status === 200) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function () { return cached; });
+      return cached || net;
     })
   );
-});
-
-self.addEventListener('message', function(event) {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
 });
