@@ -37,7 +37,7 @@
 .save-pill.saving .save-dot{animation:blink .7s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 /* LAYOUT */
-.app-layout{display:flex;height:calc(100vh - 62px);overflow:hidden;}
+.app-layout{display:flex;height:calc(100vh - 62px);height:calc(100dvh - 62px);overflow:hidden;}
 /* SIDEBAR */
 .master-sidebar{width:280px;min-width:280px;background:var(--w);border-right:1px solid var(--g1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
 .sb-head{padding:14px 12px 8px;border-bottom:1px solid var(--g1);}
@@ -344,12 +344,13 @@
   .mh-brand img{height:32px!important;}
   .mh-title{font-size:12px!important;}
   .mh-sub{display:none;}
-  .app-layout{flex-direction:column;height:calc(100vh - 52px);overflow:hidden;}
+  .app-layout{flex-direction:column;height:calc(100vh - 52px);height:calc(100dvh - 52px);overflow:hidden;position:relative;}
   /* Sidebar collapsed by default on mobile — toggle via button */
   .master-sidebar{width:100%!important;min-width:unset!important;border-right:none;
-    border-bottom:1px solid var(--g1);overflow:hidden;
+    border-bottom:1px solid var(--g1);overflow:hidden;position:relative;z-index:30;background:var(--w);
+    box-shadow:0 6px 14px rgba(0,0,0,.06);
     max-height:52px;transition:max-height .3s ease;}
-  .master-sidebar.sb-open{max-height:70vh;}
+  .master-sidebar.sb-open{max-height:calc(100dvh - 120px);}
   .sb-head{position:relative;}
   .cond-filters{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
     padding:6px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
@@ -361,9 +362,10 @@
   .hdr-actions{gap:4px;}
   .save-pill span{display:none;}
   .save-pill{padding:4px 7px;}
-  .master-main{overflow-y:auto;flex:1;}
+  .master-main{overflow-y:auto;flex:1;position:relative;z-index:1;}
   .fg,.fg3,.fg4{grid-template-columns:1fr;}
   .ff.full{grid-column:1;}
+  .welcome-full{justify-content:flex-start;padding:22px 18px 40px;height:auto;min-height:100%;}
   .modal{padding:16px;}
   .mg{grid-template-columns:1fr;}
   .mf{grid-column:1;}
@@ -472,8 +474,12 @@
         dbData._updated = new Date().toISOString();
       }
       const ts = dbData._updated;
+      // Remove as fotos (base64) antes de enviar: o documento do Firestore tem limite de ~1MB.
+      // As fotos ficam no IndexedDB do aparelho; a nuvem guarda só os registros.
+      let cloudObj = dbData;
+      if (dbData.photos) { cloudObj = Object.assign({}, dbData); delete cloudObj.photos; }
       await setDoc(doc(fbDB, 'clinica', 'dados'), {
-        db: JSON.stringify(dbData),
+        db: JSON.stringify(cloudObj),
         updated: ts,
         nid: dbData.nid || 1
       });
@@ -688,6 +694,18 @@ function normalizeP(p){
 
 // ── PERSISTENCE (IndexedDB + localStorage backup) ──
 var idb=null;
+function _migratePhotosLS(){
+  if(!idb)return;
+  var keys=[];
+  for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('bv_photos_')===0)keys.push(k);}
+  keys.forEach(function(k){
+    try{
+      var raw=localStorage.getItem(k);
+      if(raw){var tx=idb.transaction(['app'],'readwrite');tx.objectStore('app').put(raw,k);}
+      localStorage.removeItem(k);
+    }catch(e){}
+  });
+}
 function initDB(){
  return new Promise(function(resolve){
    try{
@@ -696,7 +714,7 @@ function initDB(){
       var db=e.target.result;
       if(!db.objectStoreNames.contains('app'))db.createObjectStore('app');
     };
-    req.onsuccess=function(e){idb=e.target.result;resolve();};
+    req.onsuccess=function(e){idb=e.target.result;try{_migratePhotosLS();}catch(_){}resolve();};
     req.onerror=function(){resolve();};
    }catch(e){resolve();}
  });
@@ -720,9 +738,9 @@ function restorePhotosFromDB(){
     // key = 'bv_photos_EVALID'
     var evalId=key.replace('bv_photos_','');
     photoStore[evalId]=photos;
-    // Persistir local também
-    try{localStorage.setItem(key,JSON.stringify(photos));}catch(e){}
+    // Fotos só no IndexedDB (cota grande); localStorage apenas como reserva sem IDB.
     if(idb){try{var tx=idb.transaction(['app'],'readwrite');tx.objectStore('app').put(JSON.stringify(photos),key);}catch(e){}}
+    else{try{localStorage.setItem(key,JSON.stringify(photos));}catch(e){}}
   });
 }
 async function loadDB(){
@@ -759,9 +777,12 @@ function saveDB(){
   try{
     // Sempre marca timestamp ISO antes de salvar (garante conflito resolvido por tempo)
     db._updated = new Date().toISOString();
-    var serialized=JSON.stringify(db);
-    try{ localStorage.setItem(DB_KEY,serialized); }
-    catch(qe){ if(qe&&(qe.name==='QuotaExceededError'||qe.code===22)) toast('⚠️ Armazenamento local cheio! Exporte backup urgente.','err'); }
+    // localStorage tem cota pequena (~5MB): grava versão leve SEM as fotos (base64).
+    // As fotos ficam no IndexedDB (cota grande) e no Firebase (nuvem).
+    var lsObj=db;
+    if(db.photos){ lsObj={}; for(var _k in db){ if(_k!=='photos') lsObj[_k]=db[_k]; } }
+    try{ localStorage.setItem(DB_KEY,JSON.stringify(lsObj)); }
+    catch(qe){ if(qe&&(qe.name==='QuotaExceededError'||qe.code===22)) toast('Espaço local cheio — seus dados estão salvos na nuvem. Exporte um backup quando puder.','warn'); }
     if(idb){
       var tx=idb.transaction(['app'],'readwrite');
       tx.objectStore('app').put(db,DB_KEY);
@@ -1162,6 +1183,7 @@ function openAddCondModal(pid){
 // ── FORM ──
 function openForm(pid,cond,eid){
   curPid=pid;curCond=cond;curEid=eid;curView='form';
+  if(window.innerWidth<=640){var _sb=document.querySelector('.master-sidebar');if(_sb)_sb.classList.remove('sb-open');var _cv=document.getElementById('sb-chev');if(_cv)_cv.style.transform='';}
   var p=db.patients.find(function(pt){return pt.id===pid;});
   var ev=p&&(p.condEvals[cond]||[]).find(function(e){return e.id===eid;});
   if(!p||!ev)return;
@@ -1177,7 +1199,7 @@ function openForm(pid,cond,eid){
     +'<button class="btn btn-del" onclick="selPatient('+pid+')">← Voltar</button>'
     +'<button class="btn btn-gr" onclick="saveNow()">💾 Salvar</button>'
     +'</div></div>'
-    +buildSections(cond)
+    +antropometriaSection()+buildSections(cond)
     +'<div style="display:flex;gap:9px;margin-top:16px;margin-bottom:32px">'
     +'<button class="btn btn-del" onclick="selPatient('+pid+')" style="flex:1">← Voltar</button>'
     +'<button class="btn btn-gr" onclick="saveNow()" style="flex:2;padding:11px">💾 Salvar Avaliação</button>'
@@ -1257,6 +1279,22 @@ function sgrid(items,sfx,cols){var h='<div class="sg sg-'+(cols||3)+'">';items.f
 function atbar(sfx,label,max){return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div><input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';}
 // ── ANAMNESE INICIAL (compartilhada — só renderiza na Avaliação Inicial) ──
 function chk(key,label){return '<label class="ff" style="flex-direction:row;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" data-key="'+key+'" style="width:auto;margin:0;accent-color:var(--ac)"><span style="font-size:12px">'+label+'</span></label>';}
+function antropometriaSection(){
+  return sec('📏','Dados Antropométricos',
+    ib('Registre em cada avaliação para acompanhar a evolução. O IMC é calculado automaticamente.')
+    +'<div class="fg4">'
+    +fld('Peso (kg)','antro_peso','number',null,{step:'0.1',min:0,ph:'kg'})
+    +fld('Altura (cm)','antro_altura','number',null,{min:0,ph:'cm'})
+    +fld('IMC (kg/m²)','antro_imc','ro',null,{id:'antro_imc_o'})
+    +fld('Circ. abdominal (cm)','antro_cintura','number',null,{min:0,ph:'cm'})
+    +'</div>'
+    +'<div class="fg3">'
+    +fld('Circ. quadril (cm)','antro_quadril','number',null,{min:0,ph:'cm'})
+    +fld('Circ. panturrilha (cm)','antro_panturrilha','number',null,{min:0,ph:'cm'})
+    +fld('Observações','antro_nota','text',null,{ph:'Ex.: perimetria de MMII, dobras...'})
+    +'</div>'
+  ,true);
+}
 function anamneseInicial(){
   if(curEvNum!==1){
     return sec('📋','História Clínica (Avaliação Inicial)',
@@ -1296,6 +1334,13 @@ document.addEventListener('input',function(e){
   var sfx=Array.from(e.target.classList||[]).find(function(c){return c.startsWith('sc_');});
   if(sfx)calcSG(sfx.replace('sc_',''));
   var k=e.target.getAttribute('data-key');
+  if(k==='antro_peso'||k==='antro_altura'){
+    var gpe=document.querySelector('[data-key="antro_peso"]');
+    var gal=document.querySelector('[data-key="antro_altura"]');
+    var pe=gpe?parseFloat(gpe.value):NaN, al=gal?parseFloat(gal.value):NaN;
+    var io=document.querySelector('[data-key="antro_imc"]');
+    if(io){ if(pe>0&&al>0){var mt=al/100; io.value=(pe/(mt*mt)).toFixed(1);} else {io.value='';} schedSave(); }
+  }
   if(k==='tug1'||k==='tug2'||k==='tug3'){
     var vs=['tug1','tug2','tug3'].map(function(k2){return parseFloat(document.querySelector('[data-key="'+k2+'"]')&&document.querySelector('[data-key="'+k2+'"]').value);}).filter(function(v){return !isNaN(v);});
     var d=document.getElementById('tug_d'),i=document.getElementById('tug_i');
@@ -1401,6 +1446,9 @@ function filterGuide(){
 function esc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 // Rótulos amigáveis para campos clínicos no relatório. Retorna null para ocultar.
 var FIELD_LABELS={
+  // Antropometria
+  antro_peso:'Peso (kg)', antro_altura:'Altura (cm)', antro_imc:'IMC (kg/m²)',
+  antro_cintura:'Circ. abdominal (cm)', antro_quadril:'Circ. quadril (cm)', antro_panturrilha:'Circ. panturrilha (cm)', antro_nota:'Antropometria — observações',
   // Anamnese inicial
   ocupacao:'Ocupação', diag_medico:'Diagnóstico médico', historia_doenca:'História Natural da Doença',
   com_has:'Comorbidade — HAS', com_dm:'Comorbidade — DM', com_cardio:'Comorbidade — Cardiopatia',
@@ -2622,13 +2670,11 @@ function exportarDados(){
     db: JSON.parse(JSON.stringify(db)),
     photos: {}
   };
-  // Coleta todas as fotos separadas (bv_photos_*)
-  for(var i=0; i<localStorage.length; i++){
-    var k = localStorage.key(i);
-    if(k && k.startsWith('bv_photos_')){
-      try{ exportData.photos[k] = JSON.parse(localStorage.getItem(k)); }catch(e){}
-    }
-  }
+  // Coleta as fotos do banco em memória (db.photos) + photoStore — backup completo
+  try{
+    if(db.photos){ for(var _pk in db.photos){ if(db.photos[_pk]&&db.photos[_pk].length) exportData.photos[_pk]=db.photos[_pk]; } }
+    for(var _eid in photoStore){ var _k2='bv_photos_'+_eid; if(!exportData.photos[_k2]&&photoStore[_eid]&&photoStore[_eid].length) exportData.photos[_k2]=photoStore[_eid]; }
+  }catch(e){}
   var json = JSON.stringify(exportData);
   var blob = new Blob([json], {type:'application/json'});
   var url = URL.createObjectURL(blob);
@@ -2658,15 +2704,16 @@ function importarDados(){
           alert('❌ Arquivo inválido. Selecione um backup gerado por este sistema.');
           return;
         }
-        // Restaura db principal
+        // Restaura o banco e consolida todas as fotos em db.photos
         db = data.db;
-        localStorage.setItem('bv_db', JSON.stringify(db));
-        // Restaura fotos
-        if(data.photos){
-          Object.keys(data.photos).forEach(function(k){
-            try{ localStorage.setItem(k, JSON.stringify(data.photos[k])); }catch(ex){}
-          });
-        }
+        if(!db.photos) db.photos = {};
+        if(data.photos){ Object.keys(data.photos).forEach(function(k){ db.photos[k] = data.photos[k]; }); }
+        // Timestamp NOVO — garante que estes dados vençam a versão antiga da nuvem
+        db._updated = new Date().toISOString();
+        // Carrega as fotos para a memória e grava no IndexedDB (cota grande)
+        if(typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
+        // Persiste do jeito certo: localStorage leve + IndexedDB completo + nuvem (registros)
+        if(typeof saveDB === 'function') saveDB();
         // Recarrega interface
         curPid = null; curCond = null; curEid = null;
         renderList();
@@ -7244,13 +7291,9 @@ function savePhotos(evalId){
       tx.objectStore('app').put(json,key);
     }catch(e){console.warn('IDB savePhotos error',e);}
   }
-  try{
-    localStorage.setItem(key,json);
-  }catch(e){
-    if(e && (e.name==='QuotaExceededError'||e.code===22)){
-      console.warn('localStorage cheio – fotos não salvas localmente.');
-    }
-  }
+  // localStorage não guarda fotos quando há IndexedDB (evita estourar a cota).
+  if(idb){ try{ localStorage.removeItem(key); }catch(e){} }
+  else { try{ localStorage.setItem(key,json); }catch(e){} }
   // Sincroniza com Firebase via db.photos
   if(!db.photos)db.photos={};
   db.photos[key]=photos;
