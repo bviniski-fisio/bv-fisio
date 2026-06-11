@@ -2,7 +2,7 @@
    Estratégia network-first para o HTML: o aparelho sempre busca a versão
    mais nova do index.html quando está online, e usa o cache só offline.
    Isso resolve o problema de "não atualiza em todos os dispositivos". */
-const CACHE = 'bv-fisio-v3';
+const CACHE = 'bv-fisio-v4';
 const CORE = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function (e) {
