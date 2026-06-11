@@ -1768,30 +1768,43 @@ function _doGenerateReport(pid,p){
       html+='</table></div>';
     }
 
-    // ── DADOS CLÍNICOS COMPLETOS (todos os campos preenchidos, por avaliação) ──
+    // ── ACHADOS CLÍNICOS — comparativo entre avaliações (pula campos vazios) ──
     if(chk('full_'+cond)){
+      var _empty=function(v){ if(v===''||v===null||v===undefined||v===false)return true; var s=(''+v).trim(); return s===''||s==='—'||s==='–'||s==='-'||s==='·'; };
+      // coleta os campos (não-numéricos) preenchidos em qualquer avaliação, na ordem em que aparecem
+      var _keys=[],_seen={};
       evs.forEach(function(ev){
         var d=ev.data||{};
-        var rows='';
         Object.keys(d).forEach(function(k){
-          var v=d[k];
-          if(v===''||v===null||v===undefined||v===false)return;
-          // pular campos numéricos já mostrados na tabela de escalas e campos de controle
-          if(metrics.some(function(mt){return mt.key===k;}))return;
+          if(_seen[k])return;
           if(k==='date')return;
-          var label=fieldLabel(k);
-          if(label===null)return; // campo interno/oculto
-          var disp = (v===true)?'Sim':(''+v);
-          if(disp.trim()==='')return;
-          rows+='<tr><td style="font-weight:600;color:var(--g6);width:38%;vertical-align:top;padding:5px 8px;border-bottom:1px solid var(--g1);font-size:11px">'+label+'</td>'
-              +'<td style="padding:5px 8px;border-bottom:1px solid var(--g1);font-size:11px;white-space:pre-wrap">'+esc(disp)+'</td></tr>';
+          if(metrics.some(function(mt){return mt.key===k;}))return; // já está na tabela de escalas
+          if(fieldLabel(k)===null)return; // campo interno/oculto
+          _seen[k]=1;_keys.push(k);
         });
-        if(rows){
-          html+='<div style="padding:6px 16px 14px">'
-            +'<div style="font-size:10px;font-weight:700;color:'+m.ac+';text-transform:uppercase;letter-spacing:.5px;margin:6px 0 6px">'+ev.type+' · '+fmtDate(ev.date)+' — dados completos</div>'
-            +'<table style="width:100%;border-collapse:collapse">'+rows+'</table></div>';
-        }
       });
+      var _thS='text-align:left;padding:6px 8px;border-bottom:2px solid '+m.ac+';font-size:9px;font-weight:700;color:'+m.ac+';text-transform:uppercase;letter-spacing:.5px';
+      var rows='';
+      _keys.forEach(function(k){
+        var vals=evs.map(function(ev){ var v=(ev.data||{})[k]; return (v===true)?'Sim':v; });
+        if(vals.every(_empty))return; // nenhuma avaliação tem dado neste campo → não aparece
+        var label=fieldLabel(k);
+        var tds='';
+        vals.forEach(function(v,i){
+          var changed=(i>0&&!_empty(v)&&!_empty(vals[0])&&(''+v).trim()!==(''+vals[0]).trim());
+          var disp=_empty(v)?'<span style="color:#c8c8c0">—</span>':esc(''+v);
+          tds+='<td style="padding:5px 8px;border-bottom:1px solid var(--g1);font-size:11px;white-space:pre-wrap'+(changed?';background:'+m.acp+';font-weight:600;color:'+m.ac:'')+'">'+disp+'</td>';
+        });
+        rows+='<tr><td style="font-weight:600;color:var(--g6);width:30%;vertical-align:top;padding:5px 8px;border-bottom:1px solid var(--g1);font-size:11px">'+label+'</td>'+tds+'</tr>';
+      });
+      if(rows){
+        var hd='<tr><th style="'+_thS+'">Achado clínico</th>';
+        evs.forEach(function(ev){ hd+='<th style="'+_thS+'">'+ev.type.replace('Avaliação Inicial','Inicial').replace('Reavaliação','Reav.')+'<br><small style="font-weight:400;color:#9a9a90">'+fmtDate(ev.date)+'</small></th>'; });
+        hd+='</tr>';
+        html+='<div style="overflow-x:auto;padding:6px 16px 16px">'
+          +'<div style="font-size:10px;font-weight:700;color:'+m.ac+';text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px">'+(evs.length>1?'Achados Clínicos — Comparativo':'Achados Clínicos')+'</div>'
+          +'<table style="width:100%;border-collapse:collapse">'+hd+rows+'</table></div>';
+      }
     }
 
     html+='</div>';
