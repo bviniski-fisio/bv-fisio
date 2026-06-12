@@ -160,6 +160,18 @@
 .sbox:focus-within{border-color:var(--ac,var(--or));}
 .sbox-lbl{font-size:9px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.5px;text-align:center;line-height:1.3;}
 .sbox-inp{width:50px;text-align:center;border:1.5px solid var(--g2);border-radius:6px;font-size:15px;font-weight:700;color:var(--gr2);padding:3px 4px;outline:none;font-family:'DM Sans';background:#f7f4f0;}
+/* ── Questionário completo (item por item) ── */
+.qz{margin:8px 0;border:1px solid var(--g1);border-radius:10px;overflow:hidden;}
+.qz-row{display:flex;align-items:center;gap:10px;padding:8px 11px;border-bottom:1px solid var(--g1);}
+.qz-row:last-child{border-bottom:none;}
+.qz-row:nth-child(even){background:#faf8f5;}
+.qz-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--acp,var(--or-p));color:var(--ac,var(--or));font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.qz-txt{flex:1;font-size:11.5px;color:#33332c;line-height:1.4;}
+.qz-inp{flex-shrink:0;width:54px;text-align:center;border:1.5px solid var(--g2);border-radius:6px;font-size:15px;font-weight:700;color:var(--gr2);padding:4px;outline:none;font-family:'DM Sans';background:#f7f4f0;}
+.qz-inp:focus{border-color:var(--ac,var(--or));}
+.qz-sel{flex-shrink:0;border:1.5px solid var(--g2);border-radius:6px;font-size:12px;padding:5px 4px;outline:none;font-family:'DM Sans';background:#f7f4f0;color:var(--g8);max-width:148px;}
+.qz-sel:focus{border-color:var(--ac,var(--or));}
+[data-theme="dark"] .qz-row:nth-child(even){background:rgba(255,255,255,.03);}
 .sbox-inp:focus{border-color:var(--ac,var(--or));background:var(--w);}
 .sbox-max{font-size:9px;color:var(--g4);}
 /* GUIDE */
@@ -185,6 +197,14 @@
 .gd-body{padding:14px 16px;display:none;}
 .gd-body.op{display:block;}
 .gd-fn{font-size:10px;color:var(--g4);margin-bottom:8px;font-style:italic;}
+.gd-resumo{background:linear-gradient(135deg,#FDF6EE,#F4F8F0);border:1px solid var(--g1);border-left:3px solid var(--or);border-radius:0 8px 8px 0;padding:9px 12px;margin-bottom:10px;font-size:11.5px;line-height:1.55;color:#3a3a30;}
+.gd-resumo b{color:var(--or);font-weight:700;}
+.gloss{border-bottom:1px dotted var(--or);cursor:help;position:relative;}
+.gloss:hover,.gloss:focus,.gloss.gl-open{background:var(--or-p);border-radius:3px;}
+.gloss-pop{display:none;position:absolute;left:0;bottom:calc(100% + 6px);z-index:60;width:max-content;max-width:240px;background:#2a2a24;color:#fff;font-size:10.5px;line-height:1.5;font-weight:400;font-style:normal;text-transform:none;letter-spacing:0;padding:7px 10px;border-radius:7px;box-shadow:0 4px 16px rgba(0,0,0,.28);white-space:normal;}
+.gloss-pop::after{content:'';position:absolute;left:14px;top:100%;border:6px solid transparent;border-top-color:#2a2a24;}
+.gloss:hover .gloss-pop,.gloss:focus .gloss-pop,.gloss.gl-open .gloss-pop{display:block;}
+[data-theme="dark"] .gd-resumo{background:linear-gradient(135deg,#2a2620,#222820);}
 .gd-row{display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px;align-items:start;}
 .gd-lbl{font-size:9px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.5px;}
 .gd-val{font-size:11px;color:#1a1a14;line-height:1.5;}
@@ -211,7 +231,14 @@
   /* Relatório */
   .fv,.pt-profile,.gd-wrap,.fv>*:not(.rpt-wrap),.pt-profile>*:not(.rpt-wrap){display:none!important;}
   .rpt-wrap{display:block!important;max-width:100%!important;padding:4px 6px!important;position:static!important;}
-  .rpt-section{box-shadow:none!important;page-break-inside:avoid!important;margin-bottom:8px!important;overflow:visible!important;}
+  .rpt-section{box-shadow:none!important;margin-bottom:8px!important;overflow:visible!important;}
+  /* Seções longas PODEM quebrar entre páginas (evita vão branco no rodapé) */
+  .rpt-section{page-break-inside:auto!important;}
+  /* mas o cabeçalho colorido nunca fica órfão no fim da página */
+  .rpt-sec-hd{page-break-after:avoid!important;break-after:avoid!important;}
+  /* linhas de dado, fotos e blocos curtos não se partem no meio */
+  .rpt-keep,.rpt-photo-row,.rpt-atd-item{page-break-inside:avoid!important;break-inside:avoid!important;}
+  tr{page-break-inside:avoid!important;break-inside:avoid!important;}
   .rpt-notes-area{border:1px solid #ccc!important;background:#fff!important;}
   .rpt-ta-print{display:block!important;}
 
@@ -429,7 +456,7 @@
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -473,10 +500,18 @@
   window._fbSave = async function(dbData) {
     try {
       await window._fbAuthReady;
+      // TRAVA DE SEGURANÇA: nunca sobe dados antes do merge inicial com a nuvem terminar.
+      // Sem isso, uma edição feita logo na abertura poderia sobrescrever a nuvem com dados locais antigos.
+      if (!window._syncReady) {
+        console.warn('[FB] Save bloqueado: sync inicial ainda não concluído');
+        return;
+      }
       // Garante que _updated sempre existe e é válido antes de salvar na nuvem
       if (!dbData._updated || dbData._updated <= '1') {
         dbData._updated = new Date().toISOString();
       }
+      // _rev é um contador monotônico — não depende do relógio do aparelho (que pode estar errado).
+      dbData._rev = (parseInt(dbData._rev) || 0) + 1;
       const ts = dbData._updated;
       // Remove as fotos (base64) antes de enviar: o documento do Firestore tem limite de ~1MB.
       // As fotos ficam no IndexedDB do aparelho; a nuvem guarda só os registros.
@@ -486,6 +521,7 @@
       await setDoc(doc(fbDB, 'clinica', 'dados'), {
         db: JSON.stringify(cloudObj),
         updated: ts,
+        rev: dbData._rev || 0,
         nid: dbData.nid || 1
       });
       if (window._setSync) window._setSync('online');
@@ -502,13 +538,76 @@
       if (snap.exists()) {
         const data = snap.data();
         if (data && data.db) {
-          return JSON.parse(data.db);
+          const parsed = JSON.parse(data.db);
+          // o rev/updated do documento são a fonte da verdade (ficam fora do JSON também)
+          if (data.rev !== undefined) parsed._rev = parseInt(data.rev) || 0;
+          if (data.updated) parsed._updated = data.updated;
+          return parsed;
         }
       }
     } catch(e) {
       console.warn('Firebase load error:', e);
     }
     return null;
+  };
+
+  // ── SYNC DE FOTOS (documentos separados, contornando o limite de 1MB por doc) ──
+  // Cada chave de foto (bv_photos_X ou atd_X) vira um documento em clinica/dados/fotos/{chave}.
+  // Se uma chave tiver muitas fotos e passar de ~900KB, é dividida em pedaços (chave__p0, chave__p1...).
+  var FOTO_CHUNK = 900000; // ~900KB de margem segura sob o limite de 1MB do Firestore
+
+  // Salva UMA chave de fotos na nuvem (com fragmentação se necessário)
+  window._fbSavePhotoKey = async function(key, photosArr) {
+    try {
+      await window._fbAuthReady;
+      if (!key) return;
+      var json = JSON.stringify(photosArr || []);
+      // limpa pedaços antigos dessa chave antes de regravar
+      try {
+        var prev = await getDocs(collection(fbDB, 'clinica', 'dados', 'fotos'));
+        var dels = [];
+        prev.forEach(function(d){ if (d.id === key || d.id.indexOf(key + '__p') === 0) dels.push(d.id); });
+        for (var i = 0; i < dels.length; i++) { try { await deleteDoc(doc(fbDB, 'clinica', 'dados', 'fotos', dels[i])); } catch(e){} }
+      } catch(e) {}
+      if (json.length <= FOTO_CHUNK) {
+        await setDoc(doc(fbDB, 'clinica', 'dados', 'fotos', key), { data: json, parts: 1 });
+      } else {
+        // fragmenta em pedaços
+        var nParts = Math.ceil(json.length / FOTO_CHUNK);
+        await setDoc(doc(fbDB, 'clinica', 'dados', 'fotos', key), { parts: nParts });
+        for (var p = 0; p < nParts; p++) {
+          var slice = json.substr(p * FOTO_CHUNK, FOTO_CHUNK);
+          await setDoc(doc(fbDB, 'clinica', 'dados', 'fotos', key + '__p' + p), { data: slice });
+        }
+      }
+    } catch(e) { console.warn('[FB] erro ao salvar fotos da chave', key, e); }
+  };
+
+  // Carrega TODAS as fotos da nuvem → objeto { chave: [fotos] }
+  window._fbLoadPhotos = async function() {
+    try {
+      await window._fbAuthReady;
+      var snap = await getDocs(collection(fbDB, 'clinica', 'dados', 'fotos'));
+      var raw = {};
+      snap.forEach(function(d){ raw[d.id] = d.data(); });
+      var out = {};
+      // primeiro resolve documentos-cabeçalho (sem __p) e remonta os fragmentados
+      Object.keys(raw).forEach(function(id){
+        if (id.indexOf('__p') >= 0) return; // pedaço, tratado abaixo
+        var meta = raw[id];
+        if (meta.parts && meta.parts > 1) {
+          var full = '';
+          for (var p = 0; p < meta.parts; p++) {
+            var chunk = raw[id + '__p' + p];
+            if (chunk && chunk.data) full += chunk.data;
+          }
+          try { out[id] = JSON.parse(full); } catch(e) {}
+        } else if (meta.data) {
+          try { out[id] = JSON.parse(meta.data); } catch(e) {}
+        }
+      });
+      return out;
+    } catch(e) { console.warn('[FB] erro ao carregar fotos da nuvem', e); return {}; }
   };
 
   // Real-time listener with debounce to avoid rapid re-renders
@@ -567,7 +666,29 @@
   // Reage à conexão do navegador
   window.addEventListener('online', function() {
     window._setSync('syncing');
-    if (window.db && window._fbSave) { try { window._fbSave(window.db); } catch(e) {} }
+    // Ao reconectar, NÃO sobe cego: primeiro confere a revisão da nuvem.
+    // Só envia o local se ele estiver à frente; senão, baixa a nuvem.
+    (async function(){
+      try {
+        if (!window._fbLoad) return;
+        var cloud = await window._fbLoad();
+        var cloudRev = cloud ? (parseInt(cloud._rev) || 0) : -1;
+        var localRev = (window.db && parseInt(window.db._rev)) || 0;
+        if (cloud && Array.isArray(cloud.patients) && cloudRev > localRev) {
+          // Nuvem está à frente — aplica a nuvem (não perde o trabalho de outro aparelho)
+          window.db = cloud; window.db._rev = cloudRev;
+          try { localStorage.setItem('bv_master_v1', JSON.stringify(cloud)); } catch(e) {}
+          if (idb){ try{ var _tx3=idb.transaction(['app'],'readwrite'); _tx3.objectStore('app').put(cloud,'bv_master_v1'); }catch(e){} }
+          if (typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
+          if (typeof renderList === 'function') renderList();
+          window._setSync('online');
+        } else if (window.db && window._fbSave) {
+          // Local está igual/à frente — seguro subir
+          window.db._rev = Math.max(localRev, cloudRev);
+          await window._fbSave(window.db);
+        }
+      } catch(e) { if (window._setSync) window._setSync('error'); }
+    })();
   });
   window.addEventListener('offline', function() { window._setSync('offline'); });
   // Estado inicial (módulo executa após o parse do header)
@@ -582,43 +703,88 @@
 
       try {
         const cloudData = await window._fbLoad();
+        const cloudRev = cloudData ? (parseInt(cloudData._rev) || 0) : -1;
+        const localRev = (window.db && parseInt(window.db._rev)) || 0;
 
         if (cloudData && Array.isArray(cloudData.patients)) {
-          // Normaliza timestamps — string vazia ou ausente vira epoch zero
           const cloudTs = (cloudData._updated && cloudData._updated > '1') ? cloudData._updated : '1970-01-01T00:00:00.000Z';
           const localTs = (window.db && window.db._updated && window.db._updated > '1') ? window.db._updated : '1970-01-01T00:00:00.000Z';
 
-          // Local só vence se seu timestamp for ESTRITAMENTE mais recente
-          const localWins = localTs > cloudTs;
+          // CRITÉRIO PRINCIPAL: contador de revisão (imune a relógio errado do aparelho).
+          // Desempate só pelo timestamp quando as revisões são iguais.
+          // Local só "vence" se tiver revisão MAIOR (ou igual com timestamp mais novo) E tiver dados.
+          const localHasData = window.db && window.db.patients && window.db.patients.length > 0;
+          const localWins = localHasData && (localRev > cloudRev || (localRev === cloudRev && localTs > cloudTs));
 
           if (!localWins) {
             // Nuvem vence — aplica e persiste localmente
             window.db = cloudData;
             window.db._updated = cloudTs;
+            window.db._rev = cloudRev;
             try { localStorage.setItem('bv_master_v1', JSON.stringify(window.db)); } catch(e) {}
+            if (idb){ try{ var _tx=idb.transaction(['app'],'readwrite'); _tx.objectStore('app').put(window.db, 'bv_master_v1'); }catch(e){} }
             if (typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
             if (typeof renderList === 'function') renderList();
             if (typeof showWelcome === 'function') showWelcome();
-            console.log('✅ Nuvem aplicada:', cloudData.patients.length, 'pacientes, ts:', cloudTs);
+            console.log('✅ Nuvem aplicada:', cloudData.patients.length, 'pacientes, rev:', cloudRev);
           } else {
-            // Local é mais recente — sobe para nuvem
+            // Local é mais recente — libera a trava e sobe para nuvem
+            window._syncReady = true;
+            window.db._rev = Math.max(localRev, cloudRev);
             if (window._fbSave) await window._fbSave(window.db);
-            console.log('✅ Local enviado para nuvem:', window.db.patients.length, 'pacientes, ts:', localTs);
+            console.log('✅ Local enviado para nuvem (rev local', localRev, '> nuvem', cloudRev, ')');
           }
           addSyncDot('#6B8F5E');
 
         } else {
           // Nuvem vazia — sobe o local
           if (window.db && window.db.patients && window.db.patients.length > 0) {
+            window._syncReady = true;
             window.db._updated = new Date().toISOString();
             if (window._fbSave) await window._fbSave(window.db);
             console.log('✅ Nuvem vazia — local enviado:', window.db.patients.length, 'pacientes');
           }
           addSyncDot('#6B8F5E');
         }
+        // Sync inicial concluído — a partir de agora é seguro salvar na nuvem.
+        window._syncReady = true;
+
+        // ── Baixa as FOTOS da nuvem e mescla com as locais ──
+        try {
+          if (window._fbLoadPhotos) {
+            var cloudPhotos = await window._fbLoadPhotos();
+            if (cloudPhotos && Object.keys(cloudPhotos).length) {
+              if (!db.photos) db.photos = {};
+              var anyNew = false;
+              Object.keys(cloudPhotos).forEach(function(key){
+                var cloudArr = cloudPhotos[key] || [];
+                var localArr = (db.photos[key]) || [];
+                // A nuvem é a fonte da verdade para fotos; usa a que tiver mais fotos preenchidas
+                var cloudFilled = cloudArr.filter(function(p){return p&&p.src;}).length;
+                var localFilled = localArr.filter(function(p){return p&&p.src;}).length;
+                if (cloudFilled >= localFilled) {
+                  db.photos[key] = cloudArr;
+                  anyNew = true;
+                  // grava no IndexedDB local também
+                  if (idb) { try { var _tp=idb.transaction(['app'],'readwrite'); _tp.objectStore('app').put(JSON.stringify(cloudArr), key); }catch(e){} }
+                  // atualiza o photoStore em memória (chave sem o prefixo bv_photos_)
+                  var sid = key.indexOf('bv_photos_')===0 ? key.replace('bv_photos_','') : key;
+                  if (typeof photoStore !== 'undefined') photoStore[sid] = cloudArr;
+                }
+              });
+              if (anyNew) {
+                if (typeof renderList === 'function') renderList();
+                console.log('📷 Fotos da nuvem aplicadas:', Object.keys(cloudPhotos).length, 'conjuntos');
+              }
+            }
+          }
+        } catch(e) { console.warn('Erro ao baixar fotos da nuvem:', e); }
       } catch(e) {
         console.warn('Firebase erro:', e);
         addSyncDot('#c62828');
+        // Mesmo com falha na nuvem (ex.: offline), libera a trava para não travar os saves locais.
+        // Como _fbSave também checa conexão, não há risco de sobrescrever a nuvem com dado velho aqui.
+        window._syncReady = true;
       }
 
       // Escuta mudanças em tempo real de outros dispositivos
@@ -626,13 +792,18 @@
         if (window.curView === 'form') return;
         if (!cloudData || !cloudData.patients) return;
 
-        // Listener também verifica timestamp — só aplica se nuvem for mais recente
+        // Listener usa o contador de revisão (imune a relógio). Só aplica se a nuvem tiver revisão MAIOR.
+        var cloudRev = parseInt(cloudData._rev) || 0;
+        var localRev = (window.db && parseInt(window.db._rev)) || 0;
         var cloudTs = (cloudData._updated && cloudData._updated > '1') ? cloudData._updated : '1970-01-01T00:00:00.000Z';
         var localTs = (window.db && window.db._updated && window.db._updated > '1') ? window.db._updated : '1970-01-01T00:00:00.000Z';
-
-        if (cloudTs >= localTs) {
+        // Aplica quando a nuvem está à frente (revisão maior, ou igual com timestamp mais novo).
+        // Revisão menor = é eco da própria escrita ou dado atrasado → ignora, protegendo o que está aberto.
+        if (cloudRev > localRev || (cloudRev === localRev && cloudTs > localTs)) {
           window.db = cloudData;
+          window.db._rev = cloudRev;
           try { localStorage.setItem('bv_master_v1', JSON.stringify(cloudData)); } catch(e) {}
+          if (idb){ try{ var _tx2=idb.transaction(['app'],'readwrite'); _tx2.objectStore('app').put(cloudData, 'bv_master_v1'); }catch(e){} }
           if (typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
           if (typeof renderList === 'function') renderList();
           if (window.curView === 'patient' && window.curPid) {
@@ -640,9 +811,9 @@
             if (p && typeof renderPatientProfile === 'function') renderPatientProfile(p);
           }
           addSyncDot('#6B8F5E');
-          console.log('🔄 Atualizado de outro dispositivo:', cloudData.patients.length, 'pacientes, ts:', cloudTs);
+          console.log('🔄 Atualizado de outro dispositivo — rev:', cloudRev);
         } else {
-          console.log('⏭️ Ignorado — local mais recente:', localTs, '> nuvem:', cloudTs);
+          console.log('⏭️ Ignorado — local igual/à frente (rev local', localRev, '>= nuvem', cloudRev, ')');
         }
       });
 
@@ -748,6 +919,7 @@ function parseDB(p){
     patients:(p.patients||[]).map(normalizeP),
     nid:parseInt(p.nid||1)||1,
     _updated:(p._updated||''),
+    _rev:parseInt(p._rev)||0,
     appointments:(p.appointments||[]),
     pagamentos:(p.pagamentos||[]),
     evolutions:(p.evolutions||[]),
@@ -1193,6 +1365,7 @@ function renderPatientProfile(p){
         +'</div></div>';
     });
     html+='<button class="btn-add-ev" style="border-color:'+m.ac+';color:'+m.ac+';background:'+m.acp+'" onclick="newEval('+p.id+',\''+cond+'\')">＋ Nova Avaliação '+m.icon+' '+m.label+'</button>';
+    html+='<button class="btn-add-ev" style="border-color:'+m.ac+';color:'+m.ac+';background:#fff;margin-top:6px" onclick="openAtendPhotos('+p.id+',\''+cond+'\')">📷 Fotos do Atendimento '+m.icon+' '+m.label+'</button>';
     html+='</div></div></div>';
   });
 
@@ -1338,6 +1511,31 @@ function getExtra(){return {};}
 function sbx(key,label,max,sfx){return '<div class="sbox"><div class="sbox-lbl">'+label+'</div><input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0"><div class="sbox-max">/'+max+'</div></div>';}
 function sgrid(items,sfx,cols){var h='<div class="sg sg-'+(cols||3)+'">';items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});return h+'</div>';}
 function atbar(sfx,label,max){return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div><input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';}
+// ── QUESTIONÁRIOS COMPLETOS (item a item, com soma automática via classe sc_<sfx>) ──
+// items: array de strings (enunciado de cada questão). max = pontuação máx por item.
+// sfx = sufixo que liga à soma automática; opts (array de rótulos) → usa <select> em vez de número.
+function qgrid(items,sfx,max,opts){
+  var h='<div class="qz">';
+  items.forEach(function(it,i){
+    var txt=(typeof it==='string')?it:it[0];
+    var dom=(typeof it==='object'&&it[1])?' data-dom="'+it[1]+'"':'';
+    var key=sfx+'_q'+(i+1);
+    var inp;
+    if(opts&&opts.length){
+      inp='<select class="qz-sel sc_'+sfx+'" data-key="'+key+'" max="'+max+'"'+dom+'><option value="">—</option>';
+      opts.forEach(function(o){ inp+='<option value="'+o[0]+'">'+o[1]+'</option>'; });
+      inp+='</select>';
+    } else {
+      inp='<input type="number" class="qz-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'"'+dom+' placeholder="0">';
+    }
+    h+='<div class="qz-row"><div class="qz-num">'+(i+1)+'</div><div class="qz-txt">'+txt+'</div>'+inp+'</div>';
+  });
+  return h+'</div>';
+}
+// Barra de total ao vivo do questionário
+function qbar(sfx,label){
+  return '<div class="tbar" style="margin-top:6px"><span>'+label+'</span><span id="qzbar_'+sfx+'">—</span></div>';
+}
 // ── ANAMNESE INICIAL (compartilhada — só renderiza na Avaliação Inicial) ──
 function chk(key,label){return '<label class="ff" style="flex-direction:row;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" data-key="'+key+'" style="width:auto;margin:0;accent-color:var(--ac)"><span style="font-size:12px">'+label+'</span></label>';}
 function antropometriaSection(){
@@ -1391,6 +1589,60 @@ function calcSG(sfx){
   if(sfx==='berg'){var bt=document.querySelector('[data-key="berg_total"]');if(bt)bt.value=total;}
   schedSave();
 }
+
+// ── QUESTIONÁRIOS COMPLETOS: soma os itens e preenche o campo de escore + barra de total ──
+// mapa sfx → { field: data-key do escore a preencher, label, calc?(total,els,count) }
+var QZ_MAP={
+  'qz_fesi':   {field:'fesi',    label:'FES-I Total'},
+  'qz_pdq':    {field:'pdq39_si',label:'PDQ-39 (índice sumário)', calc:function(t,els){return _pdqSI(els);}},
+  'qz_srs':    {field:'srs22',   label:'SRS-22 Total'},
+  'qz_fss':    {field:'fss_total',label:'FSS Total'},
+  'qz_pcs':    {field:'pcs_total',label:'PCS Total'},
+  'qz_psqi':   {field:'psqi',    label:'PSQI Global'},
+  'qz_gds':    {field:'gds',     label:'GDS-15 Total'},
+  'qz_zarit':  {field:'zarit',   label:'Zarit Total'},
+  'qz_lawton': {field:'lawton_total',label:'Lawton Total'},
+  'qz_sarcf':  {field:'sarcf',   label:'SARC-F Total'}
+};
+function _pdqSI(els){
+  // PDQ-39: média dos 8 domínios; aqui cada item 0–4 → soma por domínio convertida em %
+  // estrutura por domínios definida no próprio bloco via data-dom; fallback: soma simples normalizada
+  var doms={};
+  els.forEach(function(el){
+    var dom=el.getAttribute('data-dom')||'_';
+    var v=parseFloat(el.value);
+    if(!doms[dom])doms[dom]={s:0,n:0};
+    if(!isNaN(v)){doms[dom].s+=v;doms[dom].n+=1;}
+  });
+  var perc=[];
+  Object.keys(doms).forEach(function(d){ if(doms[d].n)perc.push((doms[d].s/(doms[d].n*4))*100); });
+  if(!perc.length)return null;
+  return (perc.reduce(function(a,b){return a+b;},0)/perc.length).toFixed(1);
+}
+function calcQZ(sfx){
+  var map=QZ_MAP[sfx];if(!map)return;
+  var els=document.querySelectorAll('.sc_'+sfx);if(!els.length)return;
+  var total=0,answered=0;
+  els.forEach(function(el){var v=parseFloat(el.value);if(!isNaN(v)){total+=v;answered++;}});
+  var out=map.calc?map.calc(total,els):total;
+  // barra de total ao vivo
+  var bar=document.getElementById('qzbar_'+sfx);
+  if(bar)bar.textContent=(out===null?'—':out)+(answered<els.length?'  ('+answered+'/'+els.length+' respondidas)':'  ('+els.length+' itens)');
+  // preenche o campo de escore existente (mantido) — só quando todas respondidas, p/ não sobrescrever digitação parcial
+  if(out!==null && answered===els.length){
+    var f=document.querySelector('[data-key="'+map.field+'"]');
+    if(f){f.value=out;}
+  }
+  schedSave();
+}
+document.addEventListener('input',function(e){
+  var cls=Array.from(e.target.classList||[]).find(function(c){return c.indexOf('sc_qz_')===0;});
+  if(cls)calcQZ(cls.replace('sc_',''));
+});
+document.addEventListener('change',function(e){
+  var cls=Array.from(e.target.classList||[]).find(function(c){return c.indexOf('sc_qz_')===0;});
+  if(cls)calcQZ(cls.replace('sc_',''));
+});
 document.addEventListener('input',function(e){
   var sfx=Array.from(e.target.classList||[]).find(function(c){return c.startsWith('sc_');});
   if(sfx)calcSG(sfx.replace('sc_',''));
@@ -1446,6 +1698,91 @@ function populateForm(data){
 }
 
 // ── GUIDE ──
+// ── GLOSSÁRIO CLÍNICO (tooltips nos guias) ──
+// chave em minúsculas → explicação curta em linguagem simples
+var CLIN_GLOSS = {
+  'on/off':'Fases do efeito do remédio no Parkinson. ON = remédio fazendo efeito (paciente melhor). OFF = efeito passou (sintomas voltam).',
+  'fase on':'Período em que a medicação está fazendo efeito — o paciente se movimenta melhor.',
+  'fase off':'Período em que o efeito da medicação passou — os sintomas pioram.',
+  'dcmi':'Diferença Clínica Mínima Importante: a menor mudança no escore que representa uma melhora ou piora real, perceptível na prática (não é só variação do acaso).',
+  'mcid':'Sigla em inglês para a Diferença Clínica Mínima Importante — a menor mudança que de fato significa algo para o paciente.',
+  'mdc':'Mudança Mínima Detectável: o menor valor que garante que a diferença é real e não erro de medição.',
+  'dcl':'Declínio Cognitivo Leve: perda de memória/atenção maior que o esperado para a idade, mas que ainda não chega a ser demência.',
+  'avd':'Atividades de Vida Diária: tarefas básicas do dia a dia (comer, tomar banho, se vestir, ir ao banheiro).',
+  'avds':'Atividades de Vida Diária: tarefas do dia a dia (comer, banho, vestir-se, locomoção).',
+  'mmss':'Membros superiores (braços).',
+  'mmii':'Membros inferiores (pernas).',
+  'fog':'Freezing of Gait (congelamento da marcha): a pessoa "trava" e os pés parecem grudar no chão, especialmente ao iniciar o passo ou virar.',
+  'freezing':'Congelamento da marcha: os pés "grudam" no chão de repente, sobretudo ao iniciar a caminhada ou virar.',
+  'festinação':'Passos cada vez mais curtos e rápidos, como se a pessoa fosse "correndo atrás" do próprio centro de gravidade.',
+  'bradicinesia':'Lentidão dos movimentos — um dos principais sinais do Parkinson.',
+  'rigidez axial':'Rigidez do tronco e pescoço, que faz a pessoa virar "em bloco", sem dissociar ombros e quadril.',
+  'pull test':'Teste do equilíbrio: o avaliador puxa os ombros do paciente para trás e observa se ele consegue se recuperar sem cair.',
+  'efeito teto':'Quando o teste é fácil demais para o paciente: ele atinge a nota máxima e o instrumento já não consegue detectar melhoras.',
+  'spo2':'Saturação de oxigênio no sangue, medida pelo oxímetro de dedo. Valores muito baixos indicam que parar o teste é mais seguro.',
+  'fc':'Frequência cardíaca (batimentos por minuto).',
+  'borg':'Escala de Borg: o próprio paciente dá uma nota para o quanto se sente cansado/sem fôlego durante o esforço.',
+  'cvf':'Capacidade Vital Forçada: quantidade de ar que a pessoa consegue soprar, medida na espirometria.',
+  'vef1':'Volume de ar expirado no primeiro segundo do sopro forçado — avalia a função pulmonar.',
+  'pimáx':'Pressão inspiratória máxima: força do paciente para "puxar" o ar (músculos da inspiração).',
+  'pemáx':'Pressão expiratória máxima: força do paciente para "soprar" o ar (músculos da expiração).',
+  'peak flow':'Pico de fluxo: força/velocidade máxima do ar ao soprar; aqui usado para avaliar a eficácia da tosse.',
+  'disfagia':'Dificuldade para engolir, que aumenta o risco de o alimento "ir para o pulmão" (aspiração).',
+  'aspiração':'Quando alimento, líquido ou saliva vai para a via respiratória em vez do esôfago — pode causar pneumonia.',
+  'voz molhada':'Voz com som "borbulhante" depois de engolir — sinal de que pode ter ficado resíduo perto das vias aéreas.',
+  'hipofonia':'Voz fraca e baixa, comum no Parkinson.',
+  'prosódia':'A "melodia" da fala: entonação, ritmo e ênfase que dão expressividade à voz.',
+  'cif':'Classificação Internacional de Funcionalidade: modelo da OMS que organiza o quadro do paciente em estrutura do corpo, atividade e participação.',
+  'qv':'Qualidade de vida.',
+  'dp':'Doença de Parkinson.',
+  'h&y':'Escala de Hoehn & Yahr, que classifica o estágio de progressão do Parkinson (de 1 a 5).',
+  'tandem':'Posição de pés em linha (calcanhar de um pé encostando na ponta do outro), usada para testar equilíbrio.',
+  'romberg':'Teste de equilíbrio em pé parado, com os pés juntos e olhos fechados.',
+  'proprioceptivo':'Relativo à propriocepção: a percepção da posição do próprio corpo no espaço, sem precisar olhar.',
+  'unilateral':'De um lado só do corpo.',
+  'bilateral':'Dos dois lados do corpo.',
+  'instabilidade postural':'Dificuldade de manter o equilíbrio em pé, com tendência a cair.',
+  'espasticidade':'Aumento involuntário do tônus muscular: o músculo fica "duro" e resiste ao movimento.',
+  'afasia':'Dificuldade de falar ou compreender a linguagem após lesão no cérebro (comum no AVC).',
+  'hemiparesia':'Fraqueza em um lado do corpo.',
+  'hemiplegia':'Paralisia de um lado do corpo.',
+  'escara':'Ferida na pele causada por pressão prolongada (úlcera por pressão), comum em quem fica muito tempo na mesma posição.',
+  'disreflexia autonômica':'Emergência em lesões medulares altas: pressão sobe de repente, com dor de cabeça forte, em resposta a um estímulo abaixo da lesão.',
+  'cobb':'Ângulo de Cobb: medida em graus da curvatura da coluna na escoliose, feita na radiografia.',
+  'cifose':'Curvatura da coluna para frente (corcunda) na região das costas.',
+  'meem':'Mini Exame do Estado Mental: teste rápido de rastreio da memória e cognição.',
+  'moca':'Montreal Cognitive Assessment: teste de cognição mais sensível que o MEEM para detectar alterações leves.',
+  'tug':'Timed Up and Go: teste cronometrado de levantar da cadeira, andar 3 metros, voltar e sentar.',
+  'tc10m':'Teste de caminhada de 10 metros, usado para medir a velocidade da marcha.',
+  'tc6m':'Teste de caminhada de 6 minutos, que mede a distância percorrida e a resistência.',
+  'escolaridade':'Anos de estudo da pessoa — alguns testes ajustam a nota conforme esse dado.'
+};
+// ordena chaves da mais longa para a mais curta (evita casar "on" dentro de "on/off")
+var _glossKeys = Object.keys(CLIN_GLOSS).sort(function(a,b){return b.length-a.length;});
+function _escAttr(s){return (''+s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function glossify(htmlStr){
+  if(!htmlStr) return htmlStr;
+  // protege conteúdo de tags HTML já existentes: divide em segmentos texto / tag
+  var parts = (''+htmlStr).split(/(<[^>]+>)/);
+  for(var i=0;i<parts.length;i++){
+    if(i%2===1) continue;              // índice ímpar = tag HTML, não tocar
+    var seg = parts[i];
+    if(!seg) continue;
+    var used = {};
+    for(var k=0;k<_glossKeys.length;k++){
+      var key = _glossKeys[k];
+      // limite de palavra; case-insensitive; só primeira ocorrência por segmento
+      var re = new RegExp('(^|[^\\wÀ-ÿ])('+key.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&')+')(?=$|[^\\wÀ-ÿ])','i');
+      seg = seg.replace(re, function(m, pre, term){
+        if(used['_x']) return m;        // no máx. 1 tooltip por segmento curto p/ não poluir
+        used['_x']=1;
+        return pre+'<span class="gloss" tabindex="0">'+term+'<span class="gloss-pop">'+_escAttr(CLIN_GLOSS[key])+'</span></span>';
+      });
+    }
+    parts[i]=seg;
+  }
+  return parts.join('');
+}
 function showGuide(pid){
   var p=db.patients.find(function(pt){return pt.id===pid;});
   if(!p)return;
@@ -1473,15 +1810,15 @@ function showGuide(pid){
       +'<span class="gd-tag '+c.tc+'">'+c.tag+'</span>'
       +'<span style="font-size:9px;color:var(--g4);margin-right:4px">'+c._condIcon+' '+c._condLabel+'</span>'
       +'<span class="gd-chev" id="gc_'+sid+'">▼</span></div>'
-      +'<div class="gd-body" id="'+sid+'"><div class="gd-fn">'+c.fn+'</div>';
-    c.rows.forEach(function(r){html+='<div class="gd-row"><div class="gd-lbl">'+r[0]+'</div><div class="gd-val">'+r[1]+'</div></div>';});
+      +'<div class="gd-body" id="'+sid+'"><div class="gd-fn">'+c.fn+'</div>'+(c.resumo?'<div class="gd-resumo">📝 <b>Em resumo:</b> '+glossify(c.resumo)+'</div>':'');
+    c.rows.forEach(function(r){html+='<div class="gd-row"><div class="gd-lbl">'+r[0]+'</div><div class="gd-val">'+glossify(r[1])+'</div></div>';});
     if(c.tbl){
       html+='<table class="gd-tbl"><tr>';
       c.tbl[0].forEach(function(h2){html+='<th>'+h2+'</th>';});html+='</tr>';
-      for(var j=1;j<c.tbl.length;j++){html+='<tr>';c.tbl[j].forEach(function(cell){html+='<td>'+cell+'</td>';});html+='</tr>';}
+      for(var j=1;j<c.tbl.length;j++){html+='<tr>';c.tbl[j].forEach(function(cell){html+='<td>'+glossify(cell)+'</td>';});html+='</tr>';}
       html+='</table>';
     }
-    if(c.tip)html+='<div class="gd-tip">💡 <strong>Dica:</strong> '+c.tip+'</div>';
+    if(c.tip)html+='<div class="gd-tip">💡 <strong>Dica:</strong> '+glossify(c.tip)+'</div>';
     html+='</div></div>';
   });
   html+='</div>';
@@ -1491,6 +1828,16 @@ function showGuide(pid){
   if(!mainArea._guideBound){
     mainArea._guideBound=true;
     mainArea.addEventListener('click',function(e){
+      // Tooltip do glossário: no celular abre/fecha ao tocar no termo
+      var g=e.target.closest('.gloss');
+      if(g){
+        e.stopPropagation();
+        var wasOpen=g.classList.contains('gl-open');
+        document.querySelectorAll('.gloss.gl-open').forEach(function(x){x.classList.remove('gl-open');});
+        if(!wasOpen)g.classList.add('gl-open');
+        return;
+      }
+      document.querySelectorAll('.gloss.gl-open').forEach(function(x){x.classList.remove('gl-open');});
       var h=e.target.closest('.gd-head');if(!h)return;
       var id=h.getAttribute('data-gsid');
       var b=document.getElementById(id),c=document.getElementById('gc_'+id);
@@ -1548,15 +1895,18 @@ function showReport(pid){
   // load all photos async then render selector
   var _allEvs=[];
   (p.conds||[]).forEach(function(c){_allEvs=_allEvs.concat((p.condEvals&&p.condEvals[c])||[]);});
+  var _atdKeysS=(p.conds||[]).map(function(c){return _atdKey(pid,c);});
+  var _totalS=_allEvs.length+_atdKeysS.length;
   var _loaded=0;
   function _onAllLoaded(){
     _loaded++;
-    if(_loaded<_allEvs.length)return;
+    if(_loaded<_totalS)return;
     _allEvs.forEach(function(ev){cleanPhotoStore(ev.id);});
     _doShowReport(pid,p);
   }
-  if(_allEvs.length===0){_doShowReport(pid,p);return;}
+  if(_totalS===0){_doShowReport(pid,p);return;}
   _allEvs.forEach(function(ev){loadPhotos(ev.id,_onAllLoaded);});
+  _atdKeysS.forEach(function(k){loadPhotos(k,_onAllLoaded);});
   return;
 }
 function _doShowReport(pid,p){
@@ -1606,6 +1956,12 @@ function _doShowReport(pid,p){
     // Dados clínicos completos (textos, anamnese, plano)
     html+='<label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);background:#f7f4f0;cursor:pointer;font-size:12px">'
       +'<input type="checkbox" id="full_'+cond+'" checked style="accent-color:'+m.ac+'"> 📝 Dados clínicos completos</label>';
+    // Fotos do atendimento (só aparece se houver fotos anexadas)
+    var _atdCnt=(photoStore[_atdKey(pid,cond)]||[]).filter(function(ph){return ph&&ph.src;}).length;
+    if(_atdCnt){
+      html+='<label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);background:#f7f4f0;cursor:pointer;font-size:12px">'
+        +'<input type="checkbox" id="atd_'+cond+'" checked style="accent-color:'+m.ac+'"> 📷 Fotos do Atendimento ('+_atdCnt+')</label>';
+    }
 
     // Individual evals for table selection — toggle all
     html+='</div>';
@@ -1663,15 +2019,19 @@ function generateReport(pid){
   // Force-reload all photos then render
   var _allEvs2=[];
   (p.conds||[]).forEach(function(c){_allEvs2=_allEvs2.concat((p.condEvals&&p.condEvals[c])||[]);});
+  // chaves de fotos do atendimento (1 por condição)
+  var _atdKeys=(p.conds||[]).map(function(c){return _atdKey(pid,c);});
+  var _total=_allEvs2.length+_atdKeys.length;
   var _loaded2=0;
   function _afterPhotos(){
     _loaded2++;
-    if(_loaded2<_allEvs2.length)return;
+    if(_loaded2<_total)return;
     _allEvs2.forEach(function(ev){cleanPhotoStore(ev.id);});
     _doGenerateReport(pid,p);
   }
-  if(_allEvs2.length===0){_doGenerateReport(pid,p);return;}
+  if(_total===0){_doGenerateReport(pid,p);return;}
   _allEvs2.forEach(function(ev){loadPhotos(ev.id,_afterPhotos);});
+  _atdKeys.forEach(function(k){loadPhotos(k,_afterPhotos);});
   return;
 }
 function _doGenerateReport(pid,p){
@@ -1696,7 +2056,7 @@ function _doGenerateReport(pid,p){
     +'<button class="btn btn-gr" onclick="savePDF()" style="padding:8px 14px;background:#1565C0;color:#fff">🖨️ Imprimir / PDF</button>'
     +'</div></div>';
   // ── CABEÇALHO CLÍNICO COM LOGO ──
-  html+='<div style="background:#fff;border:1.5px solid #e0d8cc;border-radius:12px;margin-bottom:14px;overflow:hidden;page-break-inside:avoid">'
+  html+='<div class="rpt-keep" style="background:#fff;border:1.5px solid #e0d8cc;border-radius:12px;margin-bottom:14px;overflow:hidden">'
     +'<div style="background:linear-gradient(135deg,#6B7F5E,#4d5e43);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;overflow:hidden">'
     +'<div style="display:flex;align-items:center;gap:14px">'
     +'<img src="'+LOGO_ICON_SRC+'" class="rpt-header-logo" style="height:48px;max-height:48px;max-width:150px;width:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:.9;display:block;flex-shrink:0">'
@@ -1769,11 +2129,11 @@ function _doGenerateReport(pid,p){
       if(fieldLabel(k)===null)return; // campo interno/oculto
       var v=(ev0.data||{})[k]; if(v===true)v='Sim';
       if(_empty0(v))return;
-      cells0+='<div style="page-break-inside:avoid"><span style="font-size:9px;font-weight:700;color:'+(m.ac||'#E8844A')+';text-transform:uppercase;letter-spacing:.4px">'+fieldLabel(k)+'</span>'
+      cells0+='<div class="rpt-keep" style=""><span style="font-size:9px;font-weight:700;color:'+(m.ac||'#E8844A')+';text-transform:uppercase;letter-spacing:.4px">'+fieldLabel(k)+'</span>'
         +'<div style="font-size:11px;margin-top:2px;color:#1a1a14;white-space:pre-wrap">'+esc(''+v)+'</div></div>';
     });
     if(!cells0)return;
-    html+='<div class="rpt-section" style="page-break-inside:avoid">'
+    html+='<div class="rpt-section">'
       +'<div class="rpt-sec-hd" style="background:'+(m.acp||'#FDF0E8')+'"><h4 style="color:'+(m.ac||'var(--or)')+'">'+(m.icon||'📋')+' Achados Clínicos — Avaliação Inicial · '+(m.label||cond)
       +' <small style="font-weight:400;color:var(--g4);font-size:10px">('+fmtDate(ev0.date)+')</small></h4></div>'
       +'<div style="padding:14px 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px">'+cells0+'</div></div>';
@@ -1897,6 +2257,23 @@ function _doGenerateReport(pid,p){
       }
     }
 
+    // ── FOTOS DO ATENDIMENTO (desta patologia) ──
+    if(chk('atd_'+cond)){
+      var _atdPhotos=(photoStore[_atdKey(pid,cond)]||[]).filter(function(ph){return ph&&ph.src;});
+      if(_atdPhotos.length){
+        html+='<div style="padding:8px 16px 16px">'
+          +'<div style="font-size:10px;font-weight:700;color:'+m.ac+';text-transform:uppercase;letter-spacing:.5px;margin:10px 0 8px">📷 Fotos do Atendimento</div>'
+          +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">';
+        _atdPhotos.forEach(function(ph){
+          html+='<div class="rpt-atd-item" style="border:1.5px solid '+m.ac+'33;border-radius:8px;overflow:hidden;background:#fff">'
+            +'<img class="rpt-photo-img" src="'+ph.src+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block">'
+            +(ph.desc?'<div style="padding:6px 9px;font-size:10px;color:var(--g6);line-height:1.4;border-top:1px solid var(--g1)">'+esc(ph.desc)+'</div>':'')
+            +'</div>';
+        });
+        html+='</div></div>';
+      }
+    }
+
     html+='</div>';
   });
 
@@ -1943,7 +2320,7 @@ function _doGenerateReport(pid,p){
       EVIEWS.forEach(function(v){
         var hasView=picks.some(function(ev){var photos=photoStore[ev.id]||[];return photos.some(function(ph){return ph.key===v.key&&ph.src;});});
         if(!hasView)return;
-        photoSection+='<div style="display:grid;grid-template-columns:80px repeat('+cols+',1fr);gap:6px;margin-bottom:8px;align-items:center;page-break-inside:avoid">';
+        photoSection+='<div style="display:grid;grid-template-columns:80px repeat('+cols+',1fr);gap:6px;margin-bottom:8px;align-items:center" class="rpt-photo-row">';
         // Label da vista
         photoSection+='<div style="font-size:9px;font-weight:600;color:var(--g5);text-align:right;padding-right:6px;text-transform:uppercase;letter-spacing:.4px;line-height:1.3">'+v.icon+'<br>'+v.label+'</div>';
         picks.forEach(function(ev){
@@ -1977,7 +2354,7 @@ function _doGenerateReport(pid,p){
           if(cnt>maxPhotos)maxPhotos=cnt;
         });
         for(var slot=0;slot<maxPhotos;slot++){
-          photoSection+='<div style="display:grid;grid-template-columns:80px repeat('+cols+',1fr);gap:6px;margin-bottom:8px;align-items:center;page-break-inside:avoid">';
+          photoSection+='<div style="display:grid;grid-template-columns:80px repeat('+cols+',1fr);gap:6px;margin-bottom:8px;align-items:center" class="rpt-photo-row">';
           photoSection+='<div style="font-size:9px;font-weight:600;color:var(--g5);text-align:right;padding-right:6px">Foto '+(slot+1)+'</div>';
           picks.forEach(function(ev){
             var photos=(photoStore[ev.id]||[]).filter(function(ph){return ph.src&&ph.src.length>200;});
@@ -1993,7 +2370,7 @@ function _doGenerateReport(pid,p){
       } else {
         // Mostra cada view como uma linha, colunas = avaliações
         viewOrder.forEach(function(vk){
-          photoSection+='<div style="display:grid;grid-template-columns:80px repeat('+cols+',1fr);gap:6px;margin-bottom:8px;align-items:center;page-break-inside:avoid">';
+          photoSection+='<div style="display:grid;grid-template-columns:80px repeat('+cols+',1fr);gap:6px;margin-bottom:8px;align-items:center" class="rpt-photo-row">';
           photoSection+='<div style="font-size:9px;font-weight:600;color:var(--g5);text-align:right;padding-right:6px;text-transform:uppercase;letter-spacing:.4px;line-height:1.3">'+vk+'</div>';
           picks.forEach(function(ev){
             var photos=(photoStore[ev.id]||[]).filter(function(ph){return ph.src&&ph.src.length>200;});
@@ -2034,7 +2411,7 @@ function _doGenerateReport(pid,p){
 
 
   // ── ASSINATURA ──
-  html+='<div class="rpt-section" style="border:1.5px solid #E8844A;page-break-inside:avoid">';
+  html+='<div class="rpt-section rpt-keep" style="border:1.5px solid #E8844A">';
   html+='<div class="rpt-sec-hd" style="background:#FDF0E8"><h4 style="color:#C86A32">✍️ Assinatura do Profissional</h4></div>';
   html+='<div style="padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px">';
   html+='<img src="'+LOGO_ICON_SRC+'" style="height:30px;width:auto;object-fit:contain;opacity:.4">';
@@ -2811,12 +3188,29 @@ function importarDados(){
         db = data.db;
         if(!db.photos) db.photos = {};
         if(data.photos){ Object.keys(data.photos).forEach(function(k){ db.photos[k] = data.photos[k]; }); }
-        // Timestamp NOVO — garante que estes dados vençam a versão antiga da nuvem
+        // Timestamp e revisão NOVOS — garante que estes dados vençam a versão antiga da nuvem
         db._updated = new Date().toISOString();
+        db._rev = (parseInt(db._rev)||0) + 1000; // salto grande para vencer com folga
         // Carrega as fotos para a memória e grava no IndexedDB (cota grande)
         if(typeof restorePhotosFromDB === 'function') restorePhotosFromDB();
         // Persiste do jeito certo: localStorage leve + IndexedDB completo + nuvem (registros)
         if(typeof saveDB === 'function') saveDB();
+        // ── Sobe TODAS as fotos para a nuvem (documentos separados) ──
+        var _allKeys = Object.keys(db.photos||{});
+        if(window._fbSavePhotoKey && _allKeys.length){
+          if(window._setSync)window._setSync('syncing');
+          (async function(){
+            var ok=0;
+            for(var i=0;i<_allKeys.length;i++){
+              var k=_allKeys[i], arr=db.photos[k]||[];
+              if(arr.filter(function(p){return p&&p.src;}).length){
+                try{ await window._fbSavePhotoKey(k, arr); ok++; }catch(e){}
+              }
+            }
+            if(window._setSync)window._setSync('online');
+            console.log('📷 Fotos enviadas à nuvem na importação:', ok, 'conjuntos');
+          })();
+        }
         // Recarrega interface
         curPid = null; curCond = null; curEid = null;
         renderList();
@@ -2959,6 +3353,49 @@ function buildSections(){
           ['Suporte social (0–100)','pdq_soc','number',null,{min:0,max:100}],['Cognição (0–100)','pdq_cogn','number',null,{min:0,max:100}],
           ['Comunicação (0–100)','pdq_com','number',null,{min:0,max:100}],['Desconforto (0–100)','pdq_desc','number',null,{min:0,max:100}]])
     +fld('PDQ-SI (índice sumário automático)','pdq39_si','ro',null,{id:'pdq_pk'})
+    +ib('Aplique o PDQ-39 completo abaixo — o PDQ-SI (índice sumário, média dos 8 domínios) é calculado e preenchido automaticamente. Período: <strong>último mês</strong>.')
+    +qgrid([
+      ['Teve dificuldade para fazer atividades de lazer?','MOB'],
+      ['Teve dificuldade para cuidar da casa (ex.: tarefas domésticas, cozinhar)?','MOB'],
+      ['Teve dificuldade para carregar sacolas de compras?','MOB'],
+      ['Teve problemas para caminhar 1 km?','MOB'],
+      ['Teve problemas para caminhar 100 metros?','MOB'],
+      ['Teve problemas para andar pela casa com a facilidade que gostaria?','MOB'],
+      ['Teve dificuldade para circular em lugares públicos?','MOB'],
+      ['Precisou que alguém o acompanhasse ao sair?','MOB'],
+      ['Sentiu medo ou preocupação de cair em público?','MOB'],
+      ['Ficou confinado(a) em casa mais do que gostaria?','MOB'],
+      ['Teve dificuldade para se lavar?','AVD'],
+      ['Teve dificuldade para se vestir?','AVD'],
+      ['Teve dificuldade para abotoar roupas ou amarrar cadarços?','AVD'],
+      ['Teve dificuldade para escrever de forma legível?','AVD'],
+      ['Teve dificuldade para cortar os alimentos?','AVD'],
+      ['Teve dificuldade para segurar uma bebida sem derramar?','AVD'],
+      ['Sentiu-se deprimido(a)?','BEM'],
+      ['Sentiu-se isolado(a) e sozinho(a)?','BEM'],
+      ['Sentiu-se choroso(a) ou com vontade de chorar?','BEM'],
+      ['Sentiu-se irritado(a) ou zangado(a)?','BEM'],
+      ['Sentiu-se ansioso(a)?','BEM'],
+      ['Sentiu preocupação com o futuro?','BEM'],
+      ['Sentiu necessidade de esconder o Parkinson das pessoas?','EST'],
+      ['Evitou comer ou beber em público?','EST'],
+      ['Sentiu-se constrangido(a) em público por causa da doença?','EST'],
+      ['Sentiu-se preocupado(a) com a reação das pessoas?','EST'],
+      ['Teve problemas em relacionamentos pessoais próximos?','SOC'],
+      ['Sentiu falta de apoio do cônjuge ou companheiro(a)?','SOC'],
+      ['Sentiu falta de apoio de familiares ou amigos próximos?','SOC'],
+      ['Adormeceu inesperadamente durante o dia?','COG'],
+      ['Teve problemas de concentração (ex.: ao ler ou ver TV)?','COG'],
+      ['Sentiu que a memória estava falha?','COG'],
+      ['Teve sonhos perturbadores ou alucinações?','COG'],
+      ['Teve dificuldade para falar?','COM'],
+      ['Sentiu-se incapaz de se comunicar adequadamente?','COM'],
+      ['Sentiu que as pessoas o ignoravam?','COM'],
+      ['Teve câimbras musculares ou espasmos dolorosos?','DESC'],
+      ['Teve dores nas articulações ou no corpo?','DESC'],
+      ['Sentiu calor ou frio de forma desagradável?','DESC']
+    ],'qz_pdq',4,[['0','0 · Nunca'],['1','1 · Raramente'],['2','2 · Às vezes'],['3','3 · Frequentemente'],['4','4 · Sempre']])
+    +qbar('qz_pdq','PDQ-SI (índice sumário 0–100)')
     +sub('Schwab & England ADL Scale')
     +how('<strong>Como aplicar:</strong> Observação e relato do paciente/cuidador. 100%=totalmente independente, sem dificuldade. 90%=independente, com dificuldade mínima. Reduzir 10% para cada nível de dependência adicional. 50%=mais dependente que independente. 0%=vegetativo.')
     +fg([['% Independência (0–100)','schwab','number',null,{min:0,max:100,step:'10'}],
@@ -3013,55 +3450,55 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'📊',title:'Hoehn & Yahr',tag:'Estadiamento',tc:'t-mot',fn:'Hoehn & Yahr Scale',
+  {icon:'📊',title:'Hoehn & Yahr',resumo:'Diz em que <b>estágio</b> o Parkinson está, de 1 (leve, um lado só) a 5 (preso à cama/cadeira). Quanto maior, mais avançada a doença.',tag:'Estadiamento',tc:'t-mot',fn:'Hoehn & Yahr Scale',
    rows:[['Objetivo','Classificar progressão global da DP.'],['Pontuação','1 a 5.'],['Tempo','5–10 min.']],
    tbl:[['Estágio','Descrição'],['1','Unilateral'],['1,5','Unilateral+axial'],['2','Bilateral s/ instabilidade'],['2,5','Bilateral pull leve'],['3','Instabilidade leve/mod'],['4','Severa, caminha sozinho'],['5','Cadeirante/acamado']],
    tip:'Realizar Teste Pull: empurrar ombros para trás e observar resposta protetora.'},
-  {icon:'📋',title:'MDS-UPDRS III — Exame Motor',tag:'Motor',tc:'t-mot',fn:'MDS-Unified Parkinson Disease Rating Scale — Parte III',
+  {icon:'📋',title:'MDS-UPDRS III — Exame Motor',resumo:'É o exame que dá uma <b>nota aos sintomas motores</b> do Parkinson (tremor, rigidez, lentidão). Quanto maior a nota (0–132), pior o quadro motor.',tag:'Motor',tc:'t-mot',fn:'MDS-Unified Parkinson Disease Rating Scale — Parte III',
    rows:[['Pontuação','0–132 pts. 0=normal, 1=mínimo, 2=leve, 3=moderado, 4=grave.'],['Aplicar em','Fase ON (1h após medicação). Registrar horário e fase.'],['Tempo','15–20 min. Treinamento/certificação recomendada.'],['Subitens importantes','3.1 Fala (0–4). 3.3 Rigidez — pescoço e membros D/E. 3.4–3.8 Bradicinesia (sequência de movimentos). 3.10 Marcha. 3.11 Freezing. 3.12 Estabilidade postural (pull test).'],['Pull Test','Posição atrás do paciente. Puxão repentino pelos ombros. 0=sem necessidade de passos; 1=2–3 passos; 2=>3 passos; 3=cai sem tentar; 4=instável em pé.']],
    tbl:[['UPDRS III','Interpretação'],['0–32','Leve'],['33–58','Moderado'],['59–132','Grave']],
    tip:'Avaliar SEMPRE em fase ON. Diferença ≥4 pts entre avaliações é clinicamente significativa. Bradicinesia (3.4–3.8) tem maior correlação com qualidade de vida. Documentar: hora da medicação e hora do exame.'},
-  {icon:'⚖️',title:'Berg Balance Scale',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
+  {icon:'⚖️',title:'Berg Balance Scale',resumo:'Mede o <b>equilíbrio</b> em 14 tarefas do dia a dia. Vai de 0 a 56: abaixo de 45 pontos, o risco de cair é alto.',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
    rows:[['Pontuação','0–56 pts.'],['Materiais','2 cadeiras, régua 25cm, objeto no chão, banco.'],['Tempo','15–20 min.']],
    tbl:[['Pontuação','Risco'],['≥45','Baixo'],['21–44','Moderado'],['0–20','Alto']],
    tip:'Na DP, registrar fase ON/OFF — escores podem flutuar significativamente.'},
-  {icon:'⏱️',title:'TUG',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
+  {icon:'⏱️',title:'TUG',resumo:'Cronometra <b>levantar da cadeira, andar 3 metros, voltar e sentar</b>. Acima de 12 segundos indica risco de quedas.',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
    rows:[['Protocolo','Cadeira 46cm s/ apoio de braços. 3 tentativas — menor tempo ou média das 2 últimas. Registrar: dispositivo e fase ON/OFF.'],['Referência DP','<10s = risco baixo; 10–20s = risco moderado; >20s = alto risco quedas.'],['Observar durante','Hesitação para iniciar, freezing (especialmente na virada), balanço dos MMSS ausente ou assimétrico, estratégia de virada em bloco (sinal de rigidez axial), festinação.']],
    tbl:null,tip:'Em fase OFF o TUG pode ser 2–3× mais lento. Documentar sempre a fase. TUG >11,5s na DP = risco significativo de quedas. Diferença entre fases ON/OFF >50% indica grande flutuação motora.'},
-  {icon:'🚶',title:'TC10M',tag:'Marcha',tc:'t-func',fn:'Ten Meter Walk Test',
+  {icon:'🚶',title:'TC10M',resumo:'Mede a <b>velocidade da caminhada</b> (metros por segundo). Mais rápido é melhor; muito lento sugere que a pessoa só anda dentro de casa.',tag:'Marcha',tc:'t-func',fn:'Ten Meter Walk Test',
    rows:[['Cálculo','10 ÷ tempo = velocidade (m/s).'],['Setup','14m total, cronometrar 10m centrais.']],
    tbl:[['Velocidade','Interpretação'],['>1,0 m/s','Marcha comunitária'],['0,6–1,0','Limitada'],['<0,6','Domiciliar']],
    tip:'Diferença pequena entre habitual e rápida indica rigidez ou festinação importante.'},
-  {icon:'🏃',title:'TC6M',tag:'Resistência',tc:'t-func',fn:'Six Minute Walk Test',
+  {icon:'🏃',title:'TC6M',resumo:'Mede <b>quantos metros</b> a pessoa caminha em 6 minutos — um retrato da resistência ao esforço.',tag:'Resistência',tc:'t-func',fn:'Six Minute Walk Test',
    rows:[['Execução','Corredor 30m. Maior distância em 6 min.'],['Monitorar','FC, SpO2, Borg antes e depois.']],
    tbl:null,tip:'Interromper se SpO2 <85%. Registrar número de paradas.'},
-  {icon:'⚖️',title:'Mini-BESTest — Equilíbrio Sistêmico',tag:'Equilíbrio',tc:'t-func',fn:'Mini Balance Evaluation Systems Test',
+  {icon:'⚖️',title:'Mini-BESTest — Equilíbrio Sistêmico',resumo:'Avalia o <b>equilíbrio</b> separando-o em partes (reflexos, sentidos, marcha), o que ajuda a saber <b>qual</b> treino priorizar. Vai de 0 a 28.',tag:'Equilíbrio',tc:'t-func',fn:'Mini Balance Evaluation Systems Test',
    rows:[['Pontuação','0–28 pts. Cada item: 0 (incapaz) a 2 (normal).'],['4 Domínios','A: Ajustes posturais antecipatórios (3 itens). B: Reações posturais (3 itens). C: Orientação sensorial (3 itens). D: Estabilidade na marcha (5 itens).'],['Tempo','15–20 min.'],['Vantagem sobre Berg','Avalia subsistemas → orienta a intervenção. Berg tem efeito teto em pacientes de alta funcionalidade.']],
    tbl:[['Pontuação','Risco'],['>22','Baixo risco'],['17–22','Risco moderado'],['<17','Alto risco quedas']],
    tip:'DCMI na DP: 3,5 pts. Domínios com menor pontuação indicam o subsistema a priorizar. Reações posturais baixas → treinamento de perturbação. Sensorial baixo → treino proprioceptivo/Romberg.'},
-  {icon:'🚶',title:'NFOG-Q — Freezing of Gait',tag:'Freezing',tc:'t-mot',fn:'New Freezing of Gait Questionnaire',
+  {icon:'🚶',title:'NFOG-Q — Freezing of Gait',resumo:'Questionário sobre o <b>congelamento da marcha</b> (quando os pés "grudam" no chão). Quanto maior a nota (0–28), mais grave e frequente o problema.',tag:'Freezing',tc:'t-mot',fn:'New Freezing of Gait Questionnaire',
    rows:[['Pontuação','0–28. Maior = pior freezing.'],['Parte A','Item 1: identificar se há FOG. Se negativo, zera as demais partes.'],['Parte B','Frequência (0–4) e duração do FOG (0–4) em 3 situações.'],['Parte C','Impacto nas AVDs (0–4).'],['Situações típicas de FOG','Início da caminhada, viradas (especialmente 180°), espaços estreitos, multidão, dupla tarefa cognitiva, ansiedade, destino próximo.']],
    tbl:null,tip:'NFOG-Q ≥14 pts = FOG grave. Estratégias de desbloqueio: pistas visuais (linhas no chão), pistas auditivas (metrônomo), pistas mentais (imaginar passo alto). Avaliar sempre na fase mais sintomática (OFF ou dose-off).'},
-  {icon:'🧠',title:'MoCA — Avaliação Cognitiva',tag:'Cognição',tc:'t-cog',fn:'Montreal Cognitive Assessment',
+  {icon:'🧠',title:'MoCA — Avaliação Cognitiva',resumo:'Teste de <b>memória, atenção e raciocínio</b>. Vai de 0 a 30; abaixo de 26 já merece atenção. Detecta alterações leves melhor que o MEEM.',tag:'Cognição',tc:'t-cog',fn:'Montreal Cognitive Assessment',
    rows:[['Pontuação','0–30. ≥26=normal. +1 pt se ≤12 anos de escolaridade.'],['Tempo','10 min.'],['Domínios avaliados','Visuoespacial/Executivo (5), Nomeação (3), Memória — evocação tardia (5), Atenção (6), Linguagem (3), Abstração (2), Orientação (6).'],['Vantagem sobre MEEM na DP','Avalia funções executivas e atenção — as primeiras afetadas na DP.'],['DCL na DP','Frequente (25–40% dos casos). Pode preceder demência por anos.']],
    tbl:[['MoCA','Classificação'],['≥26','Normal'],['21–25','DCL provável'],['18–20','Demência leve'],['<18','Demência moderada/grave']],
    tip:'DCMI: 2 pts. Testar em fase ON — cognição piora no OFF. Perfil típico da DP: déficits em atenção, fluência verbal (F-A-S) e funções executivas. Memória relativamente preservada vs Alzheimer.'},
-  {icon:'🎯',title:'Schwab & England — Funcionalidade nas AVDs',tag:'Funcionalidade',tc:'t-func',fn:'Schwab and England Activities of Daily Living Scale',
+  {icon:'🎯',title:'Schwab & England — Funcionalidade nas AVDs',resumo:'Estima <b>o quanto a pessoa é independente</b> nas tarefas do dia, de 0% (dependente total) a 100% (independente).',tag:'Funcionalidade',tc:'t-func',fn:'Schwab and England Activities of Daily Living Scale',
    rows:[['Pontuação','0% (vegetativo) a 100% (totalmente independente). Graduar de 10 em 10%.'],['Como aplicar','Pergunta direta ao paciente e/ou cuidador: grau de independência nas atividades do dia a dia.'],['Correlação','Relaciona com estágio H&Y e UPDRS II (não-motor).']],
    tbl:[['Schwab & England','Descrição'],['100%','Completamente independente'],['90%','Independente — lentidão leve'],['80%','Independente — lentidão moderada'],['70%','Não totalmente independente — dificuldade em AVDs complexas'],['60%','Alguma dependência — ajuda em metade das tarefas'],['50%','Mais dependente — ajuda na maioria das tarefas'],['40–30%','Muito dependente — ajuda em tudo'],['20–10%','Invalido — mínima assistência'],['0%','Funções vegetativas comprometidas']],
    tip:'Queda de 10% representa deterioração funcional clinicamente significativa. Aplicar avaliando fase ON (pico de medicação) para refletir melhor capacidade. Em fase OFF, valores podem ser 20–30% menores.'},
-  {icon:'🫁',title:'Avaliação Respiratória e Deglutição na DP',tag:'Respiratório',tc:'t-func',fn:'Respiratory & Swallowing Assessment in Parkinson Disease',
+  {icon:'🫁',title:'Avaliação Respiratória e Deglutição na DP',resumo:'Verifica a <b>força para respirar e a segurança para engolir</b>. Importante porque engasgos no Parkinson podem causar pneumonia.',tag:'Respiratório',tc:'t-func',fn:'Respiratory & Swallowing Assessment in Parkinson Disease',
    rows:[['Disfagia','Prevalente em 80% dos pacientes com DP. Frequentemente subdiagnosticada.'],['Rastreio disfagia','Swallowing Disturbance Questionnaire (SDQ) ou teste de deglutição de água (100ml). Tosse ou voz molhada = risco.'],['Hipofonia','Avaliar: intensidade, prosódia, inteligibilidade. UPDRS 3.1 para fala.'],['Função respiratória','CVF, VEF1, PImáx, PEmáx. Musculatura respiratória comprometida pela rigidez.'],['Peak Flow (tosse)','<270 L/min = tosse ineficaz. Risco de aspiração e pneumonia.']],
    tbl:[['Sinal','Risco de Aspiração'],['Tosse durante/após refeição','Alto'],['Voz molhada após deglutição','Alto'],['Engasgos frequentes','Moderado-alto'],['Lentidão na mastigação','Moderado'],['Redução da ingestão oral','Moderado']],
    tip:'Pneumonia por aspiração é uma das principais causas de óbito na DP. Encaminhar para fonoaudiologia precocemente. Exercícios respiratórios (LSVT LOUD, inspiratory muscle training) têm evidência crescente.'},
-  {icon:'🌟',title:'PDQ-39 — Qualidade de Vida na DP',tag:'QV',tc:'t-qv',fn:"Parkinson's Disease Questionnaire — 39 items",
+  {icon:'🌟',title:'PDQ-39 — Qualidade de Vida na DP',resumo:'Questionário em que o próprio paciente avalia <b>como o Parkinson afeta sua vida</b>. Vai de 0 (melhor) a 100 (pior).',tag:'QV',tc:'t-qv',fn:"Parkinson's Disease Questionnaire — 39 items",
    rows:[['Cálculo PDQ-SI','Média dos 8 domínios (0–100 cada). 0=melhor QV, 100=pior.'],['Tempo','10–15 min (autoaplicável). PDQ-8 versão curta: 5 min.'],['8 Domínios','Mobilidade (10 itens), AVDs (6), Bem-estar emocional (6), Estigma (4), Suporte social (3), Cognição (4), Comunicação (3), Desconforto corporal (3).']],
    tbl:[['Domínio','Tipicamente mais afetado em'],['Mobilidade','Todas as fases — pior com progressão'],['AVDs','Fase moderada-grave'],['Bem-estar emocional','Correlaciona com depressão'],['Estigma','Fases moderada-grave'],['Cognição','DCL e demência na DP']],
    tip:'DCMI: 4,5 pts no PDQ-SI. Domínio mobilidade mais afetado precocemente. Domínio suporte social pode estar subestimado — incluir cuidador na avaliação. Aplicar a cada 6 meses.'},
-  {icon:'💊',title:'Schwab & England',tag:'Funcionalidade',tc:'t-func',fn:'Schwab and England ADL Scale',
+  {icon:'💊',title:'Schwab & England',resumo:'Estima <b>o quanto a pessoa é independente</b> nas tarefas do dia, de 0% (totalmente dependente) a 100% (independente).',tag:'Funcionalidade',tc:'t-func',fn:'Schwab and England ADL Scale',
    rows:[['Pontuação','0% (vegetativo) a 100% (independente). Graduar de 10 em 10%.']],
    tbl:null,tip:'Queda de 10% representa deterioração funcional clinicamente significativa.'},
-  {icon:'📉',title:'FES-I Brasil',tag:'Quedas',tc:'t-func',fn:'Falls Efficacy Scale International — Brasil',
+  {icon:'📉',title:'FES-I Brasil',resumo:'Mede <b>o medo de cair</b>. Quanto maior a nota (16–64), mais a pessoa evita atividades por receio de queda.',tag:'Quedas',tc:'t-func',fn:'Falls Efficacy Scale International — Brasil',
    rows:[['Pontuação','16–64 pts.'],['Pergunta','Quão preocupado com possibilidade de cair?']],
    tbl:[['Pontuação','Nível'],['16–19','Baixo'],['20–27','Moderado'],['≥28','Alto']],
    tip:'Medo de cair leva à restrição de atividades independente de quedas reais.'},
@@ -3250,7 +3687,34 @@ function buildSections(){
          ['QOL-AD (13–52)','qolad','number',null,{min:13,max:52}],
          ['Cuidador principal','cuidador','text',null,{ph:'Nome/parentesco'}],
          ['Nível de supervisão','supervisao','select',['Independente','Supervisão esporádica','Supervisão contínua','Cuidado integral'],null],
-         ['Obs. AVD','avd_obs','textarea',null,{full:true}]]))
+         ['Obs. AVD','avd_obs','textarea',null,{full:true}]])
+    +ib('Aplique o Zarit completo abaixo (respondido pelo cuidador) — o total (0–88) é somado e preenchido automaticamente. &lt;21 pouca; 21–40 leve/moderada; 41–60 moderada/severa; &gt;60 severa.')
+    +qgrid([
+      'Sente que seu familiar pede mais ajuda do que necessita?',
+      'Sente que, por causa do tempo gasto com seu familiar, não tem tempo suficiente para você?',
+      'Sente-se estressado(a) entre cuidar do familiar e suas outras responsabilidades?',
+      'Sente-se envergonhado(a) com o comportamento de seu familiar?',
+      'Sente-se irritado(a) quando está perto de seu familiar?',
+      'Sente que seu familiar afeta negativamente seus relacionamentos com outros membros da família?',
+      'Tem receio do que o futuro reserva para seu familiar?',
+      'Sente que seu familiar depende de você?',
+      'Sente-se tenso(a) quando está perto de seu familiar?',
+      'Sente que sua saúde foi afetada por cuidar de seu familiar?',
+      'Sente que não tem tanta privacidade como gostaria por causa do familiar?',
+      'Sente que sua vida social foi prejudicada por cuidar do familiar?',
+      'Sente-se desconfortável em receber visitas por causa do familiar?',
+      'Sente que seu familiar espera que você cuide dele, como se fosse a única pessoa de quem ele pode depender?',
+      'Sente que não tem dinheiro suficiente para cuidar do familiar, somado às suas outras despesas?',
+      'Sente que será incapaz de cuidar do familiar por muito mais tempo?',
+      'Sente que perdeu o controle da sua vida desde a doença do familiar?',
+      'Gostaria de simplesmente deixar o cuidado do familiar para outra pessoa?',
+      'Sente-se em dúvida sobre o que fazer pelo seu familiar?',
+      'Sente que deveria estar fazendo mais pelo seu familiar?',
+      'Sente que poderia cuidar melhor do seu familiar?',
+      'De forma geral, quanto você se sente sobrecarregado(a) por cuidar do seu familiar?'
+    ],'qz_zarit',4,[['0','0 · Nunca'],['1','1 · Raramente'],['2','2 · Às vezes'],['3','3 · Frequentemente'],['4','4 · Sempre']])
+    +qbar('qz_zarit','Zarit — Total (0–88)')
+    )
 
   +sec('📸','8. Evolução Fotográfica',
     '<div class="ib"><strong>Como usar:</strong> Adicione fotos desta avaliação. As fotos ficam vinculadas a esta avaliação específica e aparecem no comparativo do relatório.</div>'
@@ -3288,43 +3752,43 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'📊',title:'CDR — Clinical Dementia Rating',tag:'Estadiamento',tc:'t-cog',fn:'Clinical Dementia Rating Scale',
+  {icon:'📊',title:'CDR — Clinical Dementia Rating',resumo:'Classifica o <b>estágio da demência</b>, de 0 (normal) a 3 (grave), olhando memória, orientação e autonomia.',tag:'Estadiamento',tc:'t-cog',fn:'Clinical Dementia Rating Scale',
    rows:[['Objetivo','Estadiar gravidade da demência em 6 domínios.'],['Aplicação','Entrevista com paciente E cuidador.'],['Tempo','30–45 min.']],
    tbl:[['CDR','Classificação'],['0','Normal'],['0,5','DCL/Questionável'],['1','Leve'],['2','Moderado'],['3','Grave']],
    tip:'CDR Soma das Caixas (0–18) é mais sensível para detectar progressão que o escore global.'},
-  {icon:'📋',title:'FAST',tag:'Estadiamento',tc:'t-func',fn:'Functional Assessment Staging Test',
+  {icon:'📋',title:'FAST',resumo:'Sinais de alerta para <b>reconhecer um AVC rápido</b>: rosto caído, braço fraco, fala enrolada — hora de chamar emergência.',tag:'Estadiamento',tc:'t-func',fn:'Functional Assessment Staging Test',
    rows:[['Objetivo','Avaliar declínio funcional progressivo em 7 estágios.'],['Aplicação','Cuidador responde sobre funcionamento atual.'],['Tempo','10 min.']],
    tbl:[['Estágio','Descrição'],['1','Normal'],['2','Queixas subjetivas'],['3','Déficits incipientes'],['4','Leve'],['5','Moderado'],['6','Moderado-grave (subestágios 6a–6e)'],['7','Grave (subestágios 7a–7f)']],
    tip:'Útil para planejamento de cuidados e comunicação com família sobre progressão esperada.'},
-  {icon:'🧠',title:'MEEM — Mini Exame do Estado Mental',tag:'Cognição',tc:'t-cog',fn:'Mini Mental State Examination',
+  {icon:'🧠',title:'MEEM — Mini Exame do Estado Mental',resumo:'Teste rápido de <b>memória e orientação</b>. Vai de 0 a 30; notas baixas sugerem comprometimento — o corte muda conforme a escolaridade.',tag:'Cognição',tc:'t-cog',fn:'Mini Mental State Examination',
    rows:[['Pontuação','0–30 pts. 7 domínios: orientação temporal (5), espacial (5), registro (3), atenção/cálculo (5), evocação (3), linguagem (8), praxia construtiva (1).'],['Tempo','10 min. Aplicar em ambiente silencioso. Não dar pistas.'],['Limitações','Efeito teto em escolaridade alta. Efeito chão em analfabetos. Sensível à depressão. Para DCL leve: preferir MoCA.']],
    tbl:[['Escolaridade','Ponto de corte'],['Analfabeto','≤13 pts'],['1–4 anos','≤18 pts'],['5–8 anos','≤21 pts'],['9–11 anos','≤24 pts'],['>11 anos','≤26 pts']],
    tip:'Queda de ≥4 pts/ano = declínio anormal. Queda ≥3 pts em 6 meses = investigar causa tratável (delirium, depressão, medicamentos). Domínios mais precoces na DA: memória de evocação (esquece 3 palavras) e orientação temporal.'},
-  {icon:'🧠',title:'MoCA',tag:'Cognição',tc:'t-cog',fn:'Montreal Cognitive Assessment',
+  {icon:'🧠',title:'MoCA',resumo:'Teste de <b>memória e raciocínio</b> mais detalhado. Vai de 0 a 30; abaixo de 26 sugere alguma alteração cognitiva.',tag:'Cognição',tc:'t-cog',fn:'Montreal Cognitive Assessment',
    rows:[['Pontuação','0–30. ≥26=normal. +1 pt se ≤12 anos escolaridade.'],['Tempo','10 min.']],
    tbl:null,tip:'Mais sensível que MEEM para DCL. Déficit em memória de trabalho e funções executivas são os primeiros sinais.'},
-  {icon:'📝',title:'ADAS-Cog',tag:'Cognição',tc:'t-cog',fn:"Alzheimer's Disease Assessment Scale — Cognitive",
+  {icon:'📝',title:'ADAS-Cog',resumo:'Teste detalhado de <b>memória e cognição</b> usado no Alzheimer. Aqui, quanto <b>maior</b> a nota, pior o desempenho.',tag:'Cognição',tc:'t-cog',fn:"Alzheimer's Disease Assessment Scale — Cognitive",
    rows:[['Pontuação','0–70. Maior = pior cognição.'],['Tempo','30–45 min.']],
    tbl:[['Pontuação','Gravidade'],['0–17','Leve'],['18–35','Moderado'],['>35','Grave']],
    tip:'Variação ≥4 pontos entre avaliações é clinicamente significativa. Padrão em ensaios clínicos.'},
-  {icon:'😔',title:'GDS',tag:'Humor',tc:'t-cog',fn:'Geriatric Depression Scale',
+  {icon:'😔',title:'GDS',resumo:'Escala para <b>rastrear sinais de depressão</b> no idoso por meio de perguntas diretas.',tag:'Humor',tc:'t-cog',fn:'Geriatric Depression Scale',
    rows:[['Pontuação','GDS-15: 0–4=normal; 5–10=leve; 11–15=grave.'],['Tempo','5–10 min.']],
    tbl:null,tip:'Depressão é subdiagnosticada na DA e piora significativamente a funcionalidade.'},
-  {icon:'🏃',title:'Índice de Barthel',tag:'Funcionalidade',tc:'t-func',fn:'Barthel Index',
+  {icon:'🏃',title:'Índice de Barthel',resumo:'Mede <b>independência nas tarefas básicas</b> (comer, banho, vestir, banheiro). Vai de 0 (dependente total) a 100 (independente).',tag:'Funcionalidade',tc:'t-func',fn:'Barthel Index',
    rows:[['Pontuação','0–100 pts. Pontuar performance REAL, não capacidade.'],['Tempo','10–15 min.']],
    tbl:[['Pontuação','Dependência'],['100','Independente'],['75–95','Leve'],['50–74','Moderada'],['25–49','Grave'],['<25','Total']],
    tip:'Na DA, declínio em AVDs instrumentais (ligar para alguém, usar transporte) precede as AVDs básicas.'},
-  {icon:'🧟',title:'POMA — Tinetti',tag:'Equilíbrio/Marcha',tc:'t-func',fn:'Performance Oriented Mobility Assessment',
+  {icon:'🧟',title:'POMA — Tinetti',resumo:'Avalia <b>equilíbrio e marcha</b> em idosos. Quanto menor a nota, maior o risco de quedas.',tag:'Equilíbrio/Marcha',tc:'t-func',fn:'Performance Oriented Mobility Assessment',
    rows:[['Pontuação','Equilíbrio (16) + Marcha (12) = 28 pts.'],['Tempo','10–15 min.']],
    tbl:[['Pontuação','Risco'],['<19','Alto risco'],['19–24','Moderado'],['>24','Baixo']],
    tip:'Apraxia de marcha é frequente na DA — passos arrastados e dificuldade de iniciação mesmo com força preservada.'},
-  {icon:'⚖️',title:'Berg Balance Scale',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
+  {icon:'⚖️',title:'Berg Balance Scale',resumo:'Mede o <b>equilíbrio</b> em 14 tarefas do dia a dia. Vai de 0 a 56: abaixo de 45 pontos, o risco de cair é alto.',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
    rows:[['Pontuação','0–56. <45 = risco de quedas.'],['Tempo','15–20 min.']],
    tbl:null,tip:'Aplicar em ambiente silencioso — déficits de atenção na DA interferem diretamente no desempenho.'},
-  {icon:'⏱️',title:'TUG',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
+  {icon:'⏱️',title:'TUG',resumo:'Cronometra <b>levantar da cadeira, andar 3 metros, voltar e sentar</b>. Acima de 12 segundos indica risco de quedas.',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
    rows:[['Referência','>12s = risco aumentado.'],['TUG Cognitivo','Contar regressivo de 100. Diferença vs TUG simples = reserva cognitiva.']],
    tbl:null,tip:'Dupla tarefa exacerba déficits na DA e representa melhor a performance real nas AVDs.'},
-  {icon:'👨‍👩‍👧',title:'Zarit Burden Interview',tag:'Cuidador',tc:'t-qv',fn:'Zarit Caregiver Burden Interview',
+  {icon:'👨‍👩‍👧',title:'Zarit Burden Interview',resumo:'Mede a <b>sobrecarga do cuidador</b>. Quanto maior a nota, mais o cuidador está sobrecarregado e precisa de apoio.',tag:'Cuidador',tc:'t-qv',fn:'Zarit Caregiver Burden Interview',
    rows:[['Pontuação','0–88. Maior = maior sobrecarga.'],['Tempo','10 min (cuidador responde).']],
    tbl:[['Pontuação','Sobrecarga'],['<21','Pouca/nenhuma'],['21–40','Leve-moderada'],['41–60','Moderada-severa'],['>60','Severa']],
    tip:'Cuidadores com sobrecarga grave têm 3× mais risco de depressão. Incluir suporte ao cuidador no plano.'},
@@ -3538,44 +4002,44 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'🚨',title:'NIHSS',tag:'Estadiamento',tc:'t-mot',fn:'National Institutes of Health Stroke Scale',
+  {icon:'🚨',title:'NIHSS',resumo:'Mede a <b>gravidade do AVC</b> logo após o evento (força, fala, visão, sensibilidade). Quanto maior a nota, mais grave o derrame.',tag:'Estadiamento',tc:'t-mot',fn:'National Institutes of Health Stroke Scale',
    rows:[['Objetivo','Quantificar déficit neurológico pós-AVC.'],['Pontuação','0–42 pts. Pontuar o que o paciente FAZ.'],['Tempo','5–10 min. Recomendada certificação.']],
    tbl:[['Pontuação','Gravidade'],['0','Normal'],['1–4','Leve'],['5–15','Moderado'],['16–20','Grave'],['21–42','Muito grave']],
    tip:'Queda ≥4 pontos indica melhora clinicamente significativa. Monitorar a cada 24h na fase aguda.'},
-  {icon:'📊',title:'mRS',tag:'Funcionalidade',tc:'t-func',fn:'Modified Rankin Scale',
+  {icon:'📊',title:'mRS',resumo:'Resume o <b>grau de incapacidade</b> após o AVC, de 0 (sem sintomas) a 5 (dependência total).',tag:'Funcionalidade',tc:'t-func',fn:'Modified Rankin Scale',
    rows:[['Objetivo','Avaliar grau de incapacidade pós-AVC.'],['Pontuação','0 (sem sintomas) a 6 (óbito).']],
    tbl:[['mRS','Descrição'],['0','Sem sintomas'],['1','Sem incapacidade'],['2','Leve — independente'],['3','Moderada — requer ajuda'],['4','Mod-grave'],['5','Grave'],['6','Óbito']],
    tip:'mRS ≤2 = desfecho favorável nos ensaios clínicos. Mudança de 1 ponto é clinicamente relevante.'},
-  {icon:'🤲',title:'Fugl-Meyer Assessment — Motor',tag:'Motor',tc:'t-mot',fn:'Fugl-Meyer Assessment',
+  {icon:'🤲',title:'Fugl-Meyer Assessment — Motor',resumo:'Avalia a <b>recuperação do movimento</b> do lado afetado pelo AVC. Quanto maior a nota, melhor a função motora.',tag:'Motor',tc:'t-mot',fn:'Fugl-Meyer Assessment',
    rows:[['Pontuação total motor','0–100 pts (MMSS=66 pts; MMII=34 pts).'],['Escala por item','0=não realiza; 1=realiza parcialmente; 2=realiza completamente.'],['Tempo','30–45 min (versão completa). Versão curta MMSS apenas: 15–20 min.'],['DCMI','MMSS: 5–6 pts. MMII: não estabelecido.'],['Domínios adicionais','Sensibilidade (28 pts), ADM e dor (44 pts), Equilíbrio (14 pts), Coordenação (10 pts). Total máximo: 226 pts.'],['Padrões sinérgicos','Avaliar: sinergia flexora (cotovelo + punho + dedos) e extensora (ombro + cotovelo + supinação).']],
    tbl:[['FMA-MMSS','Interpretação'],['0–17','Paresia severa — sinergias dominantes'],['18–37','Paresia marcada'],['38–52','Paresia moderada — dissociação inicial'],['53–65','Paresia leve'],['66','Normal']],
    tip:'DCMI: 5–6 pts para MMSS. Escores <30 pts MMSS = candidato a OMT/estimulação. Pontuação acima de 50 pts = início de dissociação de sinergias. Aplicar mensalmente nos primeiros 6 meses pós-AVC.'},
-  {icon:'💪',title:'Escala de Ashworth Modificada',tag:'Espasticidade',tc:'t-mot',fn:'Modified Ashworth Scale',
+  {icon:'💪',title:'Escala de Ashworth Modificada',resumo:'Mede a <b>rigidez/espasticidade</b> do músculo. Vai de 0 (sem rigidez) a 4 (rígido e difícil de mover).',tag:'Espasticidade',tc:'t-mot',fn:'Modified Ashworth Scale',
    rows:[['Técnica','Mover passivamente em 1 segundo pela ADM COMPLETA. Temperatura: membro aquecido. Posição: consistente entre avaliações.'],['Momento','Registrar horário em relação à medicação antiespástica. Avaliar antes E após intervenção.'],['Grupos mais afetados no AVC','MMSS: flexores de cotovelo/punho/dedos + pronadores. MMII: extensores de joelho + plantiflexores.']],
    tbl:[['Escore','Descrição'],['0','Tônus normal — sem resistência'],['1','Leve — catch no final da ADM'],['1+','Leve — catch em >50% da ADM'],['2','Moderado — movimento possível por toda ADM'],['3','Considerável — movimento passivo difícil'],['4','Rigidez — ADM passiva impossível']],
    tip:'Espasticidade ≥3 = candidato a toxina botulínica. Registrar: músculo avaliado, posição, resultado. Espasticidade funcional (ex: extensão de joelho para marcha) pode ser útil — não tratar automaticamente.'},
-  {icon:'🏃',title:'Índice de Barthel',tag:'Funcionalidade',tc:'t-func',fn:'Barthel Index',
+  {icon:'🏃',title:'Índice de Barthel',resumo:'Mede <b>independência nas tarefas básicas</b> (comer, banho, vestir, banheiro). Vai de 0 (dependente total) a 100 (independente).',tag:'Funcionalidade',tc:'t-func',fn:'Barthel Index',
    rows:[['Pontuação','0–100 pts. Pontuar performance REAL.'],['Tempo','10–15 min.']],
    tbl:[['Pontuação','Dependência'],['100','Independente'],['75–95','Leve'],['50–74','Moderada'],['25–49','Grave'],['<25','Total']],
    tip:'Efeito teto em pacientes levemente comprometidos — complementar com FIM ou ABILHAND.'},
-  {icon:'🦽',title:'FIM',tag:'Funcionalidade',tc:'t-func',fn:'Functional Independence Measure',
+  {icon:'🦽',title:'FIM',resumo:'Mede o <b>quanto de ajuda</b> a pessoa precisa em 18 atividades (físicas e mentais). Quanto maior, mais independente.',tag:'Funcionalidade',tc:'t-func',fn:'Functional Independence Measure',
    rows:[['Pontuação','18–126 pts. 7=independência completa; 1=dependência total.'],['Tempo','20–30 min.']],
    tbl:null,tip:'FIM Cognitiva é frequentemente subestimada — déficits cognitivos impactam ganhos motores.'},
-  {icon:'⚖️',title:'Berg Balance Scale',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
+  {icon:'⚖️',title:'Berg Balance Scale',resumo:'Mede o <b>equilíbrio</b> em 14 tarefas do dia a dia. Vai de 0 a 56: abaixo de 45 pontos, o risco de cair é alto.',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
    rows:[['Pontuação','0–56. <45 = risco de quedas.'],['Tempo','15–20 min.']],
    tbl:null,tip:'Atenção à heminegligência — paciente pode não perceber desequilíbrio ipsilateral.'},
-  {icon:'⏱️',title:'TUG',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
+  {icon:'⏱️',title:'TUG',resumo:'Cronometra <b>levantar da cadeira, andar 3 metros, voltar e sentar</b>. Acima de 12 segundos indica risco de quedas.',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
    rows:[['Referência','>12s = risco aumentado.'],['Observar','Transferência, marcha hemiparética, estratégia de virada.']],
    tbl:null,tip:'Registrar uso de órtese e dispositivo auxiliar.'},
-  {icon:'🚶',title:'TC10M — Velocidade de Marcha no AVC',tag:'Marcha',tc:'t-func',fn:'Ten Meter Walk Test',
+  {icon:'🚶',title:'TC10M — Velocidade de Marcha no AVC',resumo:'Mede a <b>velocidade da caminhada</b> após o AVC. Quanto mais rápido, maior a independência para sair de casa.',tag:'Marcha',tc:'t-func',fn:'Ten Meter Walk Test',
    rows:[['Protocolo','Corredor de 14m total. Cronometrar 10m centrais (2m de aceleração + 10m + 2m de desaceleração). 2 tentativas — usar média.'],['Cálculo','10 ÷ tempo médio = velocidade (m/s).'],['DCMI','≥0,16 m/s (adultos pós-AVC). ≥0,10 m/s (idosos).'],['Registrar','Uso de órtese (AFO, joelheira), dispositivo auxiliar, ajuda de terceiros.']],
    tbl:[['Velocidade (m/s)','Capacidade de Marcha'],['>1,0','Marcha comunitária plena'],[' 0,8–1,0','Marcha comunitária limitada'],['0,6–0,8','Marcha na comunidade com restrição'],['0,1–0,6','Marcha domiciliar'],['<0,1','Dependente — cadeira de rodas']],
    tip:'Velocidade de marcha é excelente preditor de independência pós-AVC. Meta razoável aos 6 meses: ≥0,6 m/s. DCMI em ensaios de reabilitação intensiva: 0,16 m/s.'},
-  {icon:'🧠',title:'Cognição e Afasia Pós-AVC',tag:'Cognição',tc:'t-cog',fn:'Cognitive and Language Assessment Post-Stroke',
+  {icon:'🧠',title:'Cognição e Afasia Pós-AVC',resumo:'Avalia <b>memória, raciocínio e a capacidade de falar/entender</b> (afasia) depois do AVC.',tag:'Cognição',tc:'t-cog',fn:'Cognitive and Language Assessment Post-Stroke',
    rows:[['MEEM','Rastreio geral. 0–30 pts. Sensível à escolaridade. Pontos de corte por escolaridade.'],['MoCA','Mais sensível para DCL pós-AVC. ≥26=normal. +1 pt se ≤12 anos escolaridade.'],['Domínios mais afetados','Atenção dividida, funções executivas, memória de trabalho, velocidade de processamento.'],['DCL pós-AVC','Ocorre em 20–30% dos casos. Avaliar ≥3 meses após o AVC (fase estável).'],['Rastreio de afasia','Boston Diagnostic Aphasia Exam (BDAE) ou Protocolo MontrealToulouse. Classificar: fluente vs não-fluente.'],['Apraxia','Pedir sequência de movimentos (soprar vela, escovar dentes). Frequente no AVC do hemisfério dominante.']],
    tbl:[['Tipo de Afasia','Fluência','Compreensão','Repetição','Localização'],['Broca','Não-fluente','Preservada','Prejudicada','Frontal inferior'],['Wernicke','Fluente','Prejudicada','Prejudicada','Temporal superior'],['Global','Não-fluente','Prejudicada','Prejudicada','Extensa'],['Anômica','Fluente','Preservada','Preservada','Variável']],
    tip:'Déficit cognitivo pós-AVC é subdiagnosticado. Sempre avaliar cognição na fase de reabilitação. DCL impacta diretamente o aproveitamento da fisioterapia e a adesão ao tratamento.'},
-  {icon:'🚶',title:'FAC — Functional Ambulation Categories',tag:'Marcha',tc:'t-func',fn:'Functional Ambulation Categories',
+  {icon:'🚶',title:'FAC — Functional Ambulation Categories',resumo:'Classifica <b>quanta ajuda a pessoa precisa para andar</b>, de 0 (não anda) a 5 (anda sozinha em qualquer terreno).',tag:'Marcha',tc:'t-func',fn:'Functional Ambulation Categories',
    rows:[['Objetivo','Classificar nível de independência na marcha — do leito à deambulação comunitária.'],['Aplicação','Observação clínica durante a marcha. Rápida (1–2 min).'],['Comparar com','TC10M para velocidade e TUG para mobilidade funcional.']],
    tbl:[['FAC','Descrição'],['0','Não deambula / dependente total'],['1','Dependente — 2 pessoas com suporte físico'],['2','Dependente — 1 pessoa com suporte físico contínuo'],['3','Dependente — supervisão (toque ou verbal)'],['4','Independente em superfície plana'],['5','Independente em qualquer superfície']],
    tip:'FAC ≥3 = pode participar de terapia de marcha em grupo. FAC 5 = objetivo de alta para marcha comunitária. Registrar sempre: dispositivo auxiliar e órtese utilizados. Meta realista pós-AVC aos 3 meses: FAC ≥3.'},
@@ -3796,36 +4260,36 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'📊',title:'ASIA / ISNCSCI',tag:'Estadiamento',tc:'t-mot',fn:'ASIA Impairment Scale / International Standards for Neurological Classification of SCI',
+  {icon:'📊',title:'ASIA / ISNCSCI',resumo:'Exame padrão que define o <b>nível e a gravidade da lesão medular</b> — o que a pessoa ainda sente e move abaixo da lesão.',tag:'Estadiamento',tc:'t-mot',fn:'ASIA Impairment Scale / International Standards for Neurological Classification of SCI',
    rows:[['Motor','10 miotomas chave × 0–5 bilateral. Máx 100 pts.'],['Sensitivo','28 dermátomos × leve toque + picada. Máx 224 pts.'],['Tempo','30–45 min. Requer treinamento.']],
    tbl:[['ASIA','Descrição'],['A — Completo','Sem função motora/sensitiva em S4-S5'],['B — Sensitivo','Sensitivo preservado, sem motor abaixo NNL'],['C — Motor <50%','Motor preservado, maioria <grau 3'],['D — Motor ≥50%','Motor preservado, maioria ≥grau 3'],['E — Normal','Função sensitiva e motora normal']],
    tip:'Reavaliar a cada 3–6 meses para monitorar recuperação neurológica.'},
-  {icon:'💪',title:'Ashworth Modificada',tag:'Espasticidade',tc:'t-mot',fn:'Modified Ashworth Scale',
+  {icon:'💪',title:'Ashworth Modificada',resumo:'Mede a <b>rigidez/espasticidade</b> do músculo (quanto ele resiste ao ser esticado). Vai de 0 (normal) a 4 (muito rígido).',tag:'Espasticidade',tc:'t-mot',fn:'Modified Ashworth Scale',
    rows:[['Técnica','Mover passivamente em 1 segundo pela ADM completa.'],['Pontuação','0–4 (com 1+ intermediário).']],
    tbl:[['Escore','Descrição'],['0','Normal'],['1','Leve — final ADM'],['1+','Leve — >metade ADM'],['2','Moderado — movimento possível'],['3','Considerável — movimento difícil'],['4','Rigidez']],
    tip:'Espasticidade moderada pode ser funcionalmente útil. Tratar apenas quando interfere negativamente na função ou higiene.'},
-  {icon:'🚶',title:'WISCI II — Marcha na Lesão Medular',tag:'Marcha',tc:'t-func',fn:'Walking Index for Spinal Cord Injury II',
+  {icon:'🚶',title:'WISCI II — Marcha na Lesão Medular',resumo:'Classifica <b>quanta ajuda e que aparelhos</b> a pessoa com lesão medular precisa para caminhar.',tag:'Marcha',tc:'t-func',fn:'Walking Index for Spinal Cord Injury II',
    rows:[['Objetivo','Hierarquia de 21 níveis para deambulação: combina assistência humana, órtese e dispositivo.'],['Protocolo','Deambular 10m. Avaliar menor nível de suporte com que completa.'],['Pontuação','0 (não deambula) a 20 (sem dispositivo, sem assistência, sem órtese).'],['Principais cortes','<10: alta dependência. 10–15: assistência moderada/dispositivo. >15: quase independente.'],['DCMI','1 ponto em ASIA C e D = mudança clinicamente relevante.']],
    tbl:[['WISCI II','Descrição'],['0','Não deambula — cadeira de rodas'],['1–5','2 pessoas + andador + 2 órteses → até 1 pessoa + andador'],['6–10','2 órteses + muleta → 1 pessoa + nenhum dispositivo'],['11–15','1 órtese + bengala → sem órtese + bengala bilateral'],['16–19','Sem órtese + bengala unilateral → sem órtese + sem dispositivo mas 1 pessoa'],['20','Sem órtese, sem dispositivo, sem assistência']],
    tip:'Sempre registrar o nível exato WISCI. Em ASIA D, meta realista é WISCI ≥15 em 6 meses. Combinar com TC10M para velocidade e FAC para contexto de deambulação.'},
-  {icon:'🦽',title:'FIM',tag:'Funcionalidade',tc:'t-func',fn:'Functional Independence Measure',
+  {icon:'🦽',title:'FIM',resumo:'Mede o <b>quanto de ajuda</b> a pessoa precisa em 18 atividades (físicas e mentais). Quanto maior, mais independente.',tag:'Funcionalidade',tc:'t-func',fn:'Functional Independence Measure',
    rows:[['Pontuação','18–126 pts. 7=independência; 1=dependência total.'],['Tempo','20–30 min.']],
    tbl:null,tip:'Na LM cervical, autocuidado e transferências são os domínios mais comprometidos.'},
-  {icon:'📐',title:'SCIM III — Independência na Lesão Medular',tag:'Funcionalidade',tc:'t-func',fn:'Spinal Cord Independence Measure III',
+  {icon:'📐',title:'SCIM III — Independência na Lesão Medular',resumo:'Mede a <b>independência no dia a dia</b> de quem tem lesão medular (autocuidado, respiração, mobilidade).',tag:'Funcionalidade',tc:'t-func',fn:'Spinal Cord Independence Measure III',
    rows:[['Pontuação','0–100 pts. Avaliador aplica por observação e entrevista.'],['Domínio 1 — Autocuidado (0–20)','Alimentação (0–3), banho membro superior (0–3), banho membro inferior (0–3), vestir membro superior (0–3), vestir membro inferior (0–4), higiene pessoal (0–4).'],['Domínio 2 — Respiração e Esfíncteres (0–40)','Respiração (0–10), bexiga (0–15), intestino (0–10), uso do vaso sanitário (0–5).'],['Domínio 3 — Mobilidade (0–40)','Mobilidade no leito e transferências (0–10), transferências cadeira ↔ vaso/banheira (0–2), mobilidade interna (0–12), mobilidade externa (0–12), subir escadas (0–4).'],['DCMI','5 pontos.'],['Vantagem sobre FIM','SCIM III é mais sensível a pequenas mudanças em LM. FIM tem efeito teto precoce em LM incompleta.']],
    tbl:[['SCIM III','Capacidade Funcional'],['80–100','Alta independência'],['50–79','Independência moderada'],['20–49','Dependência moderada'],['0–19','Alta dependência']],
    tip:'Aplicar na admissão, mensalmente e na alta. SCIM III correlaciona com nível neurológico (ASIA): ASIA A=SCIM ~20; ASIA C=SCIM ~45; ASIA D=SCIM ~75. Preferido em pesquisa sobre FIM para LM.'},
-  {icon:'⚖️',title:'Berg Balance Scale',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
+  {icon:'⚖️',title:'Berg Balance Scale',resumo:'Mede o <b>equilíbrio</b> em 14 tarefas do dia a dia. Vai de 0 a 56: abaixo de 45 pontos, o risco de cair é alto.',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
    rows:[['Pontuação','0–56. <45 = risco de quedas.'],['Indicação','ASIA C e D com alguma função em MMII.']],
    tbl:null,tip:'Em LM completa torácica, priorizar avaliação do equilíbrio em sedestação.'},
-  {icon:'⏱️',title:'TUG',tag:'Marcha',tc:'t-func',fn:'Timed Up and Go Test',
+  {icon:'⏱️',title:'TUG',resumo:'Cronometra <b>levantar da cadeira, andar 3 metros, voltar e sentar</b>. Acima de 12 segundos indica risco de quedas.',tag:'Marcha',tc:'t-func',fn:'Timed Up and Go Test',
    rows:[['Indicação','ASIA C e D com deambulação funcional.'],['Referência','>12s = risco aumentado.']],
    tbl:null,tip:'Adaptar conforme dispositivo auxiliar habitual. Registrar qual dispositivo foi utilizado.'},
-  {icon:'🫁',title:'Avaliação Respiratória',tag:'Respiratório',tc:'t-resp',fn:'Avaliação Respiratória na LM',
+  {icon:'🫁',title:'Avaliação Respiratória',resumo:'Verifica a <b>força e a capacidade dos pulmões</b> e dos músculos da respiração.',tag:'Respiratório',tc:'t-resp',fn:'Avaliação Respiratória na LM',
    rows:[['Parâmetros','SpO2, FR, CVF, VEF1, PImáx, PEmáx.'],['Alerta','CVF <50% ou PImáx <30 cmH₂O = suporte ventilatório.']],
    tbl:[['Nível','Comprometimento'],['C1–C3','Apneia — VM permanente'],['C4','VM pode ser necessária'],['C5–C8','Tosse ineficaz — risco pneumonia'],['T1–T6','Redução capacidade expiratória'],['T7–T12','Comprometimento mínimo']],
    tip:'PFT <270 L/min = tosse ineficaz. Considerar técnicas assistidas (empurrão abdominal, cough assist).'},
-  {icon:'🚿',title:'Bexiga e Intestino Neurogênico',tag:'Autonômico',tc:'t-func',fn:'Disfunção Vesical e Intestinal Neurogênica',
+  {icon:'🚿',title:'Bexiga e Intestino Neurogênico',resumo:'Orienta o <b>controle da bexiga e do intestino</b> quando a lesão neurológica afeta essas funções.',tag:'Autonômico',tc:'t-func',fn:'Disfunção Vesical e Intestinal Neurogênica',
    rows:[['Bexiga hiperativa (acima S2)','Espasmos involuntários. Manejo: CI + anticolinérgicos.'],['Bexiga hipotônica (S2–S4)','Retenção/overflow. Manejo: CI.'],['Intestino reflexo','LMN preservado — estimulação digital, supositórios.'],['Intestino arreflexo','LMN lesado — evacuação manual. Risco impactação.']],
    tbl:null,
    tip:'EMERGÊNCIA — Disreflexia autonômica (lesões acima T6): PA >150/100 + cefaleia + bradicardia → sentar o paciente e remover o estímulo IMEDIATAMENTE.'},
@@ -3989,7 +4453,27 @@ function buildSections(){
     +how('<strong>Como aplicar:</strong> 16 atividades cotidianas. Pergunta: "Quão preocupado(a) com a possibilidade de CAIR ao realizar esta atividade?" 1=nada, 2=um pouco, 3=bastante, 4=muito. Referência: 16–19=baixo; 20–27=moderado; ≥28=alto.')
     +fg([['FES-I Brasil (16–64)','fesi','number',null,{min:16,max:64}],
          ['Medo de cair','medo_cair','select',['Não','Sim — leve','Sim — moderado','Sim — intenso'],null],
-         ['Dispositivo auxiliar','dispositivo','select',['Não usa','Bengala','Andador 2 rodas','Andador 4 rodas','Muleta','Cadeira de rodas'],null]]))
+         ['Dispositivo auxiliar','dispositivo','select',['Não usa','Bengala','Andador 2 rodas','Andador 4 rodas','Muleta','Cadeira de rodas'],null]])
+    +ib('Aplique o questionário completo abaixo — o escore total é calculado e preenchido automaticamente no campo acima.')
+    +qgrid([
+      'Limpar a casa (ex.: passar pano, aspirar, tirar pó)',
+      'Vestir-se ou despir-se',
+      'Preparar refeições simples',
+      'Tomar banho',
+      'Fazer compras',
+      'Sentar ou levantar de uma cadeira',
+      'Subir ou descer escadas',
+      'Caminhar pela vizinhança',
+      'Pegar algo acima da cabeça ou no chão',
+      'Atender o telefone a tempo, antes de parar de tocar',
+      'Andar sobre superfície escorregadia (ex.: piso molhado)',
+      'Visitar um amigo ou parente',
+      'Andar em meio a uma multidão',
+      'Caminhar sobre superfície irregular (com pedras, esburacada)',
+      'Subir ou descer uma ladeira',
+      'Sair para um evento social (festa religiosa, reunião familiar, encontro)'
+    ],'qz_fesi',4,[['1','1 · Nada preocupado'],['2','2 · Um pouco'],['3','3 · Bastante'],['4','4 · Muito']])
+    +qbar('qz_fesi','FES-I — Total (16–64)'))
 
   +sec('🚶','6. Marcha e Capacidade Física',
     sub('TC10M — Velocidade de Marcha')
@@ -4071,42 +4555,42 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'🧠',title:'MEEM — Mini Exame do Estado Mental',tag:'Cognição',tc:'t-cog',fn:'Mini Mental State Examination',
+  {icon:'🧠',title:'MEEM — Mini Exame do Estado Mental',resumo:'Teste rápido de <b>memória e orientação</b>. Vai de 0 a 30; notas baixas sugerem comprometimento — o corte muda conforme a escolaridade.',tag:'Cognição',tc:'t-cog',fn:'Mini Mental State Examination',
    rows:[['Pontuação','0–30 pts. Sensível à escolaridade.'],['Tempo','10 min.']],
    tbl:[['Escolaridade','Ponto de corte'],['Analfabeto','≤13'],['1–4 anos','≤18'],['5–8 anos','≤21'],['9–11 anos','≤24'],['>11 anos','≤26']],
    tip:'Em idosos, perda de 1–2 pts/ano pode ser normal. Queda de ≥3 pts em 1 ano merece investigação.'},
-  {icon:'😔',title:'GDS-15 — Depressão Geriátrica',tag:'Humor',tc:'t-cog',fn:'Geriatric Depression Scale — 15 itens',
+  {icon:'😔',title:'GDS-15 — Depressão Geriátrica',resumo:'Questionário de 15 perguntas para <b>rastrear depressão</b> no idoso. Quanto maior a nota, maior a suspeita.',tag:'Humor',tc:'t-cog',fn:'Geriatric Depression Scale — 15 itens',
    rows:[['Pontuação','0–4=normal; 5–10=depressão leve; 11–15=grave.'],['Tempo','5–10 min.']],
    tbl:null,
    tip:'Depressão é subdiagnosticada em idosos — frequentemente confundida com "parte do envelhecimento normal".'},
-  {icon:'🏃',title:'Índice de Barthel',tag:'AVD Básica',tc:'t-func',fn:'Barthel Index',
+  {icon:'🏃',title:'Índice de Barthel',resumo:'Mede <b>independência nas tarefas básicas</b> (comer, banho, vestir, banheiro). Vai de 0 (dependente total) a 100 (independente).',tag:'AVD Básica',tc:'t-func',fn:'Barthel Index',
    rows:[['Pontuação','0–100 pts. Pontuar performance REAL.'],['Referência','100=independente; <60=dependência moderada/grave.']],
    tbl:null,tip:'Avaliar no horário habitual do paciente — desempenho matinal pode diferir do noturno.'},
-  {icon:'🏠',title:'Lawton e Brody — AVDs Instrumentais',tag:'AVD Instrumental',tc:'t-func',fn:'Lawton and Brody Instrumental Activities of Daily Living Scale',
+  {icon:'🏠',title:'Lawton e Brody — AVDs Instrumentais',resumo:'Mede tarefas <b>mais complexas do dia a dia</b> (usar telefone, dinheiro, remédios, transporte). Mostra a independência além do básico.',tag:'AVD Instrumental',tc:'t-func',fn:'Lawton and Brody Instrumental Activities of Daily Living Scale',
    rows:[['Pontuação','8–24 pts. 24 = totalmente independente. Cada item: 1 (dependente), 2 (ajuda parcial), 3 (independente).'],['Tempo','5–10 min. Aplicar por entrevista com paciente e/ou cuidador.'],['8 Itens avaliados','1. Uso do telefone. 2. Fazer compras. 3. Preparação de refeições. 4. Manutenção da casa. 5. Lavagem de roupas. 6. Uso de transporte. 7. Controle de medicações. 8. Manejo de finanças.'],['Interpretação','24 pts = independente. 16–23 = dependência leve. 8–15 = dependência moderada a grave.']],
    tbl:[['Item','Sinais de alerta precoce'],['Medicamentos','Esquece doses, confunde remédios'],['Finanças','Dificuldade em contas, facilmente enganado'],['Transporte','Perde-se em trajetos conhecidos'],['Telefone','Dificuldade para discar, esquecer recados']],
    tip:'Perdas instrumentais precedem AVDs básicas em 2–5 anos — sinal precoce de declínio. Medicamentos e finanças são os primeiros a declinar na DA. Aplicar semestralmente em idosos de risco.'},
-  {icon:'😔',title:'GDS-15 — Escala de Depressão Geriátrica',tag:'Humor',tc:'t-cog',fn:'Geriatric Depression Scale — 15 items',
+  {icon:'😔',title:'GDS-15 — Escala de Depressão Geriátrica',resumo:'15 perguntas simples (sim/não) para <b>rastrear depressão</b> em idosos. Notas altas pedem avaliação mais cuidadosa.',tag:'Humor',tc:'t-cog',fn:'Geriatric Depression Scale — 15 items',
    rows:[['Pontuação','0–15. 0–4=normal; 5–10=depressão leve; 11–15=depressão grave.'],['Tempo','5–10 min. Autoaplicável ou por entrevistador.'],['Formato','Respostas sim/não. Perguntas sobre última semana.']],
    tbl:[['GDS-15','Itens (resposta indicativa em negrito)'],['1','Satisfeito com a vida? (NÃO = 1pt)'],['2','Abandonou atividades? (SIM = 1pt)'],['3','Vida vazia? (SIM = 1pt)'],['4','Entediado frequentemente? (SIM = 1pt)'],['5','Esperançoso com o futuro? (NÃO = 1pt)'],['6','Pensamentos que perturbam? (SIM = 1pt)'],['7','De bom humor? (NÃO = 1pt)'],['8','Com medo de coisas ruins? (SIM = 1pt)'],['9','Feliz na maior parte do tempo? (NÃO = 1pt)'],['10','Sente-se desamparado frequentemente? (SIM = 1pt)'],['11','Inquieto e agitado? (SIM = 1pt)'],['12','Prefere ficar em casa? (SIM = 1pt)'],['13','Preocupado com o futuro? (SIM = 1pt)'],['14','Com problemas de memória? (SIM = 1pt)'],['15','Estar vivo é maravilhoso? (NÃO = 1pt)']],
    tip:'Depressão em idosos frequentemente se apresenta como queixas somáticas, apatia e declínio funcional — não como tristeza. GDS ≥5 = encaminhar para avaliação médica. Depressão impacta diretamente no resultado da reabilitação.'},
-  {icon:'⚖️',title:'Berg Balance Scale',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
+  {icon:'⚖️',title:'Berg Balance Scale',resumo:'Mede o <b>equilíbrio</b> em 14 tarefas do dia a dia. Vai de 0 a 56: abaixo de 45 pontos, o risco de cair é alto.',tag:'Equilíbrio',tc:'t-func',fn:'Berg Balance Scale',
    rows:[['Pontuação','0–56. ≥45=baixo risco; 21–44=moderado; ≤20=alto.'],['Tempo','15–20 min.']],
    tbl:null,tip:'Em idosos, dar tempo suficiente — não apressar. Cada item pode ser repetido uma vez.'},
-  {icon:'⏱️',title:'TUG',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
+  {icon:'⏱️',title:'TUG',resumo:'Cronometra <b>levantar da cadeira, andar 3 metros, voltar e sentar</b>. Acima de 12 segundos indica risco de quedas.',tag:'Mobilidade',tc:'t-func',fn:'Timed Up and Go Test',
    rows:[['Referência','>12s = risco aumentado; >20s = dependência funcional.'],['Variante','TUG Cognitivo (contar regressivo) avalia dupla tarefa.']],
    tbl:null,tip:'Em idosos, >13,5s prediz quedas com alta sensibilidade.'},
-  {icon:'🧟',title:'POMA — Tinetti',tag:'Equilíbrio/Marcha',tc:'t-func',fn:'Performance Oriented Mobility Assessment',
+  {icon:'🧟',title:'POMA — Tinetti',resumo:'Avalia <b>equilíbrio e marcha</b> em idosos. Quanto menor a nota, maior o risco de quedas.',tag:'Equilíbrio/Marcha',tc:'t-func',fn:'Performance Oriented Mobility Assessment',
    rows:[['Pontuação','<19=alto risco; 19–24=moderado; >24=baixo risco.'],['Tempo','10–15 min.']],
    tbl:null,tip:'Inclui teste de perturbação postural (empurrão) — importante para avaliar reações protetoras.'},
-  {icon:'📉',title:'FES-I Brasil',tag:'Quedas',tc:'t-func',fn:'Falls Efficacy Scale International',
+  {icon:'📉',title:'FES-I Brasil',resumo:'Mede <b>o medo de cair</b>. Quanto maior a nota (16–64), mais a pessoa evita atividades por receio de queda.',tag:'Quedas',tc:'t-func',fn:'Falls Efficacy Scale International',
    rows:[['Pontuação','16–64. ≥28=alta preocupação.']],
    tbl:null,tip:'Medo de cair leva à inatividade → descondicionamento → mais risco de cair. Ciclo vicioso importante de quebrar.'},
-  {icon:'💪',title:'Sarcopenia — Dinamometria e SARC-F',tag:'Sarcopenia',tc:'t-mot',fn:'Handgrip Dynamometry + SARC-F Questionnaire',
+  {icon:'💪',title:'Sarcopenia — Dinamometria e SARC-F',resumo:'Avalia <b>perda de força e massa muscular</b> do envelhecimento — pela força da mão e por um questionário curto.',tag:'Sarcopenia',tc:'t-mot',fn:'Handgrip Dynamometry + SARC-F Questionnaire',
    rows:[['Diagnóstico EWGSOP2','1º: força muscular reduzida (dinamometria). 2º: quantidade/qualidade muscular baixa (imagem). Grave = + baixo desempenho físico.'],['Dinamometria','♀ <16 kgf; ♂ <27 kgf = fraqueza. 3 medições cada mão. Usar valor máximo.'],['SARC-F','Rastreio: ≥4 pts = sarcopenia provável. Rápido (5 itens, 1 min).'],['Velocidade de marcha','<0,8 m/s em 4m = baixo desempenho. Preditor de sarcopenia.'],['Chair Stand Test','5 levantadas sem uso dos braços: >12s = baixo desempenho muscular. TC30s: contar repetições.']],
    tbl:[['SARC-F Item','0 pts','1 pt','2 pts'],['S - Força','Nenhuma dificuldade','Alguma dificuldade','Muita / incapaz'],['A - Auxílio marcha','Nenhuma dificuldade','Alguma dificuldade','Muito / usa dispositivo'],['R - Levantar cadeira','Nenhuma dificuldade','Alguma dificuldade','Muita / incapaz s/ ajuda'],['C - Subir 10 escadas','Nenhuma dificuldade','Alguma dificuldade','Muita / incapaz'],['F - Quedas últimos anos','Nenhuma queda','1–3 quedas','≥4 quedas']],
    tip:'Sarcopenia aumenta risco de quedas (3×), hospitalização (2×) e mortalidade (1,5–3×). Intervenção: exercício de resistência progressivo + proteína ≥1,2g/kg/dia. SARC-F ≥4 = iniciar protocolo mesmo sem imagem.'},
-  {icon:'🚶',title:'TC10M e TC6M',tag:'Marcha/Resistência',tc:'t-func',fn:'Timed 10 Meter Walk / Six Minute Walk Test',
+  {icon:'🚶',title:'TC10M e TC6M',resumo:'Dois testes de caminhada: um mede a <b>velocidade</b> (10 metros) e o outro a <b>resistência</b> (distância em 6 minutos).',tag:'Marcha/Resistência',tc:'t-func',fn:'Timed 10 Meter Walk / Six Minute Walk Test',
    rows:[['TC10M','>1,0 m/s = boa mobilidade; <0,6 m/s = alto risco de eventos adversos.'],['TC6M','Avaliar capacidade aeróbica. Monitorar SpO2 e FC.']],
    tbl:null,tip:'Velocidade de marcha é considerada o "sexto sinal vital" no idoso — preditor poderoso de sobrevida.'},
 ];}
@@ -4305,12 +4789,58 @@ function buildSections(){
          ['Qualidade do sono (0–10)','sono_qualidade','number',null,{min:0,max:10}],
          ['Horas de sono por noite','sono_horas','number',null,{step:'0.5'}],
          ['Distúrbios do sono','sono_disturbios','select',['Não','Insônia de início','Insônia de manutenção','Despertar precoce','Sono não reparador','Múltiplos'],null]])
+    +ib('Aplique a FSS completa abaixo (última semana) — o total (9–63) é somado e preenchido automaticamente. ≥36 = fadiga significativa.')
+    +qgrid([
+      'Minha motivação é menor quando estou fadigado(a).',
+      'Exercício físico me deixa fadigado(a).',
+      'Fico facilmente fadigado(a).',
+      'A fadiga interfere no meu desempenho físico.',
+      'A fadiga me causa problemas frequentes.',
+      'Minha fadiga impede um desempenho físico mais prolongado.',
+      'A fadiga interfere no cumprimento de certas tarefas e responsabilidades.',
+      'A fadiga está entre os três sintomas que mais me incapacitam.',
+      'A fadiga interfere no meu trabalho, família ou vida social.'
+    ],'qz_fss',7,[['1','1 · Discordo totalmente'],['2','2'],['3','3'],['4','4 · Neutro'],['5','5'],['6','6'],['7','7 · Concordo totalmente']])
+    +qbar('qz_fss','FSS — Total (9–63)')
+    +sub('PSQI — Índice de Qualidade do Sono de Pittsburgh (0–21)')
+    +how('<strong>Como aplicar:</strong> avalia o sono no <strong>último mês</strong>. Pontue cada um dos 7 componentes de 0 a 3 (conforme a tabulação do PSQI a partir das respostas do paciente). O escore global (soma, 0–21) é calculado automaticamente. <strong>&gt;5 = qualidade ruim do sono</strong>.')
+    +ib('Preencha os 7 componentes abaixo — o PSQI global (0–21) é somado e preenchido automaticamente no campo de resultado.')
+    +qgrid([
+      'Componente 1 — Qualidade subjetiva do sono (0=muito boa → 3=muito ruim)',
+      'Componente 2 — Latência do sono (tempo para adormecer + dificuldade nos primeiros 30 min)',
+      'Componente 3 — Duração do sono (>7h=0; 6–7h=1; 5–6h=2; <5h=3)',
+      'Componente 4 — Eficiência habitual do sono (horas dormidas ÷ horas na cama)',
+      'Componente 5 — Distúrbios do sono (despertares, dor, frio/calor, etc.)',
+      'Componente 6 — Uso de medicação para dormir (0=nenhum → 3=3+ vezes/semana)',
+      'Componente 7 — Disfunção diurna (sonolência e disposição durante o dia)'
+    ],'qz_psqi',3,[['0','0'],['1','1'],['2','2'],['3','3']])
+    +qbar('qz_psqi','PSQI Global (0–21)')
+    +fld('PSQI Global (resultado)','psqi','number',null,{min:0,max:21})
+
     +sub('Catastrofização — PCS (0–52)')
     +how('<strong>Como aplicar:</strong> 13 itens sobre pensamentos e sentimentos durante a dor. 0=nenhum, 4=sempre. 3 subescalas: Ruminação (4 itens), Ampliação (3 itens), Desamparo (6 itens). Total ≥30 = catastrofização clinicamente significativa.')
     +fg([['PCS — Pain Catastrophizing Scale (0–52)','pcs_total','number',null,{min:0,max:52}],
          ['Ruminação (0–16)','pcs_rumin','number',null,{min:0,max:16}],
          ['Ampliação (0–12)','pcs_ampli','number',null,{min:0,max:12}],
-         ['Desamparo (0–24)','pcs_desam','number',null,{min:0,max:24}]]))
+         ['Desamparo (0–24)','pcs_desam','number',null,{min:0,max:24}]])
+    +ib('Aplique a PCS completa abaixo — o total (0–52) é somado e preenchido automaticamente. ≥30 = catastrofização clinicamente significativa.')
+    +qgrid([
+      ['Fico o tempo todo pensando o quanto a dor vai durar.','R'],
+      ['Sinto que não aguento mais.','D'],
+      ['É terrível e penso que isso nunca vai melhorar.','D'],
+      ['É horrível e sinto que isso me domina.','D'],
+      ['Sinto que não suporto mais.','D'],
+      ['Fico com medo de que a dor piore.','D'],
+      ['Fico pensando em outras situações dolorosas.','A'],
+      ['Quero que a dor desapareça.','R'],
+      ['Não consigo parar de pensar na dor.','R'],
+      ['Fico o tempo todo pensando o quanto dói.','R'],
+      ['Fico pensando o quanto quero que a dor pare.','A'],
+      ['Não há nada que eu possa fazer para reduzir a intensidade da dor.','D'],
+      ['Fico imaginando se algo grave pode acontecer.','A']
+    ],'qz_pcs',4,[['0','0 · Nada'],['1','1 · Um pouco'],['2','2 · Moderadamente'],['3','3 · Bastante'],['4','4 · Sempre']])
+    +qbar('qz_pcs','PCS — Total (0–52)')
+    )
 
   +sec('💪','5. Avaliação Física',
     sub('Limiar de Pressão à Dor — Algometria')
@@ -4372,6 +4902,7 @@ function getMetrics(){return [
   {label:'SS (sintomas)',key:'ss_total',unit:'pts',inv:true},
   {label:'FIQ-R (impacto)',key:'fiqr_total',unit:'pts',inv:true},
   {label:'FSS (fadiga)',key:'fss_total',unit:'pts',inv:true},
+  {label:'PSQI (sono)',key:'psqi',unit:'pts',inv:true},
   {label:'PCS (catastrofização)',key:'pcs_total',unit:'pts',inv:true},
   {label:'TC6M distância',key:'tc6m_dist',unit:'m',inv:false},
   {label:'Chair Stand 30s',key:'chair_stand',unit:'rep',inv:false},
@@ -4382,32 +4913,32 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'🗺️',title:'Mapa de Dor Corporal',tag:'Dor',tc:'t-mot',fn:'Pain Body Map',
+  {icon:'🗺️',title:'Mapa de Dor Corporal',resumo:'Registro visual de <b>onde dói no corpo</b>, para acompanhar a distribuição da dor ao longo do tratamento.',tag:'Dor',tc:'t-mot',fn:'Pain Body Map',
    rows:[['Objetivo','Mapear visualmente distribuição e qualidade da dor.'],['Cores','🔴 Vermelho=intensa; 🔵 Azul=leve; 🟠 Laranja=queimação.'],['Aplicação','Paciente ou terapeuta marca no mapa.']],
    tbl:null,tip:'O mapa de dor é salvo com a avaliação. Permite comparação visual entre avaliações.'},
-  {icon:'🎯',title:'Critérios ACR 2016 — WPI + SS',tag:'Diagnóstico',tc:'t-mot',fn:'American College of Rheumatology 2016 Criteria',
+  {icon:'🎯',title:'Critérios ACR 2016 — WPI + SS',resumo:'São os <b>critérios para diagnosticar fibromialgia</b>: combinam onde dói no corpo (WPI) com a intensidade dos sintomas (SS).',tag:'Diagnóstico',tc:'t-mot',fn:'American College of Rheumatology 2016 Criteria',
    rows:[['WPI','0–19 regiões corporosas com dor na última semana.'],['SS','0–12: fadiga+sono+cognição (0–9) + sintomas somáticos (0–3).'],['Diagnóstico','WPI≥7+SS≥5 OU WPI 4–6+SS≥9 + sintomas ≥3 meses.']],
    tbl:null,tip:'Não há exame laboratorial para confirmar fibromialgia — o diagnóstico é clínico pelos critérios ACR.'},
-  {icon:'📋',title:'FIQ-R — Impacto da Fibromialgia',tag:'Qualidade de Vida',tc:'t-qv',fn:'Fibromyalgia Impact Questionnaire Revised',
+  {icon:'📋',title:'FIQ-R — Impacto da Fibromialgia',resumo:'Mede <b>o quanto a fibromialgia atrapalha o dia a dia</b>. Vai de 0 a 100; acima de 59 indica grande impacto.',tag:'Qualidade de Vida',tc:'t-qv',fn:'Fibromyalgia Impact Questionnaire Revised',
    rows:[['Pontuação','0–100. >59=alto impacto.'],['Domínios','Função (0–30), Impacto global (0–20), Sintomas (0–50).'],['Tempo','5–10 min (autoaplicável).']],
    tbl:null,tip:'Excelente para monitorar evolução do tratamento. Mudança de ≥14 pontos é clinicamente significativa.'},
-  {icon:'😴',title:'FSS — Fatigue Severity Scale',tag:'Fadiga',tc:'t-func',fn:'Fatigue Severity Scale',
+  {icon:'😴',title:'FSS — Fatigue Severity Scale',resumo:'Mede <b>o quanto a fadiga (cansaço) interfere</b> nas atividades. Quanto maior a nota, mais limitante o cansaço.',tag:'Fadiga',tc:'t-func',fn:'Fatigue Severity Scale',
    rows:[['Pontuação','9–63. Média dos 9 itens: ≥4 = fadiga clínica; ≥5 = fadiga grave.'],['Itens (1–7 cada)','1. Fadiga aumenta com atividade. 2. Sou esgotado facilmente. 3. Fadiga interfere nas AVDs. 4. Causa problemas frequentes. 5. Fadiga é o sintoma mais incapacitante. 6. Impede atividade física contínua. 7. Impede deveres e responsabilidades. 8. É um dos 3 sintomas mais incapacitantes. 9. Interfere no trabalho, família e vida social.'],['Tempo','5 min. Autoaplicável.'],['DCMI','Redução ≥0,45 pontos na média (5–7% de mudança).']],
    tbl:null,tip:'Fadiga na fibromialgia NÃO melhora com repouso — característica central. Diferenciar de depressão (que melhora com motivação). Correlacionar com qualidade do sono (FSS + PSQI). Exercício aeróbico regular reduz FSS em média 1–2 pts.'},
-  {icon:'🧠',title:'PCS — Catastrofização da Dor',tag:'Psicossocial',tc:'t-cog',fn:'Pain Catastrophizing Scale',
+  {icon:'🧠',title:'PCS — Catastrofização da Dor',resumo:'Avalia <b>o quanto a pessoa amplifica e teme a dor</b> em pensamento. Pontuações altas atrapalham a recuperação.',tag:'Psicossocial',tc:'t-cog',fn:'Pain Catastrophizing Scale',
    rows:[['Pontuação','0–52. ≥30=clinicamente significativo.'],['Subescalas','Ruminação, Ampliação, Desamparo.'],['Tempo','5 min.']],
    tbl:null,tip:'Catastrofização é preditor independente de incapacidade e resposta ao tratamento na fibromialgia.'},
-  {icon:'📍',title:'Algometria — Limiar de Dor à Pressão (PPT)',tag:'Dor',tc:'t-mot',fn:'Pressure Pain Threshold — Algometry',
+  {icon:'📍',title:'Algometria — Limiar de Dor à Pressão (PPT)',resumo:'Mede <b>a partir de quanta pressão</b> um ponto do corpo começa a doer — quanto menor o limiar, mais sensível à dor.',tag:'Dor',tc:'t-mot',fn:'Pressure Pain Threshold — Algometry',
    rows:[['Equipamento','Algômetro de pressão (kgf/cm² ou kPa). Probe de 1cm².'],['Técnica','Pressão perpendicular e constante a 0,5 kg/s. Paciente sinaliza quando sensação muda de pressão para DOR. Registrar o valor (PPT).'],['Protocolo','3 medições por ponto. Intervalo de 30s. Usar a média. Testar pontos bilaterais e remotos.'],['Pontos clássicos FM','Suboccipital, trapézio (ponto médio), supra-espinhal, 2° espaço intercostal, epicôndilo lateral, glúteo, trocânter maior, joelho medial.'],['Referência','PPT normal: 3,5–6,0 kg/cm². FM: frequentemente <2,5 kg/cm² nos tender points.']],
    tbl:null,tip:'Sensibilização central = PPT reduzido em pontos REMOTOS à dor principal. Fundamental para distinguir dor local de dor centralizada. Repetir na mesma hora do dia. Variação >15% entre avaliações pode ser normal.'},
-  {icon:'🏃',title:'TC6M na Fibromialgia',tag:'Resistência',tc:'t-func',fn:'Six Minute Walk Test',
+  {icon:'🏃',title:'TC6M na Fibromialgia',resumo:'Mede a <b>resistência</b> caminhando por 6 minutos. Útil para acompanhar o condicionamento ao longo do tratamento.',tag:'Resistência',tc:'t-func',fn:'Six Minute Walk Test',
    rows:[['Atenção','Na FM a limitação é pela dor e fadiga central, não pela capacidade cardiovascular.'],['Protocolo','Corredor de 30m. Maior distância possível em 6 min. Registrar paradas.'],['Monitorar','EVA antes e após. FC e Borg antes, a cada minuto e ao final. SpO2.'],['Interpretação','Distância reduzida reflete capacidade funcional aeróbica comprometida pela FM.']],
    tbl:null,tip:'Exercício aeróbico progressivo é a intervenção com MAIOR evidência na FM (Grau A). Iniciar com intensidade muito baixa (30–50% da FC máx). Progredir 10% por semana. Aquático tem menor impacto na dor.'},
-  {icon:'😴',title:'PSQI — Qualidade do Sono',tag:'Sono',tc:'t-func',fn:'Pittsburgh Sleep Quality Index',
+  {icon:'😴',title:'PSQI — Qualidade do Sono',resumo:'Questionário sobre <b>como anda o sono</b> no último mês. Quanto maior a nota, pior a qualidade do sono.',tag:'Sono',tc:'t-func',fn:'Pittsburgh Sleep Quality Index',
    rows:[['Pontuação','0–21. Escore global: soma dos 7 componentes (0–3 cada).'],['Componentes','1. Qualidade subjetiva do sono. 2. Latência. 3. Duração. 4. Eficiência habitual. 5. Distúrbios. 6. Uso de medicamentos. 7. Disfunção diurna.'],['Tempo','5–10 min. Autoaplicável. Avalia o último mês.'],['Corte','PSQI >5 = qualidade ruim do sono.']],
    tbl:[['PSQI Global','Classificação'],['0–5','Boa qualidade'],['6–10','Ruim — comprometimento leve'],['11–15','Ruim — comprometimento moderado'],['16–21','Muito ruim — comprometimento grave']],
    tip:'Distúrbios do sono ocorrem em >90% dos pacientes com FM — sono não restaurador é critério diagnóstico. PSQI >10 correlaciona com maior intensidade de dor e catastrofização. Higiene do sono e terapia cognitivo-comportamental são intervenções de primeira linha.'},
-  {icon:'📚',title:'Educação em Dor',tag:'Tratamento',tc:'t-cog',fn:'Pain Neuroscience Education',
+  {icon:'📚',title:'Educação em Dor',resumo:'Material para <b>explicar ao paciente como a dor funciona</b> — entender a dor ajuda a reduzir o medo e melhora o tratamento.',tag:'Tratamento',tc:'t-cog',fn:'Pain Neuroscience Education',
    rows:[['Objetivo','Explicar a fisiopatologia da dor crônica e sensibilização central.'],['Evidência','Reduz catastrofização, medo do movimento e incapacidade.']],
    tbl:null,tip:'A educação em neurociência da dor deve ser componente obrigatório do tratamento da fibromialgia.'},
 ];}
@@ -4580,7 +5111,33 @@ function buildSections(){
         ['Dor costas (BRS-7)','brs7','number',null,{min:0,max:7}],
         ['Aparência/imagem corporal (0–10)','imagem_corporal','number',null,{min:0,max:10}],
         ['Uso de colete (ortese)','colete','select',['Não','Sim — Milwaukee','Sim — Boston','Sim — Providence','Sim — SpineCor','Sim — outro'],null],
-        ['Horas colete/dia','colete_horas','number',null,{step:'0.5',ph:'Horas/dia'}]]))
+        ['Horas colete/dia','colete_horas','number',null,{step:'0.5',ph:'Horas/dia'}]])
+        +ib('Aplique o SRS-22r completo abaixo — o total (22–110) é somado e preenchido automaticamente. Cada item de 1 a 5; <strong>maior pontuação = melhor qualidade de vida</strong>. Itens de dor já devem ser pontuados de forma que 5 = melhor (sem dor).')
+        +qgrid([
+      'Função: Sente dor em repouso nos últimos 6 meses?',
+      'Função: Qual o nível de dor nos últimos 6 meses?',
+      'Imagem: Como você se sente em relação à aparência das suas costas?',
+      'Imagem: Como você se sente com a roupa vestida?',
+      'Saúde mental: Sente-se relaxado(a) e calmo(a)?',
+      'Saúde mental: Sente-se desanimado(a)?',
+      'Função: Tem ficado tão nervoso(a) que nada o(a) acalma?',
+      'Função: Qual sua aparência geral?',
+      'Função: Faz parte de atividades sociais?',
+      'Função: Faltou ao trabalho/escola por dor nas costas (últimos 3 meses)?',
+      'Imagem: Sua condição afeta seu relacionamento pessoal?',
+      'Função: Está financeiramente seguro(a)?',
+      'Saúde mental: Sente-se deprimido(a)?',
+      'Função: A dor nas costas limita suas atividades?',
+      'Imagem: Sente que sua aparência muda quando você se veste?',
+      'Saúde mental: Sente-se tranquilo(a) emocionalmente?',
+      'Função: Você se sente atraente com a sua condição atual?',
+      'Saúde mental: Está satisfeito(a) com a vida?',
+      'Função: Tem tirado licença do trabalho por causa das costas?',
+      'Satisfação: Está satisfeito(a) com o resultado do seu tratamento?',
+      'Satisfação: O tratamento das costas atendeu suas expectativas?',
+      'Satisfação: Faria o mesmo tratamento novamente, se necessário?'
+    ],'qz_srs',5,[['1','1'],['2','2'],['3','3'],['4','4'],['5','5']])
+        +qbar('qz_srs','SRS-22 — Total (22–110)'))
 
   +sec('📸','7. Evolução Fotográfica',
     '<div class="ib"><strong>Como usar:</strong> Adicione fotos desta avaliação. As fotos ficam vinculadas a esta avaliação específica e aparecem no comparativo do relatório.</div>'
@@ -4617,28 +5174,28 @@ function getMetrics(){return [
 
 
 function getGuideCards(){return [
-  {icon:'📐',title:'Ângulo de Cobb',tag:'Radiografia',tc:'t-mot',fn:'Cobb Angle Measurement',
+  {icon:'📐',title:'Ângulo de Cobb',resumo:'É a <b>medida em graus da curvatura da coluna</b> na radiografia. Acima de 10° é escoliose; quanto maior, mais acentuada.',tag:'Radiografia',tc:'t-mot',fn:'Cobb Angle Measurement',
    rows:[['Técnica','Identificar vértebras limítrofes. Traçar linhas paralelas aos platôs. Medir ângulo entre perpendiculares.'],['Referência','<10°=normal; 10–25°=leve; 25–40°=moderada; >40°=grave; >50°=cirúrgica.']],
    tbl:[['Cobb','Classificação'],['<10°','Normal'],['10–24°','Leve'],['25–39°','Moderada'],['40–49°','Grave'],['≥50°','Indicação cirúrgica']],
    tip:'Progressão ≥5° em 6 meses é clinicamente significativa. Monitorar mais de perto em crianças em crescimento.'},
-  {icon:'🧍',title:'Teste de Adams + Escoliômetro',tag:'Avaliação Clínica',tc:'t-mot',fn:'Adams Forward Bend Test + Scoliometer',
+  {icon:'🧍',title:'Teste de Adams + Escoliômetro',resumo:'Exame simples em que a pessoa <b>se inclina para frente</b> e o terapeuta mede a rotação do tronco para rastrear escoliose.',tag:'Avaliação Clínica',tc:'t-mot',fn:'Adams Forward Bend Test + Scoliometer',
    rows:[['Técnica Teste Adams','Pé descalço. Inclinar lentamente para frente, joelhos estendidos, mãos juntas entre os joelhos. Observar de TRÁS (gibosidade costal) e de LADO (hipercifose/plano).'],['Escoliômetro (ATR)','Posicionar no pico da gibosidade. Ângulo de Rotação do Tronco (ART). Medir torácico e lombar separadamente.'],['Interpretação ART','<5°: normal. 5–7°: monitorar. >7°: encaminhar para Rx. >10°: escoliose provável com rotação significativa.'],['Rastreio escolar','ART ≥5° = indicação de Rx. Sensibilidade 94%, Especificidade 60% para escoliose >10° Cobb.'],['Registro','Documentar: ART torácico D/E e ART lombar D/E. Comparar evolução.']],
    tbl:null,tip:'ART >7° tem alta sensibilidade para escoliose estrutural. Escoliômetro Scoliometer® (Ortho Systems) é o padrão. Sempre confirmar com Rx em pé — Adams sozinho não define magnitude.'},
-  {icon:'📊',title:'Classificação de Risser',tag:'Maturidade Óssea',tc:'t-mot',fn:'Risser Sign',
+  {icon:'📊',title:'Classificação de Risser',resumo:'Indica <b>quanto o esqueleto ainda vai crescer</b> (pela maturação do osso do quadril) — importante porque a escoliose progride mais durante o crescimento.',tag:'Maturidade Óssea',tc:'t-mot',fn:'Risser Sign',
    rows:[['Objetivo','Avaliar maturidade esquelética e risco de progressão.'],['Escala','0–5. 0=imaturo; 5=maduro (fuse completo).']],
    tbl:[['Risser','Maturidade'],['0','Imaturo — alto risco progressão'],['1–2','Crescimento ativo'],['3','Desacelerando'],['4','Quase maduro'],['5','Maduro — risco baixo']],
    tip:'Escoliose de Cobb >25° em paciente Risser 0–1 tem alta probabilidade de progressão. Indicar colete.'},
-  {icon:'🩻',title:'Indicações de Tratamento',tag:'Conduta',tc:'t-func',fn:'Treatment Guidelines',
+  {icon:'🩻',title:'Indicações de Tratamento',resumo:'Resume <b>quando indicar cada tipo de conduta</b> conforme o grau da curva na escoliose.',tag:'Conduta',tc:'t-func',fn:'Treatment Guidelines',
    rows:[['Observação','Cobb <20° em crescimento: reavaliação a cada 6 meses.'],['Colete','Cobb 25–40° com crescimento ativo (Risser 0–2). Mínimo 16–23h/dia.'],['Fisioterapia','Indicada em todos os estágios. Método SEAS, Schroth, RPG.'],['Cirurgia','Cobb >45–50° ou progressão refratária.']],
    tbl:null,tip:'O método SEAS e Schroth são os mais evidenciados para escoliose idiopática. Iniciar precocemente.'},
-  {icon:'🏋️',title:'Métodos de Fisioterapia — SEAS, Schroth e RPG',tag:'Tratamento',tc:'t-func',fn:'Physiotherapy Methods for Scoliosis',
+  {icon:'🏋️',title:'Métodos de Fisioterapia — SEAS, Schroth e RPG',resumo:'Resume os principais <b>métodos de exercícios específicos</b> usados no tratamento da escoliose.',tag:'Tratamento',tc:'t-func',fn:'Physiotherapy Methods for Scoliosis',
    rows:[['SEAS — Exercícios Científicos para Escoliose','Autocorreção ativa da curva em diferentes posições. Integração neuromotora. Progressão baseada em evidências. Indicado: curvas 15–45°.'],['Método Schroth','Exercícios 3D de alongamento e fortalecimento assimétrico. Respiração rotatória. Correção postural específica para o padrão da curva. Indicado: curvas 20–50°.'],['RPG — Reeducação Postural Global','Cadeias musculares. Postura global. Menos específico para escoliose estrutural. Útil em dor postural e hipercifose.'],['Pilates Terapêutico','Estabilização do core. Complementar ao SEAS/Schroth. Não substitui tratamento específico.'],['Colete (TLSO)','Indicado: curvas 25–40° com crescimento ativo (Risser 0–2). ≥18h/dia. Wilmington, Boston, Cheneau são os mais usados.']],
    tbl:[['Intervenção','Nível de Evidência','Indicação'],['SEAS','Grau A (ensaios clínicos)','Curvas 15–45°, crescimento'],['Schroth','Grau A','Curvas 20–50°, todas as idades'],['RPG','Grau C','Dor/postura — não curvas estruturais'],['Colete','Grau A','25–40° Cobb + Risser 0–2']],
    tip:'SEAS e Schroth são os únicos métodos com evidência Grau A para reduzir progressão e melhorar Cobb. Iniciar o quanto antes. A combinação colete + SEAS tem melhor resultado que colete isolado.'},
-  {icon:'💪',title:'Biering-Sorensen',tag:'Força Lombar',tc:'t-mot',fn:'Biering-Sorensen Isometric Test',
+  {icon:'💪',title:'Biering-Sorensen',resumo:'Mede a <b>resistência dos músculos das costas</b> — quanto tempo a pessoa sustenta o tronco na posição.',tag:'Força Lombar',tc:'t-mot',fn:'Biering-Sorensen Isometric Test',
    rows:[['Técnica','Paciente em decúbito ventral com tronco fora da maca (a partir das EIAS). Cronometrar tempo máximo que mantém o tronco horizontal.'],['Referência','♀>58s; ♂>146s (adultos jovens). Valores menores indicam fadiga precoce.']],
    tbl:null,tip:'Fraqueza dos paravertebrais é fator de risco para progressão. Incluir fortalecimento no protocolo SEAS/Schroth.'},
-  {icon:'🌡️',title:'SRS-22 — Qualidade de Vida na Escoliose',tag:'QV',tc:'t-qv',fn:'Scoliosis Research Society Questionnaire — 22 items',
+  {icon:'🌡️',title:'SRS-22 — Qualidade de Vida na Escoliose',resumo:'Questionário sobre <b>como a escoliose afeta a vida</b> (dor, imagem, função). Notas mais altas indicam melhor qualidade de vida.',tag:'QV',tc:'t-qv',fn:'Scoliosis Research Society Questionnaire — 22 items',
    rows:[['Pontuação','22 itens, 1–5 pts cada. Total 22–110. Maior = melhor QV. Calcular média de cada domínio (1–5).'],['Domínios (5 itens cada, exceto satisfação)','Função/Atividade (5), Dor (5), Imagem corporal/Autoestima (5), Saúde mental (5), Satisfação com tratamento (2).'],['Tempo','5–10 min. Autoaplicável a partir de 10 anos.'],['DCMI','0,8 pts na média total. Melhora pós-op: domínio imagem corporal mais responsivo.'],['Versão','SRS-22r (revisada) é a versão atual recomendada.']],
    tbl:[['Domínio','Mais afetado em'],['Função/Atividade','Cobb >40° ou pós-op recente'],['Dor','Escoliose degenerativa adulto'],['Imagem corporal','Adolescentes com gibosidade visível'],['Saúde mental','Adolescentes com bullying'],['Satisfação tratamento','Pós-op — alta resposta à correção cirúrgica']],
    tip:'Domínios imagem corporal e autoestima são os mais afetados em adolescentes. Uso de colete: domínio função tende a piorar, mas imagem corporal melhora com a percepção de tratamento ativo. Aplicar pré, 6 meses e 2 anos pós-intervenção.'},
@@ -7331,9 +7888,21 @@ function savePhotos(evalId){
   // localStorage não guarda fotos quando há IndexedDB (evita estourar a cota).
   if(idb){ try{ localStorage.removeItem(key); }catch(e){} }
   else { try{ localStorage.setItem(key,json); }catch(e){} }
-  // Sincroniza com Firebase via db.photos
+  // Mantém em memória
   if(!db.photos)db.photos={};
   db.photos[key]=photos;
+  // ── Sobe a foto para a NUVEM em documento separado (com debounce por chave) ──
+  if(window._photoCloudTimers)clearTimeout(window._photoCloudTimers[key]);
+  else window._photoCloudTimers={};
+  window._photoCloudTimers[key]=setTimeout(function(){
+    if(window._fbSavePhotoKey && window._syncReady){
+      if(window._setSync)window._setSync('syncing');
+      window._fbSavePhotoKey(key, photoStore[evalId]||[]).then(function(){
+        if(window._setSync)window._setSync('online');
+      });
+    }
+  },1500);
+  // Atualiza também o registro principal (sem as fotos)
   if(window._photoSaveTimer)clearTimeout(window._photoSaveTimer);
   window._photoSaveTimer=setTimeout(function(){saveDB();},1500);
 }
@@ -7365,6 +7934,116 @@ function _loadPhotosLS(evalId,done){
     if(raw){var p=JSON.parse(raw);if(p&&p.length){done(p);return;}}
   }catch(e){}
   done([]);
+}
+
+// ── FOTOS DO ATENDIMENTO (por paciente + condição, separadas das avaliações) ──
+// Reaproveita photoStore / savePhotos / loadPhotos usando a chave sintética 'atd_<pid>_<cond>'.
+function _atdKey(pid,cond){return 'atd_'+pid+'_'+cond;}
+function openAtendPhotos(pid,cond){
+  var p=db.patients.find(function(pt){return pt.id===pid;});
+  if(!p)return;
+  var key=_atdKey(pid,cond);
+  var m=COND_META[cond]||{};
+  window._atdCtx={pid:pid,cond:cond,key:key,name:p.name,m:m};
+  var ov=document.getElementById('atdPhotoModal');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='atdPhotoModal';
+    ov.className='ov';
+    ov.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2200;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
+    ov.innerHTML='<div style="background:var(--w);border-radius:var(--r2);max-width:680px;width:100%;box-shadow:var(--sh2);overflow:hidden">'
+      +'<div id="atdHd" style="padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff">'
+        +'<span id="atdHdIcon" style="font-size:18px"></span>'
+        +'<div style="flex:1"><div id="atdHdTitle" style="font-weight:700;font-size:14px"></div>'
+        +'<div id="atdHdSub" style="font-size:10px;opacity:.85"></div></div>'
+        +'<button class="btn btn-w" style="color:#1a1a14;padding:6px 10px" onclick="closeOv(\'atdPhotoModal\')">✕</button>'
+      +'</div>'
+      +'<div style="padding:14px 18px">'
+        +'<div style="font-size:11px;color:var(--g5);margin-bottom:10px;line-height:1.5">Anexe fotos do atendimento e escreva a legenda de cada uma. Elas aparecem no relatório, na seção da patologia.</div>'
+        +'<input type="file" id="atdFileInput" accept="image/*" multiple style="display:none" onchange="atdAddFiles(this.files)">'
+        +'<button class="btn btn-gr" style="width:100%;padding:11px" onclick="document.getElementById(\'atdFileInput\').click()">＋ Adicionar foto(s)</button>'
+        +'<div id="atdGrid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px"></div>'
+      +'</div>'
+    +'</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){if(e.target===ov)closeOv('atdPhotoModal');});
+  }
+  var ac=m.ac||'#E8844A',ac2=m.ac2||ac;
+  document.getElementById('atdHd').style.background='linear-gradient(135deg,'+ac+','+ac2+')';
+  document.getElementById('atdHdIcon').textContent=m.icon||'📷';
+  document.getElementById('atdHdTitle').textContent='Fotos do Atendimento — '+(m.label||cond);
+  document.getElementById('atdHdSub').textContent=esc(p.name);
+  ov.style.display='flex';
+  loadPhotos(key,function(){atdRenderGrid();});
+}
+function atdRenderGrid(){
+  var ctx=window._atdCtx;if(!ctx)return;
+  var photos=(photoStore[ctx.key]||[]).filter(function(ph){return ph&&ph.src;});
+  var grid=document.getElementById('atdGrid');if(!grid)return;
+  if(!photos.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--g4);font-size:11px;padding:18px">Nenhuma foto ainda. Toque em “Adicionar foto(s)”.</div>';return;}
+  var ac=(ctx.m.ac||'#E8844A');
+  var html='';
+  photos.forEach(function(ph,idx){
+    html+='<div class="atd-card" style="border:1.5px solid '+ac+'33;border-radius:10px;overflow:hidden;background:#fff">'
+      +'<div style="position:relative">'
+        +'<img src="'+ph.src+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block">'
+        +'<button onclick="atdDelPhoto('+idx+')" title="Remover" style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:1">✕</button>'
+      +'</div>'
+      +'<textarea oninput="atdUpdateCap('+idx+',this.value)" placeholder="Legenda da foto..." rows="2" style="width:100%;border:none;border-top:1px solid var(--g1);padding:7px 9px;font-family:\'DM Sans\';font-size:11px;color:var(--g8);resize:vertical;outline:none;box-sizing:border-box">'+esc(ph.desc||'')+'</textarea>'
+    +'</div>';
+  });
+  grid.innerHTML=html;
+}
+function atdAddFiles(files){
+  var ctx=window._atdCtx;if(!ctx||!files||!files.length)return;
+  if(!photoStore[ctx.key])photoStore[ctx.key]=[];
+  var arr=Array.prototype.slice.call(files);
+  var pending=arr.length;
+  arr.forEach(function(file){
+    if(!file.type||file.type.indexOf('image/')!==0){pending--;return;}
+    var reader=new FileReader();
+    reader.onload=function(e){
+      _atdResize(e.target.result,function(out){
+        photoStore[ctx.key].push({src:out,desc:'',view:'Atendimento'});
+        pending--;
+        if(pending<=0){savePhotos(ctx.key);atdRenderGrid();toast('Foto(s) adicionada(s)','ok');}
+      });
+    };
+    reader.onerror=function(){pending--;if(pending<=0){savePhotos(ctx.key);atdRenderGrid();}};
+    reader.readAsDataURL(file);
+  });
+}
+function _atdResize(dataUrl,cb){
+  var img=new Image();
+  img.onload=function(){
+    var max=1280,w=img.width,h=img.height;
+    if(w>max||h>max){var r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}
+    try{
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',0.82));
+    }catch(e){cb(dataUrl);}
+  };
+  img.onerror=function(){cb(dataUrl);};
+  img.src=dataUrl;
+}
+function atdUpdateCap(idx,val){
+  var ctx=window._atdCtx;if(!ctx)return;
+  var photos=(photoStore[ctx.key]||[]).filter(function(ph){return ph&&ph.src;});
+  if(photos[idx]){photos[idx].desc=val;
+    if(window._atdCapTimer)clearTimeout(window._atdCapTimer);
+    window._atdCapTimer=setTimeout(function(){savePhotos(ctx.key);},700);
+  }
+}
+function atdDelPhoto(idx){
+  var ctx=window._atdCtx;if(!ctx)return;
+  var all=photoStore[ctx.key]||[];
+  var visible=all.filter(function(ph){return ph&&ph.src;});
+  var target=visible[idx];
+  if(!target)return;
+  if(!confirm('Remover esta foto do atendimento?'))return;
+  photoStore[ctx.key]=all.filter(function(ph){return ph!==target;});
+  savePhotos(ctx.key);atdRenderGrid();
 }
 </script>
 
