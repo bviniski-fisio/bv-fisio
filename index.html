@@ -1334,6 +1334,7 @@ function planoHTML(){
   return fg([['Hipótese diagnóstica','hipotese','textarea',null,{full:true,ph:'Deficiências, limitações (CIF)...'}],['Metas — Curto prazo','meta_curto','textarea',null,{full:true}],['Metas — Médio prazo','meta_medio','textarea',null,{full:true}],['Metas — Longo prazo','meta_longo','textarea',null,{full:true}],['Plano de tratamento','plano','textarea',null,{full:true,ph:'Modalidades, técnicas...'}],['Frequência','freq','text',null,{ph:'Ex: 3x/semana'}],['Duração sessão (min)','duracao','number',null,null],['Prognóstico','prognostico','select',['Favorável','Reservado','Desfavorável'],null],['Observações finais','obs_finais','textarea',null,{full:true}]]);
 }
 function how(t){return '<div class="how-to">'+t+'</div>';}
+function getExtra(){return {};}
 function sbx(key,label,max,sfx){return '<div class="sbox"><div class="sbox-lbl">'+label+'</div><input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0"><div class="sbox-max">/'+max+'</div></div>';}
 function sgrid(items,sfx,cols){var h='<div class="sg sg-'+(cols||3)+'">';items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});return h+'</div>';}
 function atbar(sfx,label,max){return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div><input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';}
@@ -2836,21 +2837,6 @@ function importarDados(){
 //=== PARKINSON ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function buildSections(){
   var evalId=curEid||0;
   return anamneseInicial()+sec('🗓️','1. Identificação',
@@ -3082,7 +3068,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var _ew=document.getElementById('np_extra_wrap');if(!_ew)return;_ew.innerHTML=
     '<div class="ff"><label>Estágio H&Y inicial</label><select id="np_extra">'
@@ -3155,21 +3140,6 @@ APP.reg("parkinson",{buildSections:typeof buildSections!=="undefined"?buildSecti
 //=== ALZHEIMER ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function calcSG(sfx){
   const els=document.querySelectorAll('.sc_'+sfx);
   if(!els.length)return;
@@ -3361,7 +3331,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var _ew=document.getElementById('np_extra_wrap');if(!_ew)return;_ew.innerHTML=
     '<div class="ff"><label>CDR atual</label><select id="np_extra">'
@@ -3407,21 +3376,6 @@ APP.reg("alzheimer",{buildSections:typeof buildSections!=="undefined"?buildSecti
 //=== AVC ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function calcSG(sfx){
   const els=document.querySelectorAll('.sc_'+sfx);
   if(!els.length)return;
@@ -3628,7 +3582,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var _ew=document.getElementById('np_extra_wrap');if(!_ew)return;_ew.innerHTML=
     '<div class="ff"><label>Tipo de AVC</label><select id="np_extra">'
@@ -3672,21 +3625,6 @@ APP.reg("avc",{buildSections:typeof buildSections!=="undefined"?buildSections:fu
 //=== MEDULAR ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function calcSG(sfx){
   const els=document.querySelectorAll('.sc_'+sfx);
   if(!els.length)return;
@@ -3894,7 +3832,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var _ew=document.getElementById('np_extra_wrap');if(!_ew)return;_ew.innerHTML=
     '<div class="ff"><label>Nível neurológico</label>'
@@ -3938,21 +3875,6 @@ APP.reg("medular",{buildSections:typeof buildSections!=="undefined"?buildSection
 //=== GERIATRIA ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function calcSG(sfx){
   const els=document.querySelectorAll('.sc_'+sfx);
   if(!els.length)return;
@@ -4190,7 +4112,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var _ew=document.getElementById('np_extra_wrap');if(!_ew)return;_ew.innerHTML=
     '<div class="ff"><label>Grau de dependência</label><select id="np_extra">'
@@ -4241,21 +4162,6 @@ APP.reg("geriatria",{buildSections:typeof buildSections!=="undefined"?buildSecti
 //=== FIBROMIALGIA ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function calcSG(sfx){
   const els=document.querySelectorAll('.sc_'+sfx);
   if(!els.length)return;
@@ -4507,7 +4413,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var _ew=document.getElementById('np_extra_wrap');if(!_ew)return;_ew.innerHTML=
     '<div class="ff"><label>Tempo de diagnóstico</label>'
@@ -4546,21 +4451,6 @@ APP.reg("fibromialgia",{buildSections:typeof buildSections!=="undefined"?buildSe
 //=== ESCOLIOSE ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){
-  return '<div class="sbox"><div class="sbox-lbl">'+label+'</div>'
-    +'<input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0">'
-    +'<div class="sbox-max">/'+max+'</div></div>';
-}
-function sgrid(items,sfx,cols){
-  let h='<div class="sg sg-'+(cols||3)+'">';
-  items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});
-  return h+'</div>';
-}
-function atbar(sfx,label,max){
-  return '<div class="tbar" style="margin-top:4px"><span>'+label+'</span><span id="at_'+sfx+'">0 / '+max+'</span></div>'
-    +'<input type="hidden" id="athi_'+sfx+'" data-key="'+sfx+'_total">';
-}
 function calcSG(sfx){
   const els=document.querySelectorAll('.sc_'+sfx);
   if(!els.length)return;
@@ -4755,7 +4645,6 @@ function getGuideCards(){return [
 ];}
 
 
-function getExtra(){return {};}
 function buildExtraField(){
   var wrap=document.getElementById('np_extra_wrap');
   if(!wrap)return;
@@ -4802,9 +4691,6 @@ APP.reg("escoliose",{buildSections:typeof buildSections!=="undefined"?buildSecti
 // ════════════════════════════════════════════════════════
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll;
-function how(t){return '<div class="how-to">'+t+'</div>';}
-function sbx(key,label,max,sfx){return '<div class="sbox"><div class="sbox-lbl">'+label+'</div><input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0"><div class="sbox-max">/'+max+'</div></div>';}
-function sgrid(items,sfx,cols){var h='<div class="sg sg-'+(cols||3)+'">';items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});return h+'</div>';}
 
 // ── Regiões e seus testes especiais ──────────────────────────────────
 var REGIOES = {
@@ -5017,7 +4903,6 @@ APP.reg("traumato",{
 //=== NEUROPED ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
 function sub(t){return '<div class="subsec-title">'+t+'</div>';}
 
 // ── GMFM-66 (Gross Motor Function Measure) ──
@@ -5174,7 +5059,6 @@ APP.reg('neuroped',{
 //=== ESCALAS ===
 (function(APP){
 var buildSections,getChips,getMetrics,getGuideCards,buildExtraField,getPBadge,recalcAll,getExtra;
-function how(t){return '<div class="how-to">'+t+'</div>';}
 
 // ── Berg Balance Scale (14 items, 0-4 each, max 56) ──
 function bergHTML(){
