@@ -7391,7 +7391,9 @@ function renderPhotos(evalId,cond){
   var wrap=document.getElementById('photo_wrap_'+evalId);
   if(!wrap)return;
   var photos=photoStore[evalId]||[];
-  var isEsc=(cond||curCond)==='escoliose';
+  // Fotos do atendimento (chave atd_) usam SEMPRE o modo timeline livre, nunca o grid de 9 vistas.
+  var isAtend=(''+evalId).indexOf('atd_')===0;
+  var isEsc=!isAtend && (cond||curCond)==='escoliose';
   var h='';
   if(isEsc){
     h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:10px">';
@@ -7944,106 +7946,29 @@ function openAtendPhotos(pid,cond){
   if(!p)return;
   var key=_atdKey(pid,cond);
   var m=COND_META[cond]||{};
-  window._atdCtx={pid:pid,cond:cond,key:key,name:p.name,m:m};
+  var ac=m.ac||'#E8844A', ac2=m.ac2||ac;
   var ov=document.getElementById('atdPhotoModal');
-  if(!ov){
-    ov=document.createElement('div');
-    ov.id='atdPhotoModal';
-    ov.className='ov';
-    ov.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2200;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
-    ov.innerHTML='<div style="background:var(--w);border-radius:var(--r2);max-width:680px;width:100%;box-shadow:var(--sh2);overflow:hidden">'
-      +'<div id="atdHd" style="padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff">'
-        +'<span id="atdHdIcon" style="font-size:18px"></span>'
-        +'<div style="flex:1"><div id="atdHdTitle" style="font-weight:700;font-size:14px"></div>'
-        +'<div id="atdHdSub" style="font-size:10px;opacity:.85"></div></div>'
-        +'<button class="btn btn-w" style="color:#1a1a14;padding:6px 10px" onclick="closeOv(\'atdPhotoModal\')">✕</button>'
-      +'</div>'
-      +'<div style="padding:14px 18px">'
-        +'<div style="font-size:11px;color:var(--g5);margin-bottom:10px;line-height:1.5">Anexe fotos do atendimento e escreva a legenda de cada uma. Elas aparecem no relatório, na seção da patologia.</div>'
-        +'<input type="file" id="atdFileInput" accept="image/*" multiple style="display:none" onchange="atdAddFiles(this.files)">'
-        +'<button class="btn btn-gr" style="width:100%;padding:11px" onclick="document.getElementById(\'atdFileInput\').click()">＋ Adicionar foto(s)</button>'
-        +'<div id="atdGrid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px"></div>'
-      +'</div>'
-    +'</div>';
-    document.body.appendChild(ov);
-    ov.addEventListener('click',function(e){if(e.target===ov)closeOv('atdPhotoModal');});
-  }
-  var ac=m.ac||'#E8844A',ac2=m.ac2||ac;
-  document.getElementById('atdHd').style.background='linear-gradient(135deg,'+ac+','+ac2+')';
-  document.getElementById('atdHdIcon').textContent=m.icon||'📷';
-  document.getElementById('atdHdTitle').textContent='Fotos do Atendimento — '+(m.label||cond);
-  document.getElementById('atdHdSub').textContent=esc(p.name);
-  ov.style.display='flex';
-  loadPhotos(key,function(){atdRenderGrid();});
-}
-function atdRenderGrid(){
-  var ctx=window._atdCtx;if(!ctx)return;
-  var photos=(photoStore[ctx.key]||[]).filter(function(ph){return ph&&ph.src;});
-  var grid=document.getElementById('atdGrid');if(!grid)return;
-  if(!photos.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--g4);font-size:11px;padding:18px">Nenhuma foto ainda. Toque em “Adicionar foto(s)”.</div>';return;}
-  var ac=(ctx.m.ac||'#E8844A');
-  var html='';
-  photos.forEach(function(ph,idx){
-    html+='<div class="atd-card" style="border:1.5px solid '+ac+'33;border-radius:10px;overflow:hidden;background:#fff">'
-      +'<div style="position:relative">'
-        +'<img src="'+ph.src+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block">'
-        +'<button onclick="atdDelPhoto('+idx+')" title="Remover" style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:1">✕</button>'
-      +'</div>'
-      +'<textarea oninput="atdUpdateCap('+idx+',this.value)" placeholder="Legenda da foto..." rows="2" style="width:100%;border:none;border-top:1px solid var(--g1);padding:7px 9px;font-family:\'DM Sans\';font-size:11px;color:var(--g8);resize:vertical;outline:none;box-sizing:border-box">'+esc(ph.desc||'')+'</textarea>'
-    +'</div>';
-  });
-  grid.innerHTML=html;
-}
-function atdAddFiles(files){
-  var ctx=window._atdCtx;if(!ctx||!files||!files.length)return;
-  if(!photoStore[ctx.key])photoStore[ctx.key]=[];
-  var arr=Array.prototype.slice.call(files);
-  var pending=arr.length;
-  arr.forEach(function(file){
-    if(!file.type||file.type.indexOf('image/')!==0){pending--;return;}
-    var reader=new FileReader();
-    reader.onload=function(e){
-      _atdResize(e.target.result,function(out){
-        photoStore[ctx.key].push({src:out,desc:'',view:'Atendimento'});
-        pending--;
-        if(pending<=0){savePhotos(ctx.key);atdRenderGrid();toast('Foto(s) adicionada(s)','ok');}
-      });
-    };
-    reader.onerror=function(){pending--;if(pending<=0){savePhotos(ctx.key);atdRenderGrid();}};
-    reader.readAsDataURL(file);
-  });
-}
-function _atdResize(dataUrl,cb){
-  var img=new Image();
-  img.onload=function(){
-    var max=1280,w=img.width,h=img.height;
-    if(w>max||h>max){var r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}
-    try{
-      var c=document.createElement('canvas');c.width=w;c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      cb(c.toDataURL('image/jpeg',0.82));
-    }catch(e){cb(dataUrl);}
-  };
-  img.onerror=function(){cb(dataUrl);};
-  img.src=dataUrl;
-}
-function atdUpdateCap(idx,val){
-  var ctx=window._atdCtx;if(!ctx)return;
-  var photos=(photoStore[ctx.key]||[]).filter(function(ph){return ph&&ph.src;});
-  if(photos[idx]){photos[idx].desc=val;
-    if(window._atdCapTimer)clearTimeout(window._atdCapTimer);
-    window._atdCapTimer=setTimeout(function(){savePhotos(ctx.key);},700);
-  }
-}
-function atdDelPhoto(idx){
-  var ctx=window._atdCtx;if(!ctx)return;
-  var all=photoStore[ctx.key]||[];
-  var visible=all.filter(function(ph){return ph&&ph.src;});
-  var target=visible[idx];
-  if(!target)return;
-  if(!confirm('Remover esta foto do atendimento?'))return;
-  photoStore[ctx.key]=all.filter(function(ph){return ph!==target;});
-  savePhotos(ctx.key);atdRenderGrid();
+  if(ov)ov.remove();
+  ov=document.createElement('div');
+  ov.id='atdPhotoModal';
+  ov.className='ov';
+  ov.style.cssText='display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2200;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
+  ov.innerHTML='<div style="background:var(--w);border-radius:var(--r2);max-width:760px;width:100%;box-shadow:var(--sh2);overflow:hidden">'
+    +'<div style="padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff;background:linear-gradient(135deg,'+ac+','+ac2+')">'
+      +'<span style="font-size:18px">'+(m.icon||'📷')+'</span>'
+      +'<div style="flex:1"><div style="font-weight:700;font-size:14px">Fotos do Atendimento — '+(m.label||cond)+'</div>'
+      +'<div style="font-size:10px;opacity:.85">'+esc(p.name)+'</div></div>'
+      +'<button class="btn btn-w" style="color:#1a1a14;padding:6px 10px" onclick="closeOv(\'atdPhotoModal\')">✕</button>'
+    +'</div>'
+    +'<div style="padding:14px 18px">'
+      +'<div class="ib" style="margin-bottom:10px"><strong>Como usar:</strong> Adicione fotos do atendimento. Toque numa foto para ampliar e usar a <strong>grade</strong>, o <strong>fio de prumo</strong> e o <strong>enquadramento</strong>, igual à evolução fotográfica da avaliação. As fotos aparecem no relatório, na seção da patologia.</div>'
+      +'<div id="photo_wrap_'+key+'"></div>'
+    +'</div>'
+  +'</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeOv('atdPhotoModal');});
+  // Reusa a MESMA engine de fotos da avaliação (timeline + viewPhoto com grade/prumo/recorte)
+  loadPhotos(key,function(){ renderPhotos(key,null); });
 }
 </script>
 
