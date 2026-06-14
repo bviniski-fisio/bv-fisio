@@ -907,7 +907,7 @@ function getSharedNeuroAnamnese(p, exceptEid){
 window._APP = {_r:{}, reg:function(n,o){window._APP._r[n]=o;}};
 
 // DB structure: {patients:[{id, name, birth, age, sex, phone, rec, med, obs, conds:[], condEvals:{cond:[eval,...]}, created}], nid:1}
-var db = {patients:[], nid:1};
+var db = {patients:[], nid:1, appointments:[], pagamentos:[], exerciseLib:[]};
 var curPid = null;       // current patient ID
 var curCond = null;      // current condition being viewed/edited
 var curEid  = null;      // current eval ID
@@ -1009,7 +1009,7 @@ async function loadDB(){
       var p=JSON.parse(raw);
       db=parseDB(p);
     }
-  }catch(e){db={patients:[],nid:1,appointments:[],pagamentos:[],evolutions:[]};}
+  }catch(e){db={patients:[],nid:1,appointments:[],pagamentos:[],exerciseLib:[]};}
 }
 function saveDB(){
   setSave('saving');
@@ -2867,6 +2867,9 @@ function showDashboard(){
     +kpiCard('🏥','Condições',Object.keys(condCount).length,'diferentes tratadas','#A05CA0')
     +kpiCard('💰','Recebido',function(){var t=0;(db.pagamentos||[]).filter(function(p){var d=new Date(p.data+'T12:00');var now=new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()&&p.status==='Pago';}).forEach(function(p){t+=parseFloat(p.valor||0);});return 'R$ '+t.toFixed(2).replace('.',',');}(),'no mês atual','#1a7a4a')
     +kpiCard('⚠️','Reavaliação',function(){var hoje=new Date();var limite=new Date(hoje-60*86400000);return (db.patients||[]).filter(function(p){var evs=Object.values(condEvalsNoGeral(p)).flat();var ultima=evs.reduce(function(b,e){return(!b||e.date>b)?e.date:b;},'');return !ultima||new Date(ultima+'T12:00')<limite;}).length;}(),'pacientes sem atend. 60d+','#C62828')
+    +kpiCard('✅','Sessões',function(){return (db.patients||[]).reduce(function(t,p){return t+((p.evolutions||[]).filter(function(e){return !e.falta;}).length);},0);}(),'total realizadas','#2e7d32')
+    +kpiCard('🚫','Faltas NJ',function(){return (db.patients||[]).reduce(function(t,p){return t+((p.evolutions||[]).filter(function(e){return e.falta&&e.faltaTipo==='nao_justificada';}).length);},0);}(),'não justificadas','#C62828')
+    +kpiCard('📅','Faltas J',function(){return (db.patients||[]).reduce(function(t,p){return t+((p.evolutions||[]).filter(function(e){return e.falta&&e.faltaTipo!=='nao_justificada';}).length);},0);}(),'justificadas','#e07b00')
     +'</div>'
 
     // Painel de alertas
@@ -2944,16 +2947,21 @@ function showDashboard(){
     +'<div style="background:#fff;border:1px solid #e0d8cc;border-radius:10px;padding:14px">'
     +'<div style="font-size:11px;font-weight:700;color:#6a6a62;margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px">Resumo de Pacientes</div>'
     +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'
-    +'<thead><tr style="background:#f5f0eb"><th style="padding:7px 10px;text-align:left;font-weight:700;color:#5a5a52">Paciente</th><th style="padding:7px 10px;text-align:center">Condições</th><th style="padding:7px 10px;text-align:center">Avals.</th><th style="padding:7px 10px;text-align:left">Última Aval.</th></tr></thead>'
+    +'<thead><tr style="background:#f5f0eb"><th style="padding:7px 10px;text-align:left;font-weight:700;color:#5a5a52">Paciente</th><th style="padding:7px 10px;text-align:center">Condições</th><th style="padding:7px 10px;text-align:center">Avals.</th><th style="padding:7px 10px;text-align:center">Sessões</th><th style="padding:7px 10px;text-align:center">Faltas NJ</th><th style="padding:7px 10px;text-align:left">Última Aval.</th></tr></thead>'
     +'<tbody>'
     +pts.map(function(p,i){
       var allEvs=Object.values(condEvalsNoGeral(p)).flat();
       var lastDate=allEvs.reduce(function(best,e){return (!best||e.date>best)?e.date:best;},'');
       var cBadges=(p.conds||[]).map(function(c){var m=COND_META[c]||{};return '<span style="background:'+m.ac+'20;color:'+m.ac+';border:1px solid '+m.ac+'44;border-radius:10px;padding:1px 6px;font-size:9px;white-space:nowrap">'+m.icon+' '+m.label+'</span>';}).join(' ');
+      var evols=p.evolutions||[];
+      var nSess=evols.filter(function(e){return !e.falta;}).length;
+      var nFaltaNJ=evols.filter(function(e){return e.falta&&e.faltaTipo==='nao_justificada';}).length;
       return '<tr style="border-bottom:1px solid #f0ece6;cursor:pointer" onclick="selPatient('+p.id+')">'
         +'<td style="padding:7px 10px;font-weight:600">'+esc(p.name)+'</td>'
         +'<td style="padding:7px 10px;text-align:center">'+cBadges+'</td>'
         +'<td style="padding:7px 10px;text-align:center">'+allEvs.length+'</td>'
+        +'<td style="padding:7px 10px;text-align:center;color:#2e7d32;font-weight:600">'+nSess+'</td>'
+        +'<td style="padding:7px 10px;text-align:center;color:'+(nFaltaNJ>0?'#C62828':'var(--g4)')+';font-weight:'+(nFaltaNJ>0?'700':'400')+'">'+nFaltaNJ+'</td>'
         +'<td style="padding:7px 10px;color:var(--g4)">'+(lastDate?new Date(lastDate+'T12:00').toLocaleDateString('pt-BR'):'—')+'</td>'
         +'</tr>';
     }).join('')
@@ -7346,12 +7354,37 @@ function showEvolution(pid){
   if(!p)return;
   if(!p.evolutions)p.evolutions=[];
   curPid=pid;curView='evolution';
+
+  var totalSessoes=p.evolutions.filter(function(e){return !e.falta;}).length;
+  var faltaNJ=p.evolutions.filter(function(e){return e.falta&&e.faltaTipo==='nao_justificada';}).length;
+  var faltaJ=p.evolutions.filter(function(e){return e.falta&&e.faltaTipo!=='nao_justificada';}).length;
+  var totalCont=totalSessoes+faltaNJ; // total contabilizado (sessoes + faltas NJ)
+
   var html='<div style="max-width:800px;margin:0 auto;padding:20px">'
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">'
     +'<button class="btn btn-del" onclick="selPatient('+pid+')">← Voltar</button>'
-    +'<h2 style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--or)">📋 Evolução — '+esc(p.name)+'</h2>'
+    +'<h2 style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--or)">📋 Evolução — '+esc(p.name)+(p.rec?' <span style="font-size:13px;color:var(--g4);font-family:DM Sans,sans-serif">· Pron. #'+esc(p.rec)+'</span>':'')+'</h2>'
     +'<button class="btn" style="background:var(--or);color:#fff;margin-left:auto" onclick="openNewEvolution('+pid+')">＋ Nova Evolução</button>'
     +'<button class="btn btn-del" style="background:#fdecea;color:#C62828" onclick="openRegistrarFalta('+pid+')">🚫 Registrar Falta</button>'
+    +'</div>'
+    // ── Totalizador ──
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    +'<div style="flex:1;min-width:110px;background:var(--w);border:1px solid var(--g1);border-radius:var(--r);padding:10px 14px;text-align:center">'
+    +'<div style="font-size:22px;font-weight:700;color:var(--or)">'+totalSessoes+'</div>'
+    +'<div style="font-size:10px;color:var(--g4);text-transform:uppercase;letter-spacing:.4px">Sessões realizadas</div>'
+    +'</div>'
+    +'<div style="flex:1;min-width:110px;background:var(--w);border:1px solid var(--g1);border-radius:var(--r);padding:10px 14px;text-align:center">'
+    +'<div style="font-size:22px;font-weight:700;color:#C62828">'+faltaNJ+'</div>'
+    +'<div style="font-size:10px;color:var(--g4);text-transform:uppercase;letter-spacing:.4px">Faltas não justificadas</div>'
+    +'</div>'
+    +'<div style="flex:1;min-width:110px;background:var(--w);border:1px solid var(--g1);border-radius:var(--r);padding:10px 14px;text-align:center">'
+    +'<div style="font-size:22px;font-weight:700;color:#e07b00">'+faltaJ+'</div>'
+    +'<div style="font-size:10px;color:var(--g4);text-transform:uppercase;letter-spacing:.4px">Faltas justificadas</div>'
+    +'</div>'
+    +'<div style="flex:1;min-width:110px;background:var(--w);border:1px solid var(--g1);border-radius:var(--r);padding:10px 14px;text-align:center">'
+    +'<div style="font-size:22px;font-weight:700;color:var(--g6)">'+totalCont+'</div>'
+    +'<div style="font-size:10px;color:var(--g4);text-transform:uppercase;letter-spacing:.4px">Total contabilizado</div>'
+    +'</div>'
     +'</div>';
   if(p.evolutions.length===0){
     html+='<div style="text-align:center;padding:40px;color:var(--g4)"><div style="font-size:40px">📝</div><p style="margin-top:8px;font-size:13px">Nenhuma evolução registrada ainda.</p></div>';
@@ -7372,9 +7405,10 @@ function showEvolution(pid){
         +'</div></div>'
         +'<div style="padding:12px 14px">'
         +(ev.falta?(ev.motivo?'<div><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Motivo</span><div style="font-size:12px;margin-top:2px">'+esc(ev.motivo)+'</div></div>':'<div style="font-size:12px;color:var(--g4)">Sem motivo informado.</div>'):'')
-        +(ev.conduta?'<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Conduta</span><div style="font-size:12px;margin-top:2px">'+ev.conduta+'</div></div>':'')
-        +(ev.resposta?'<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Resposta do paciente</span><div style="font-size:12px;margin-top:2px">'+ev.resposta+'</div></div>':'')
-        +(ev.obs?'<div><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Obs.</span><div style="font-size:12px;margin-top:2px">'+ev.obs+'</div></div>':'')
+        +(ev.queixa&&!ev.falta?'<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Queixa do dia</span><div style="font-size:12px;margin-top:2px">'+esc(ev.queixa)+'</div></div>':'')
+        +(ev.conduta&&!ev.falta?'<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Conduta</span><div style="font-size:12px;margin-top:2px">'+esc(ev.conduta)+'</div></div>':'')
+        +(ev.resposta&&!ev.falta?'<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Resposta do paciente</span><div style="font-size:12px;margin-top:2px">'+esc(ev.resposta)+'</div></div>':'')
+        +(ev.obs&&!ev.falta?'<div><span style="font-size:9px;font-weight:700;color:var(--g4);text-transform:uppercase">Obs.</span><div style="font-size:12px;margin-top:2px">'+esc(ev.obs)+'</div></div>':'')
         +'</div></div>';
     });
   }
@@ -7467,11 +7501,18 @@ function removeExerciseLib(i){
 function copyLastEvolution(pid){
   var p=db.patients.find(function(pt){return pt.id===pid;});
   if(!p||!p.evolutions||!p.evolutions.length)return;
-  var last=p.evolutions[p.evolutions.length-1];
-  var c=document.getElementById('evol_conduta'),o=document.getElementById('evol_obs');
+  var last=p.evolutions.filter(function(e){return !e.falta;});
+  if(!last.length)return;
+  last=last[last.length-1];
+  var q=document.getElementById('evol_queixa');
+  var c=document.getElementById('evol_conduta');
+  var r=document.getElementById('evol_resposta');
+  var o=document.getElementById('evol_obs');
+  if(q&&!q.value)q.value=last.queixa||'';
   if(c&&!c.value)c.value=last.conduta||'';
+  if(r&&!r.value)r.value=last.resposta||'';
   if(o&&!o.value)o.value=last.obs||'';
-  toast('Conduta e Plano copiados da última evolução. Ajuste o que mudou.','ok');
+  toast('Evolução anterior copiada. Ajuste o que mudou.','ok');
 }
 function openRegistrarFalta(pid){
   var ex=document.getElementById('evolModal');if(ex)ex.parentNode.removeChild(ex);
