@@ -452,6 +452,71 @@
 [data-theme="dark"] table{color:var(--g8);}
 [data-theme="dark"] th{background:#2c2c26!important;}
 /* ══════════════════════ FIM TEMA ESCURO ══════════════════════ */
+/* ══ FICHA DE PRÉ-CADASTRO ══ */
+.pc-scroll{height:100%;overflow-y:auto;background:var(--g0);}
+.pc-wrap{max-width:860px;margin:0 auto;padding:0 0 70px;}
+.pc-cover{background:linear-gradient(160deg,#fff 60%,var(--or-p) 100%);border-bottom:3px solid var(--or);padding:26px 22px 20px;text-align:center;}
+.pc-eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--or);}
+.pc-title{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:700;color:var(--g8);line-height:1.15;margin-top:4px;}
+.pc-title em{font-style:italic;color:var(--or);}
+.pc-sub{font-size:12px;color:var(--g4);max-width:480px;margin:6px auto 0;line-height:1.55;}
+.pc-badge{display:inline-flex;align-items:center;gap:6px;background:var(--or-p);border:1px solid var(--or-l);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:var(--or2);margin-top:10px;}
+.pc-notice{margin:16px 16px 0;background:#FFF8E7;border:1.5px solid #F5C842;border-radius:var(--r);padding:12px 15px;display:flex;gap:10px;font-size:12px;color:#6B5300;line-height:1.55;}
+.pc-notice b{display:block;margin-bottom:2px;}
+.pc-bar{position:sticky;top:0;z-index:60;background:var(--w);border-bottom:1.5px solid var(--g2);padding:9px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;box-shadow:var(--sh0);}
+.pc-bar .pc-dest{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.pc-bar .pc-dest label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g4);}
+.pc-bar .pc-dest input{width:150px;padding:6px 9px;border:1.5px solid var(--g2);border-radius:8px;font-family:'DM Sans';font-size:12px;background:#f7f4f0;outline:none;}
+.pc-bar .pc-dest input:focus{border-color:var(--or);background:var(--w);}
+.pc-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:9px;border:1.5px solid var(--g2);background:var(--g1);font-family:'DM Sans';font-size:12px;font-weight:600;color:var(--g8);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.pc-btn:active{opacity:.72;}
+.pc-btn-wa{background:#25D366;border-color:#1da851;color:#fff;}
+.pc-btn-or{background:var(--or);border-color:var(--or2);color:#fff;}
+.pc-sec{background:var(--w);border-radius:var(--r);box-shadow:var(--sh1);margin:16px 16px 0;overflow:hidden;}
+.pc-sec-h{background:linear-gradient(90deg,var(--or-p),#fff);border-bottom:1.5px solid #F0E8DF;padding:11px 16px;display:flex;align-items:center;gap:9px;}
+.pc-sec-h .ic{font-size:16px;}
+.pc-sec-h .tt{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--or2);}
+.pc-sec-h .nn{margin-left:auto;font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--g4);}
+.pc-sec-b{padding:15px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pc-f{display:flex;flex-direction:column;gap:4px;}
+.pc-f.full{grid-column:1/-1;}
+.pc-f label{font-size:9.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--g4);}
+.pc-f label .rq{color:var(--or);margin-left:2px;}
+.pc-f input,.pc-f select,.pc-f textarea{border:1.5px solid var(--g2);border-radius:8px;padding:9px 11px;font-family:'DM Sans';font-size:13px;color:var(--g8);background:#f7f4f0;width:100%;outline:none;transition:border-color .15s,background .15s;}
+.pc-f input:focus,.pc-f select:focus,.pc-f textarea:focus{border-color:var(--or);background:var(--w);}
+.pc-f textarea{resize:vertical;min-height:70px;}
+.pc-f .hint{font-size:10px;color:var(--g4);line-height:1.5;}
+.pc-sub-t{grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--or);display:flex;align-items:center;gap:7px;margin-top:4px;}
+.pc-sub-t::after{content:'';flex:1;height:1px;background:var(--or-l);opacity:.45;}
+.pc-note{grid-column:1/-1;font-size:11.5px;color:var(--g4);line-height:1.65;}
+.pc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px;}
+.pc-chip{display:flex;align-items:center;gap:6px;background:#f7f4f0;border:1.5px solid var(--g2);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;color:var(--g8);user-select:none;transition:all .15s;}
+.pc-chip input{margin:0;accent-color:var(--or);}
+.pc-chip:has(input:checked){background:var(--or-p);border-color:var(--or-l);color:var(--or2);font-weight:600;}
+.pc-scale{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:5px;}
+.pc-scale .lb{font-size:10px;color:var(--g4);white-space:nowrap;}
+.pc-scale .op{display:flex;gap:3px;flex:1;justify-content:center;flex-wrap:wrap;}
+.pc-scale .op label{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;}
+.pc-scale .op input{accent-color:var(--or);}
+.pc-scale .op span{font-size:10px;color:var(--g4);}
+.pc-foot{margin:20px 16px 0;background:var(--g8);color:#fff;border-radius:var(--r);padding:16px 18px;font-size:11px;line-height:1.6;}
+.pc-foot b{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--or-l);display:block;margin-bottom:3px;}
+.pc-foot .lg{font-size:9.5px;opacity:.6;margin-top:8px;}
+@media(max-width:640px){
+  .pc-sec-b{grid-template-columns:1fr;}
+  .pc-cover{padding:20px 16px 16px;}
+  .pc-title{font-size:22px;}
+  .pc-bar{padding:8px 10px;gap:6px;}
+  .pc-bar .pc-dest{margin-left:0;width:100%;}
+  .pc-bar .pc-dest input{flex:1;width:auto;}
+  .pc-btn{flex:1;justify-content:center;padding:9px 8px;font-size:11.5px;}
+  .pc-sec,.pc-notice,.pc-foot{margin-left:10px;margin-right:10px;}
+}
+[data-theme="dark"] .pc-scroll{background:#1c1c18;}
+[data-theme="dark"] .pc-sec,[data-theme="dark"] .pc-bar{background:#242420;}
+[data-theme="dark"] .pc-cover{background:linear-gradient(160deg,#242420 60%,#3a2a1e 100%);}
+[data-theme="dark"] .pc-f input,[data-theme="dark"] .pc-f select,[data-theme="dark"] .pc-f textarea,[data-theme="dark"] .pc-chip{background:#2e2e28;color:#eee;}
+
 </style>
 <!-- Firebase SDK -->
 <script type="module">
@@ -907,7 +972,7 @@ function getSharedNeuroAnamnese(p, exceptEid){
 window._APP = {_r:{}, reg:function(n,o){window._APP._r[n]=o;}};
 
 // DB structure: {patients:[{id, name, birth, age, sex, phone, rec, med, obs, conds:[], condEvals:{cond:[eval,...]}, created}], nid:1}
-var db = {patients:[], nid:1};
+var db = {patients:[], nid:1, appointments:[], pagamentos:[], exerciseLib:[]};
 var curPid = null;       // current patient ID
 var curCond = null;      // current condition being viewed/edited
 var curEid  = null;      // current eval ID
@@ -1009,7 +1074,7 @@ async function loadDB(){
       var p=JSON.parse(raw);
       db=parseDB(p);
     }
-  }catch(e){db={patients:[],nid:1,appointments:[],pagamentos:[],evolutions:[]};}
+  }catch(e){db={patients:[],nid:1,appointments:[],pagamentos:[],exerciseLib:[]};}
 }
 function saveDB(){
   setSave('saving');
@@ -1030,8 +1095,10 @@ function saveDB(){
     if(window._fbSave) {
       window._fbSave(db).then(function(){
         setSave('saved');
+        if(window._setSync)window._setSync('online');
       }).catch(function(){
-        setSave('saved'); // salvo local mesmo se nuvem falhar
+        setSave('saved');
+        if(window._setSync)window._setSync(navigator.onLine?'error':'offline');
       });
     } else {
       setTimeout(function(){setSave('saved');},350);
@@ -1093,7 +1160,7 @@ var CLINICAL_REF = {
   'gds':          function(v){ if(v<=4)return{txt:'Sem indício de depressão',lvl:'ok'}; if(v<=9)return{txt:'Depressão leve — investigar',lvl:'warn'}; return{txt:'Sugestivo de depressão',lvl:'alert'}; }
 };
 // aceita aliases comuns de chave usados nos módulos
-var CLINICAL_ALIAS = { 'berg':'berg_total','tug':'tug_i','tc10':'tc10m_vel','barthel_ger':'barthel','barthel_avc':'barthel','barthel_alz':'barthel','fim':'fim_total','asia_motor':'asia_motor_total','cobb':'cobb_principal' };
+var CLINICAL_ALIAS = { 'berg':'berg_total','tug':'tug_media','tc10':'tc10m_vel','barthel_ger':'barthel','barthel_avc':'barthel','barthel_alz':'barthel','fim':'fim_total','asia_motor':'asia_motor_total','cobb':'cobb_principal' };
 function interpretMetric(key, rawVal){
   if(rawVal===''||rawVal==null)return null;
   var v=parseFloat(rawVal); if(isNaN(v))return null;
@@ -1163,7 +1230,7 @@ function openNewPatient(){
   document.getElementById('np_endereco').value='';
   document.getElementById('np_emerg_nome').value='';
   document.getElementById('np_emerg_tel').value='';
-  document.getElementById('np_rec').value='';
+  document.getElementById('np_rec').value=String((db.patients||[]).length+1);
   document.getElementById('np_med').value='';
   document.getElementById('np_obs').value='';
   // Reset cond checkboxes
@@ -1350,7 +1417,7 @@ function showWelcome(){
     +'<div style="display:flex;gap:24px;margin-top:18px">'
     +'<div><div style="font-size:26px;font-weight:700;color:var(--or);font-family:\'Cormorant Garamond\',serif" id="statN">'+total+'</div><div style="font-size:9px;color:var(--g4);text-transform:uppercase;letter-spacing:1px">Pacientes</div></div>'
     +'<div><div style="font-size:26px;font-weight:700;color:var(--or);font-family:\'Cormorant Garamond\',serif" id="statE">'+totalE+'</div><div style="font-size:9px;color:var(--g4);text-transform:uppercase;letter-spacing:1px">Avaliações</div></div>'
-    +'</div>'    +(total===0      ?'<div style="margin-top:20px;padding:14px 18px;background:#FFF8E1;border:1.5px solid #FFD54F;border-radius:10px;max-width:320px;text-align:left">'        +'<div style="font-size:13px;font-weight:700;color:#E65100;margin-bottom:6px">⚠️ Sem dados locais</div>'        +'<div style="font-size:11px;color:#5a5a52;line-height:1.6">A cada download o arquivo abre num contexto novo, sem acesso aos dados anteriores. Para recuperar seus pacientes use o backup exportado anteriormente.</div>'        +'<button onclick="importarDados()" style="margin-top:10px;width:100%;padding:10px;background:#E65100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">📥 Importar Backup</button>'      +'</div>'      :'')    +'</div>';
+    +'</div>'+'<button onclick="showPreCadastro()" style="margin-top:22px;padding:12px 22px;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;border:none;border-radius:12px;font-family:\'DM Sans\';font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(232,132,74,.32);display:flex;align-items:center;gap:8px">📋 Ficha de Pré-Cadastro</button>'+'<div style="font-size:10.5px;color:var(--g4);max-width:300px;margin-top:7px;line-height:1.5">Preencha e envie por WhatsApp — sem precisar cadastrar o paciente antes.</div>'    +(total===0      ?'<div style="margin-top:20px;padding:14px 18px;background:#FFF8E1;border:1.5px solid #FFD54F;border-radius:10px;max-width:320px;text-align:left">'        +'<div style="font-size:13px;font-weight:700;color:#E65100;margin-bottom:6px">⚠️ Sem dados locais</div>'        +'<div style="font-size:11px;color:#5a5a52;line-height:1.6">A cada download o arquivo abre num contexto novo, sem acesso aos dados anteriores. Para recuperar seus pacientes use o backup exportado anteriormente.</div>'        +'<button onclick="importarDados()" style="margin-top:10px;width:100%;padding:10px;background:#E65100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">📥 Importar Backup</button>'      +'</div>'      :'')    +'</div>';
 }
 
 // ── PATIENT PROFILE ──
@@ -1896,6 +1963,11 @@ document.addEventListener('input',function(e){
     if(d)d.textContent=avg+'s';if(i){i.value=avg;schedSave();}
   }
 });
+
+function _checkRange(t){if(t.tagName!=='INPUT'||t.type!=='number')return;if(t.min===''&&t.max==='')return;if(t.value===''){t.classList.remove('range-warn');t.removeAttribute('title');return;}var v=parseFloat(t.value);if(isNaN(v)){t.classList.remove('range-warn');t.removeAttribute('title');return;}var mn=t.min!==''?parseFloat(t.min):null;var mx=t.max!==''?parseFloat(t.max):null;if((mn!==null&&v<mn)||(mx!==null&&v>mx)){t.classList.add('range-warn');t.title='Fora da faixa';}else{t.classList.remove('range-warn');t.removeAttribute('title');}}
+document.addEventListener('input',function(e){_checkRange(e.target);});
+document.addEventListener('change',function(e){_checkRange(e.target);});
+(function(){var st=document.createElement('style');st.textContent='.range-warn{border-color:#C62828 !important;background:#fcebea !important;}';document.head.appendChild(st);})();
 
 function collectSave(){
   var p=db.patients.find(function(pt){return pt.id===curPid;});
@@ -3580,11 +3652,26 @@ function buildSections(){
     ],'berg',4)
     +atbar('berg','Berg Total',56)
     +fld('Obs. Berg','berg_obs','textarea',null,{ph:'Estratégias, hesitações, freezing durante o teste...'}))
-  +sec('⏱️','4. TUG — Timed Up and Go',
-    how('<strong>Como aplicar:</strong> Paciente sentado em cadeira com braços, costas apoiadas. Marcar 3 metros no chão. Ao sinal verbal: (1) levantar; (2) caminhar 3m; (3) contornar o cone; (4) retornar e sentar completamente. Sem auxílio. Cronometrar da ordem até sentar. Realizar <strong>3 tentativas</strong> — a 1ª é de familiarização, calcular média das tentativas 2 e 3. <em>Referência:</em> >12s = risco aumentado.')
+  +sec('⏱️','4. TUG e Transferencias',
+    how('TUG: sentado, costas apoiadas, marcar 3m. Levantar, caminhar, contornar cone, retornar e sentar. 3 tentativas, media das 2 e 3. Mais de 12s = risco aumentado.')
     +tugHTML()
-    +fg([['TUG Cognitivo — contar regressivo de 100 (s)','tug_cog','number',null,{step:'0.1',ph:'s'}],
-         ['TUG Motor — copo com água (s)','tug_motor','number',null,{step:'0.1',ph:'s'}]]))
+    +fg([['TUG Cognitivo (s)','tug_cog','number',null,{step:'0.1',ph:'s'}],
+         ['TUG Motor (s)','tug_motor','number',null,{step:'0.1',ph:'s'}]])
+    +sub('FTSTS - Five Times Sit-to-Stand')
+    +how('Bracos cruzados. 5x levantar e sentar o mais rapido possivel. Cronometrar ate sentar pela 5a vez. Menos de 12s=bom; 12-16s=moderado; mais de 16s=alto risco.')
+    +fg([['FTSTS Tempo (s)','ftsts','number',null,{step:'0.1',min:0,ph:'s'}],
+         ['FTSTS Observacoes','ftsts_obs','text',null,{ph:'Uso de bracos, dor, hesitacao...'}]])
+    +sub('Push and Release - Estabilidade Postural')
+    +how('Fisioterapeuta atras. Empurrar pelos ombros e liberar. Contar passos de recuperacao. 0=sem passos; 1=1-2; 2=3-5; 3=mais de 5; 4=cai. Score 2 ou mais = alto risco.')
+    +fg([['Push Release Score (0-4)','push_release','number',null,{min:0,max:4}],
+         ['Obs estabilidade postural','pushrel_obs','text',null,{ph:'Passos de recuperacao...'}]])
+    +sub('M-PAS - Parkinson Activity Scale (0-27)')
+    +how('3 transferencias observadas: cadeira, cama, espaco estreito. 0=impossivel, 3=independente. Avaliar em fase ON e OFF.')
+    +fg([['M-PAS Cadeira (0-9)','mpas_cadeira','number',null,{min:0,max:9}],
+         ['M-PAS Cama (0-9)','mpas_cama','number',null,{min:0,max:9}],
+         ['M-PAS Espaco Estreito (0-9)','mpas_estreito','number',null,{min:0,max:9}],
+         ['M-PAS Total','mpas_total','ro',null,{id:'mpas_tot_pk'}],
+         ['Fase M-PAS','mpas_fase','select',['ON','OFF'],null]]))
   +sec('🚶','5. Escalas de Marcha',
     sub('TC10M — Velocidade de Marcha')
     +how('<strong>Como aplicar:</strong> Marcar corredor de 14m total. Cronometrar apenas os <strong>10 metros centrais</strong> (desconsiderar 2m para aceleração e 2m para desaceleração). Dar 2 tentativas em velocidade habitual. Fórmula: velocidade (m/s) = 10 ÷ tempo (s).')
@@ -3614,7 +3701,15 @@ function buildSections(){
          ['Freezing presente','freezing','select',['Não','Sim — leve','Sim — moderado','Sim — grave'],null],
          ['Comprimento passo D (cm)','passo_d','number',null,null],['Comprimento passo E (cm)','passo_e','number',null,null],
          ['Largura da base (cm)','base_sup','number',null,null],
-         ['Obs. marcha','marcha_obs','textarea',null,{full:true}]]))
+         ['Obs. marcha','marcha_obs','textarea',null,{full:true}]])
+    +sub('FGA - Functional Gait Assessment (0-30)')
+    +how('10 tarefas de marcha, 0-3 pontos cada. Menos de 22 = alto risco de quedas na DP. DCMI aprox 4 pts.')
+    +sgrid([
+      ['fga1','1. Vel habitual',3],['fga2','2. Vel rapida',3],['fga3','3. Cabeca-H',3],
+      ['fga4','4. Cabeca-V',3],['fga5','5. Olhos fech',3],['fga6','6. Sobre obs',3],
+      ['fga7','7. Ao redor',3],['fga8','8. Degraus',3],['fga9','9. Base estr',3],['fga10','10. Dupla tar',3],
+    ],'fga',3)
+    +atbar('fga','FGA Total',30))
   +sec('🧠','6. Cognição — MoCA e MEEM',
     sub('MoCA (0–30) — Montreal Cognitive Assessment')
     +how('<strong>Como aplicar:</strong> Administrar em fase ON, em ambiente silencioso. Itens em ordem: (1) Trilha A-1-B-2; (2) Cubo (cópia); (3) Relógio (11h10); (4) Nomeação de 3 animais; (5) Dígitos (5 para frente, 3 para trás); (6) Atenção — letras; (7) Subtração 93-7 cinco vezes; (8) Repetição de 2 frases; (9) Fluência verbal — letra F/1 min; (10) Abstração (2 pares); (11) Evocação (5 palavras após 5 min); (12) Orientação (6 itens). <em>+1 pt se ≤12 anos de escolaridade.</em>')
@@ -3721,7 +3816,29 @@ function buildSections(){
   +sec('📸','9. Evolução Fotográfica',
     '<div class="ib"><strong>Como usar:</strong> Adicione fotos desta avaliação. As fotos ficam vinculadas a esta avaliação específica e aparecem no comparativo do relatório.</div>'
     +'<div id="photo_wrap_'+evalId+'"></div>')
-  +sec('📝','10. Plano Terapêutico', planoHTML());
+  +sec('📝','10. Plano Terapeutico',
+    ib('Recomendacoes GRADE KNGF 2014: Fisioterapia convencional (FORTE). Esteira (FORTE). Pistas externas (FORTE). Tai Chi (FORTE). Dose minima: 3x/semana 30 min.')
+    +sub('GAS - Goal Attainment Scaling')
+    +how('Definir 2-3 metas funcionais com o paciente. Escalonar: -2=muito abaixo; -1=abaixo; 0=meta atingida; +1=acima; +2=muito acima.')
+    +fg([['Meta 1','gas_meta1','text',null,{ph:'Ex: Marcha sem apoio'}],
+         ['GAS Meta 1','gas_score1','select',['','+2','+1','0','-1','-2'],null],
+         ['Meta 2','gas_meta2','text',null,{ph:'Ex: Reduzir quedas'}],
+         ['GAS Meta 2','gas_score2','select',['','+2','+1','0','-1','-2'],null],
+         ['Meta 3','gas_meta3','text',null,{ph:'Ex: Levantar sem apoio'}],
+         ['GAS Meta 3','gas_score3','select',['','+2','+1','0','-1','-2'],null]])
+    +sub('Intervencao e Plano')
+    +fg([['Fase HY atual','plano_hy','select',['','HY 1 Inicial','HY 2-3 Moderado','HY 4-5 Avancado'],null],
+         ['Modalidade principal','plano_modalidade','select',['','Fisioterapia convencional FORTE','Esteira FORTE','Pistas externas FORTE','Tai Chi FORTE','Danca FRACA'],null],
+         ['Frequencia','plano_freq','select',['','1x/semana','2x/semana','3x/semana','5x/semana'],null],
+         ['Duracao','plano_duracao','select',['','30 min','45 min','60 min'],null],
+         ['Foco','plano_foco','select',['','Capacidade fisica','Transferencias','Equilibrio','Marcha','Respiracao'],null],
+         ['Encaminhamentos','plano_encam','text',null,{full:true,ph:'Fonoaudiologia, T. Ocupacional...'}]])
+    +sub('Orientacoes')
+    +fg([['Orientado sobre exercicio fisico','educ_af','select',['Nao','Sim'],null],
+         ['Orientado sobre prevencao quedas','educ_quedas','select',['Nao','Sim'],null],
+         ['Diario de exercicios entregue','educ_diario','select',['Nao','Sim'],null],
+         ['Obs. plano e pendencias','plano_obs','textarea',null,{full:true,ph:'Pendencias, proxima avaliacao...'}]])
+    +planoHTML());
 }
 
 
@@ -3806,6 +3923,22 @@ function getGuideCards(){return [
    rows:[['Pontuação','16–64 pts.'],['Pergunta','Quão preocupado com possibilidade de cair?']],
    tbl:[['Pontuação','Nível'],['16–19','Baixo'],['20–27','Moderado'],['≥28','Alto']],
    tip:'Medo de cair leva à restrição de atividades independente de quedas reais.'},
+  {icon:'!',title:'FTSTS - Five Times Sit-to-Stand',resumo:'Cronometra levantar e sentar 5 vezes sem usar os bracos. Mede forca de MMII e risco de quedas.',tag:'Transferencias',tc:'t-func',fn:'Five Times Sit-to-Stand Test',
+   rows:[['Protocolo','Bracos cruzados. 5x levantar e sentar rapido. Cronometrar ate sentar pela 5a vez.'],['Referencia DP','menos de 12s=bom; 12-16s=moderado; mais de 16s=alto risco.']],
+   tbl:[['Tempo','Risco'],['<12s','Baixo'],['12-16s','Moderado'],['>16s','Alto']],
+   tip:'Observar uso dos bracos (fraqueza), hesitacao (bradiquinesia), festinacao ao sentar.'},
+  {icon:'!',title:'FGA - Functional Gait Assessment',resumo:'Avalia a marcha em 10 situacoes. Pontuacao 0-30, abaixo de 22 indica alto risco.',tag:'Marcha',tc:'t-func',fn:'Functional Gait Assessment',
+   rows:[['Pontuacao','0-30 pts, cada item 0-3. 0=incapaz; 1=assistencia; 2=compensacoes; 3=normal.'],['Referencia DP','menos de 22 = alto risco. DCMI aprox 4 pts.']],
+   tbl:[['FGA','Risco'],['>=22','Baixo'],['15-21','Moderado'],['<15','Alto']],
+   tip:'Itens de cabeca H e V sao os mais desafiadores na DP. Base estreita e dupla tarefa detectam risco de freezing.'},
+  {icon:'!',title:'M-PAS - Modified Parkinson Activity Scale',resumo:'Avalia 3 transferencias: cadeira, cama e espaco estreito. Pontuacao 0-27.',tag:'Transferencias',tc:'t-func',fn:'Modified Parkinson Activity Scale',
+   rows:[['Pontuacao','0-27 pts. 0=impossivel, 1=assist., 2=com pistas, 3=independente.'],['3 Transferencias','(1) Levantar da cadeira. (2) Virar na cama. (3) Marcha em espaco estreito.']],
+   tbl:[['M-PAS','Interpretacao'],['22-27','Boa funcionalidade'],['14-21','Moderada'],['0-13','Alta dependencia']],
+   tip:'Avaliar em fase ON e OFF. Transferencia 3 mais afetada pelo freezing. Pistas visuais tem efeito imediato.'},
+  {icon:'!',title:'Push and Release - Estabilidade Postural',resumo:'Testa resposta protetora ao desequilibrio. Score 2 ou mais indica alto risco.',tag:'Equilibrio',tc:'t-func',fn:'Push and Release Test',
+   rows:[['Protocolo','Fisioterapeuta atras. Empurrar pelos ombros e soltar. Contar passos de recuperacao.'],['Score','0=sem passos; 1=1-2; 2=3-5; 3=mais de 5; 4=cai sem tentar.']],
+   tbl:[['Score','Interpretacao'],['0-1','Normal'],['2','Instabilidade leve'],['3-4','Alto risco']],
+   tip:'Score 2 ou mais indica programa imediato de prevencao de quedas.'},
 ];}
 
 
@@ -3818,7 +3951,11 @@ function buildExtraField(){
 function getPBadge(p){return p.hy_init?'<span class="chip chip-or">H&Y '+p.hy_init+'</span>':'';}
 function recalcAll(){
   calcTUG();
-  ['updrs3','berg','mbt','moca_pk','meem_pk'].forEach(sfx=>calcSG(sfx));
+  ['updrs3','berg','mbt','moca_pk','meem_pk','fga'].forEach(sfx=>calcSG(sfx));
+  const mpK=['mpas_cadeira','mpas_cama','mpas_estreito'];
+  const mpV=mpK.map(k=>parseFloat(document.querySelector('[data-key="'+k+'"]')?.value)).filter(v=>!isNaN(v));
+  const mpO=document.getElementById('mpas_tot_pk');
+  if(mpV.length&&mpO)mpO.value=mpV.reduce((a,b)=>a+b,0);
   const t1=parseFloat(document.querySelector('[data-key="tc10_h1"]')?.value);
   const t2=parseFloat(document.querySelector('[data-key="tc10_h2"]')?.value);
   const tv=[t1,t2].filter(v=>!isNaN(v));
@@ -3863,6 +4000,8 @@ document.addEventListener('input',function(e){
     const ti=document.getElementById('tc10_pk');
     if(tv.length&&ti){ti.value=(10/(tv.reduce((a,b)=>a+b,0)/tv.length)).toFixed(3);schedSave();}
   }
+  const mpK3=['mpas_cadeira','mpas_cama','mpas_estreito'];
+  if(mpK3.includes(k)){const mv3=mpK3.map(function(key){return parseFloat(document.querySelector('[data-key="'+key+'"]')?.value);}).filter(function(v){return !isNaN(v);});const mi3=document.getElementById('mpas_tot_pk');if(mv3.length&&mi3){mi3.value=mv3.reduce(function(a,b){return a+b;},0);schedSave();}}
   const pdqk=['pdq_mob','pdq_avd','pdq_bem','pdq_est','pdq_soc','pdq_cogn','pdq_com','pdq_desc'];
   if(pdqk.includes(k)){
     const pv=pdqk.map(k=>parseFloat(document.querySelector('[data-key="'+k+'"]')?.value)).filter(v=>!isNaN(v));
@@ -3984,7 +4123,115 @@ function buildSections(){
     +tugHTML()
     +fg([['TUG Cognitivo — contar regressivo (s)','tug_cog','number',null,{step:'0.1'}]]))
 
-  +sec('🌟','8. Qualidade de Vida e Cuidador',
+  +sec('🚶','8. Marcha e Capacidade Física',
+    ib('<strong>Por que estas medidas:</strong> a diretriz internacional de atividade física em demência (Veronese et al., <em>Eur Geriatr Med</em> 2023) recomenda medidas objetivas de desempenho físico. A <strong>velocidade de marcha</strong> é o preditor isolado mais forte de declínio funcional, quedas e institucionalização na demência.')
+    +sub('TC10M — Velocidade de Marcha')
+    +how('<strong>Como aplicar:</strong> Percurso de 14m; cronometrar apenas os <strong>10m centrais</strong> (2m de aceleração e 2m de desaceleração). Velocidade habitual, 2 tentativas. Fórmula: v = 10 ÷ tempo médio. <em>Na demência:</em> dar comando curto e único ("caminhe até a marca no seu passo normal"), acompanhar ao lado sem tocar, e repetir a instrução se o paciente parar. <em>Referência:</em> &lt;0,6 m/s = alto risco de eventos adversos; 0,6–1,0 m/s = mobilidade limitada; &gt;1,0 m/s = mobilidade comunitária. Queda &gt;0,1 m/s entre avaliações é clinicamente relevante.')
+    +fg3([['T1 habitual (s)','tc10_h1','number',null,{step:'0.01'}],
+          ['T2 habitual (s)','tc10_h2','number',null,{step:'0.01'}],
+          ['Velocidade (m/s)','tc10m_vel','ro',null,{id:'tc10_alz'}]])
+    +fld('Interpretação da velocidade','tc10_class','ro',null,{id:'tc10_class_alz'})
+    +sub('5TSTS — Cinco Vezes Sentar e Levantar')
+    +how('<strong>Como aplicar:</strong> Cadeira sem braços, braços cruzados no peito. Levantar e sentar completamente 5 vezes, o mais rápido possível. Cronometrar do início até sentar pela 5ª vez. <em>Na demência:</em> demonstrar antes; se o paciente perder a conta, contar em voz alta junto. <em>Referência:</em> &lt;12s bom; 12–16s moderado; &gt;16s alto risco de quedas. Este mesmo tempo alimenta o componente de força do SPPB abaixo.')
+    +fg([['5TSTS — tempo para 5 repetições (s)','ftsts','number',null,{step:'0.1',min:0,ph:'s'}],
+         ['Observações 5TSTS','ftsts_obs','text',null,{ph:'Uso dos braços, apoio, hesitação, necessidade de pistas...'}]])
+    +sub('SPPB — Short Physical Performance Battery (0–12)')
+    +how('<strong>Como aplicar:</strong> Bateria recomendada especificamente para demência e fragilidade — 10 min, boa tolerância. <em>(1) Equilíbrio:</em> pés juntos, semi-tandem e tandem, até 10s cada. <em>(2) Marcha:</em> 4 metros em passo habitual, melhor de 2 tentativas. <em>(3) Força:</em> tempo do 5TSTS acima. Insira os tempos brutos — os subescores e o total são calculados automaticamente. <em>Referência:</em> ≤6 = desempenho ruim e alto risco; 7–9 = intermediário; 10–12 = bom. Mudança de 1 ponto já é clinicamente significativa.')
+    +fg3([['Equilíbrio — pés juntos (s, máx 10)','sppb_side','number',null,{step:'0.1',min:0,max:10}],
+          ['Equilíbrio — semi-tandem (s, máx 10)','sppb_semi','number',null,{step:'0.1',min:0,max:10}],
+          ['Equilíbrio — tandem (s, máx 10)','sppb_tandem','number',null,{step:'0.1',min:0,max:10}]])
+    +fg3([['Marcha 4m — melhor tempo (s)','sppb_gait_t','number',null,{step:'0.01',min:0}],
+          ['Subescore Equilíbrio (0–4)','sppb_bal','ro',null,{id:'sppb_bal_out'}],
+          ['Subescore Marcha (0–4)','sppb_gait','ro',null,{id:'sppb_gait_out'}]])
+    +fg3([['Subescore Força / 5TSTS (0–4)','sppb_chair','ro',null,{id:'sppb_chair_out'}],
+          ['SPPB Total (0–12)','sppb_total','ro',null,{id:'sppb_tot_out'}],
+          ['Interpretação SPPB','sppb_class','ro',null,{id:'sppb_class_out'}]])
+    +sub('Caminhada de Resistência')
+    +how('<strong>Como aplicar:</strong> Corredor plano demarcado. Use o <strong>TC6M</strong> na demência leve a moderada e o <strong>TC2M</strong> (2 minutos) na moderada a grave — o teste de 6 minutos costuma ser inviável por desatenção e fadiga. Acompanhar ao lado, sem conduzir pelo braço. Monitorar FC e SpO₂. Interromper se SpO₂ &lt;85%, dor torácica, tontura, agitação intensa ou solicitação do paciente.')
+    +fg([['Teste aplicado','tc_tipo','select',['—','TC6M — 6 minutos','TC2M — 2 minutos','Não aplicável'],null],
+         ['Distância percorrida (m)','tc6m_dist','number',null,{min:0}],
+         ['FC inicial (bpm)','tc6m_fc_ini','number',null,null],['FC final (bpm)','tc6m_fc_fin','number',null,null],
+         ['SpO2 inicial (%)','tc6m_spo2_ini','number',null,null],['SpO2 final (%)','tc6m_spo2_fin','number',null,null],
+         ['Borg final (0–10)','tc6m_borg','number',null,{min:0,max:10}],
+         ['Paradas / necessidade de pistas','tc6m_paradas','number',null,{min:0}]])
+    +sub('FGA — Functional Gait Assessment (0–30)')
+    +how('<strong>Como aplicar:</strong> 10 tarefas de marcha, 0–3 pontos cada. Compõe o core set da APTA/ANPT para condições neurológicas. <em>Na demência:</em> viável na fase leve a moderada; em CDR 2–3 a compreensão das tarefas costuma ser insuficiente — nesse caso registre 0 e apoie-se no SPPB e no POMA. <em>Referência:</em> &lt;22 = alto risco de quedas.')
+    +sgrid([
+      ['fga1','1. Vel. habitual',3],['fga2','2. Vel. rápida',3],['fga3','3. Cabeça horiz.',3],
+      ['fga4','4. Cabeça vert.',3],['fga5','5. Olhos fechados',3],['fga6','6. Sobre obstáculo',3],
+      ['fga7','7. Ao redor de cones',3],['fga8','8. Degraus',3],['fga9','9. Base estreita',3],['fga10','10. Dupla tarefa',3],
+    ],'fga',3)
+    +atbar('fga','FGA Total',30)
+    +fld('FGA — aplicável?','fga_aplic','select',['—','Sim — aplicado integralmente','Parcial — algumas tarefas não compreendidas','Não aplicável — comprometimento cognitivo'],null))
+
+  +sec('⚠️','9. Histórico de Quedas e Medo de Cair',
+    ib('<strong>Por que:</strong> o risco de queda na demência é 2 a 3× maior que no idoso sem comprometimento cognitivo, e as consequências são piores. A triagem em três perguntas segue as <em>World Falls Guidelines</em> (Montero-Odasso et al., <em>Age Ageing</em> 2022).')
+    +sub('Triagem — World Falls Guidelines')
+    +how('<strong>Como aplicar:</strong> Três perguntas ao paciente E ao cuidador (na demência o autorrelato subestima muito o número de quedas — priorize o relato do cuidador). <em>Estratificação:</em> nenhuma resposta positiva = risco baixo; 1 queda sem lesão ou alteração de marcha/equilíbrio = risco intermediário; ≥2 quedas, queda com lesão, queda com perda de consciência ou fragilidade = <strong>risco alto</strong> → avaliação multifatorial completa.')
+    +fg([['Caiu nos últimos 12 meses?','tri_queda','select',['—','Não','Sim — 1 vez','Sim — 2 ou mais vezes'],null],
+         ['Sente dificuldade de marcha ou equilíbrio?','tri_marcha','select',['—','Não','Sim','Não sabe informar'],null],
+         ['Tem medo de cair?','tri_medo','select',['—','Não','Sim','Não consegue responder'],null],
+         ['Fonte da informação','queda_fonte','select',['—','Paciente','Cuidador','Ambos'],null],
+         ['Estratificação de risco','queda_risco','select',['—','Baixo','Intermediário','Alto'],null]])
+    +sub('Caracterização das quedas')
+    +fg([['Nº de quedas em 12 meses','quedas_12m','number',null,{min:0}],
+         ['Nº de quedas com lesão','quedas_lesao','number',null,{min:0}],
+         ['Houve fratura?','queda_fratura','select',['—','Não','Sim — fêmur/quadril','Sim — punho','Sim — vértebra','Sim — outra'],null],
+         ['Houve atendimento de urgência ou internação?','queda_internacao','select',['—','Não','Sim'],null],
+         ['Local mais frequente','queda_local','select',['—','Quarto','Banheiro','Sala','Cozinha','Escada','Área externa','Variado'],null],
+         ['Período do dia','queda_periodo','select',['—','Manhã','Tarde','Noite','Madrugada','Variado'],null],
+         ['Consegue levantar sozinho após a queda?','queda_levanta','select',['—','Sim','Não','Nunca caiu'],null],
+         ['Restringiu atividades por medo de cair?','queda_restricao','select',['—','Não','Sim — algumas','Sim — muitas'],null],
+         ['Circunstâncias e fatores contribuintes','quedas_circ','textarea',null,{full:true,ph:'Ex: levantou à noite para ir ao banheiro sem acender a luz; tapete solto na sala; calçado sem firmeza; agitação vespertina...'}]])
+    +sub('FES-I Brasil — Medo de Cair (16–64)')
+    +how('<strong>Como aplicar:</strong> 16 situações do dia a dia; para cada uma o paciente indica quanto se preocupa em cair. <em>Referência:</em> ≥23 pts = associação com quedas recorrentes; ≥31 = medo intenso com restrição de atividade. <strong>Atenção na demência:</strong> o FES-I depende de autorrelato e julgamento preservado — a partir de CDR 2 (moderado) o resultado perde validade. Nesses casos, deixe em branco e registre a restrição de atividade observada pelo cuidador no campo acima.')
+    +fg([['FES-I Total (16–64)','fesi','number',null,{min:16,max:64}],
+         ['FES-I aplicável?','fesi_aplic','select',['—','Sim — respondido pelo paciente','Não — comprometimento cognitivo impede'],null]])
+    +ib('Aplique o questionário completo abaixo — o total é calculado e preenchido automaticamente no campo acima.')
+    +qgrid([
+      'Limpar a casa (ex.: passar pano, aspirar, tirar pó)',
+      'Vestir-se ou despir-se',
+      'Preparar refeições simples',
+      'Tomar banho',
+      'Fazer compras',
+      'Sentar ou levantar de uma cadeira',
+      'Subir ou descer escadas',
+      'Caminhar pela vizinhança',
+      'Pegar algo acima da cabeça ou no chão',
+      'Atender o telefone a tempo, antes de parar de tocar',
+      'Andar sobre superfície escorregadia (ex.: piso molhado)',
+      'Visitar um amigo ou parente',
+      'Andar em meio a uma multidão',
+      'Caminhar sobre superfície irregular (com pedras, esburacada)',
+      'Subir ou descer uma ladeira',
+      'Sair para um evento social (festa religiosa, reunião familiar, encontro)'
+    ],'qz_fesi',4,[['1','1 · Nada preocupado'],['2','2 · Um pouco'],['3','3 · Bastante'],['4','4 · Muito']])
+    +qbar('qz_fesi','FES-I — Total (16–64)'))
+
+  +sec('💪','10. Força, Fragilidade e Sarcopenia',
+    ib('<strong>Por que:</strong> as recomendações de manejo da fragilidade em pessoas com demência (Borda et al.) indicam rastreio sistemático de fragilidade e sarcopenia, que aceleram o declínio funcional e são potencialmente reversíveis com treino de força e ajuste nutricional.')
+    +sub('Força de Preensão Palmar — Dinamometria')
+    +how('<strong>Como aplicar:</strong> Sentado, cotovelo a 90°, punho neutro. Apertar com força máxima por 3 segundos; 3 tentativas por lado com 1 min de intervalo; registrar a maior. <em>Na demência:</em> demonstrar no próprio dinamômetro antes e usar comando gestual. <em>Referência EWGSOP2 — sarcopenia provável:</em> ♀ &lt;16 kgf; ♂ &lt;27 kgf.')
+    +fg3([['Dinamometria D — maior (kgf)','dina_d','number',null,{step:'0.1'}],
+          ['Dinamometria E — maior (kgf)','dina_e','number',null,{step:'0.1'}],
+          ['Circunferência de panturrilha (cm)','circ_pant','number',null,{step:'0.1'}]])
+    +ib('Circunferência de panturrilha — ponto de corte para baixa massa muscular: ♀ &lt;33 cm; ♂ &lt;34 cm. Medir na maior circunferência, com o paciente sentado e joelho a 90°.')
+    +sub('Triagem de Sarcopenia — SARC-F (0–10)')
+    +how('<strong>Como aplicar:</strong> 5 itens, 0–2 pontos cada: (S) força para carregar 4,5 kg; (A) auxílio para andar pelo quarto; (R) levantar de cadeira; (C) subir 10 degraus; (F) quedas no último ano. <em>Na demência, responder com o cuidador.</em> <em>Referência:</em> ≥4 = sarcopenia provável — confirmar com dinamometria e massa muscular.')
+    +sgrid([
+      ['sarcf_s','S — Força (0–2)',2],['sarcf_a','A — Auxílio marcha (0–2)',2],['sarcf_r','R — Levantar cadeira (0–2)',2],
+      ['sarcf_c','C — Subir escadas (0–2)',2],['sarcf_f','F — Quedas (0–2)',2],
+    ],'sarcf',2)
+    +atbar('sarcf','SARC-F Total',10)
+    +fld('SARC-F resultado','sarcf','ro',null,{id:'sarcf_alz_out'})
+    +sub('Estado nutricional e fragilidade')
+    +fg([['Perda de peso não intencional (últimos 6 meses)','perda_peso','select',['—','Não','Sim — até 3 kg','Sim — mais de 3 kg','Não sabe informar'],null],
+         ['Dificuldade de alimentação / deglutição','disfagia_alz','select',['—','Ausente','Engasgos ocasionais','Engasgos frequentes','Necessita dieta modificada','Via alternativa'],null],
+         ['Exaustão / fadiga relatada pelo cuidador','exaustao','select',['—','Não','Sim — ocasional','Sim — frequente'],null],
+         ['Nível de atividade física habitual','nivel_af','select',['—','Ativo','Levemente ativo','Sedentário','Restrito ao domicílio','Restrito ao leito'],null],
+         ['Obs. nutricional e de fragilidade','frag_obs','textarea',null,{full:true,ph:'Apetite, necessidade de auxílio para comer, suplementação, encaminhamento a nutricionista...'}]]))
+
+  +sec('🌟','11. Qualidade de Vida e Cuidador',
     sub('Zarit Burden Interview (0–88)')
     +how('<strong>Como aplicar:</strong> 22 questões autoaplicáveis pelo cuidador. Escala: 0=Nunca, 1=Raramente, 2=Às vezes, 3=Frequentemente, 4=Sempre. Somar todos os itens. <em>Referência:</em> <21=pouca/nenhuma sobrecarga; 21–40=leve a moderada; 41–60=moderada a severa; >60=severa. Aplicação: 10 min.')
     +fg([['Zarit Burden (0–88)','zarit','number',null,{min:0,max:88}],
@@ -4020,13 +4267,24 @@ function buildSections(){
     +qbar('qz_zarit','Zarit — Total (0–88)')
     )
 
-  +sec('📸','8. Evolução Fotográfica',
+  +sec('📸','12. Evolução Fotográfica',
     '<div class="ib"><strong>Como usar:</strong> Adicione fotos desta avaliação. As fotos ficam vinculadas a esta avaliação específica e aparecem no comparativo do relatório.</div>'
     +'<div id="photo_wrap_'+evalId+'"></div>')
-  +sec('📸','8. Evolução Fotográfica',
-    '<div class="ib"><strong>Como usar:</strong> Adicione fotos desta avaliação. As fotos ficam vinculadas a esta avaliação específica e aparecem no comparativo do relatório.</div>'
-    +'<div id="photo_wrap_'+evalId+'"></div>')
-  +sec('📝','9. Plano Terapêutico', planoHTML());
+  +sec('📝','13. Plano Terapêutico',
+    sub('GAS — Goal Attainment Scaling')
+    +how('<strong>Como aplicar:</strong> Definir 2–3 metas funcionais junto com o paciente e o cuidador, escritas de forma observável e mensurável. Reavaliar na alta. Escalonamento: −2 = muito abaixo do esperado; −1 = abaixo; 0 = meta atingida; +1 = acima; +2 = muito acima. <em>Na demência:</em> as metas mais úteis costumam ser do cuidador e do cotidiano — transferir da cama com uma pessoa, caminhar até a mesa nas refeições, reduzir episódios de queda no banheiro.')
+    +fg([['Meta 1','gas_meta1','text',null,{ph:'Ex: caminhar do quarto à sala sem apoio de pessoa'}],
+         ['GAS Meta 1','gas_score1','select',['','+2','+1','0','-1','-2'],null],
+         ['Meta 2','gas_meta2','text',null,{ph:'Ex: levantar da cadeira sem uso das mãos'}],
+         ['GAS Meta 2','gas_score2','select',['','+2','+1','0','-1','-2'],null],
+         ['Meta 3','gas_meta3','text',null,{ph:'Ex: zero quedas no trajeto noturno ao banheiro'}],
+         ['GAS Meta 3','gas_score3','select',['','+2','+1','0','-1','-2'],null]])
+    +sub('Orientações ao cuidador')
+    +fg([['Orientado sobre exercício físico regular','educ_af','select',['Não','Sim'],null],
+         ['Orientado sobre prevenção de quedas e adaptação do domicílio','educ_quedas','select',['Não','Sim'],null],
+         ['Orientado sobre rotina, ambiente e comunicação','educ_rotina','select',['Não','Sim'],null],
+         ['Programa domiciliar entregue','educ_diario','select',['Não','Sim'],null]])
+    +planoHTML());
 }
 
 
@@ -4037,6 +4295,9 @@ function getChips(ev){
   if(d.cdr_eval)h+='<div class="sc"><div class="sc-v">'+d.cdr_eval.charAt(0)+'</div><div class="sc-l">CDR</div></div>';
   if(d.berg_total)h+='<div class="sc"><div class="sc-v">'+d.berg_total+'</div><div class="sc-l">Berg</div></div>';
   if(d.barthel)h+='<div class="sc"><div class="sc-v">'+d.barthel+'</div><div class="sc-l">Barthel</div></div>';
+  if(d.tc10m_vel)h+='<div class="sc"><div class="sc-v">'+d.tc10m_vel+'</div><div class="sc-l">m/s</div></div>';
+  if(d.sppb_total)h+='<div class="sc"><div class="sc-v">'+d.sppb_total+'</div><div class="sc-l">SPPB</div></div>';
+  if(d.quedas_12m)h+='<div class="sc"><div class="sc-v">'+d.quedas_12m+'</div><div class="sc-l">Quedas/ano</div></div>';
   return h;
 }
 
@@ -4052,6 +4313,15 @@ function getMetrics(){return [
   {label:'Berg',key:'berg_total',unit:'pts',inv:false},
   {label:'TUG',key:'tug_media',unit:'s',inv:true},
   {label:'Zarit (cuidador)',key:'zarit',unit:'pts',inv:true},
+  {label:'TC10M velocidade',key:'tc10m_vel',unit:'m/s',inv:false},
+  {label:'SPPB Total',key:'sppb_total',unit:'pts',inv:false},
+  {label:'5TSTS',key:'ftsts',unit:'s',inv:true},
+  {label:'FGA',key:'fga_total',unit:'pts',inv:false},
+  {label:'Distância caminhada',key:'tc6m_dist',unit:'m',inv:false},
+  {label:'FES-I medo de cair',key:'fesi',unit:'pts',inv:true},
+  {label:'Quedas em 12 meses',key:'quedas_12m',unit:'',inv:true},
+  {label:'SARC-F',key:'sarcf',unit:'pts',inv:true},
+  {label:'Preensão palmar D',key:'dina_d',unit:'kgf',inv:false},
 ];}
 
 
@@ -4096,6 +4366,34 @@ function getGuideCards(){return [
    rows:[['Pontuação','0–88. Maior = maior sobrecarga.'],['Tempo','10 min (cuidador responde).']],
    tbl:[['Pontuação','Sobrecarga'],['<21','Pouca/nenhuma'],['21–40','Leve-moderada'],['41–60','Moderada-severa'],['>60','Severa']],
    tip:'Cuidadores com sobrecarga grave têm 3× mais risco de depressão. Incluir suporte ao cuidador no plano.'},
+  {icon:'🚶',title:'TC10M — Velocidade de Marcha',resumo:'Cronometra a caminhada de <b>10 metros</b> em ritmo normal. É o sinal vital da mobilidade: quanto mais lento, maior o risco.',tag:'Marcha',tc:'t-func',fn:'10-Meter Walk Test',
+   rows:[['Protocolo','14m de percurso; cronometrar os 10m centrais. 2 tentativas em velocidade habitual.'],['Cálculo','v = 10 ÷ tempo médio (s).'],['Tempo','5 min.']],
+   tbl:[['Velocidade','Interpretação'],['>1,0 m/s','Mobilidade comunitária'],['0,6–1,0 m/s','Mobilidade limitada'],['<0,6 m/s','Alto risco de eventos adversos'],['<0,4 m/s','Marcha domiciliar']],
+   tip:'Preditor isolado mais forte de declínio funcional, quedas e institucionalização na demência. Variação de 0,1 m/s já é clinicamente relevante.'},
+  {icon:'🏅',title:'SPPB',resumo:'Bateria curta com <b>equilíbrio, velocidade de marcha e sentar-levantar</b>. Nota de 0 a 12 — abaixo de 7 indica desempenho físico ruim.',tag:'Desempenho físico',tc:'t-func',fn:'Short Physical Performance Battery',
+   rows:[['Componentes','Equilíbrio (0–4) + marcha de 4m (0–4) + 5 vezes sentar-levantar (0–4).'],['Tempo','10 min. Boa tolerância na demência.'],['Vantagem','Recomendada especificamente para demência e fragilidade — resume três domínios num único escore.']],
+   tbl:[['SPPB','Interpretação'],['10–12','Bom desempenho'],['7–9','Intermediário'],['≤6','Ruim — alto risco']],
+   tip:'Mudança de 1 ponto já é clinicamente significativa. Escore ≤6 prevê incapacidade e hospitalização.'},
+  {icon:'🪑',title:'5TSTS',resumo:'Mede o tempo para <b>levantar e sentar 5 vezes</b> sem usar as mãos. Acima de 16 segundos indica alto risco de quedas.',tag:'Transferências',tc:'t-func',fn:'Five Times Sit-to-Stand Test',
+   rows:[['Protocolo','Cadeira sem braços, braços cruzados no peito. Cronometrar até sentar pela 5ª vez.'],['Na demência','Demonstrar antes e contar em voz alta junto com o paciente.']],
+   tbl:[['Tempo','Interpretação'],['<12s','Bom'],['12–16s','Moderado'],['>16s','Alto risco de quedas']],
+   tip:'Faz parte do core set da APTA para condições neurológicas e alimenta o componente de força do SPPB.'},
+  {icon:'🚧',title:'FGA — Functional Gait Assessment',resumo:'Avalia a <b>marcha em 10 situações desafiadoras</b> (virar a cabeça, obstáculo, dupla tarefa). Vai de 0 a 30.',tag:'Marcha',tc:'t-func',fn:'Functional Gait Assessment',
+   rows:[['Pontuação','0–30; cada item 0–3.'],['Na demência','Viável em CDR 0,5–1. Em CDR 2–3 a compreensão das tarefas costuma ser insuficiente.']],
+   tbl:[['FGA','Risco de queda'],['≥22','Baixo'],['15–21','Moderado'],['<15','Alto']],
+   tip:'Complementa o Berg: detecta déficits de marcha dinâmica que a avaliação de equilíbrio estático não captura.'},
+  {icon:'⚠️',title:'Quedas — World Falls Guidelines',resumo:'Três perguntas para <b>estratificar o risco de queda</b>: caiu no último ano? tem dificuldade de equilíbrio? tem medo de cair?',tag:'Quedas',tc:'t-func',fn:'World Falls Guidelines — screening',
+   rows:[['Triagem','3 perguntas ao paciente E ao cuidador.'],['Na demência','O autorrelato subestima muito — priorize o relato do cuidador.'],['Conduta','Risco alto → avaliação multifatorial e intervenção estruturada.']],
+   tbl:[['Achado','Estratificação'],['Nenhum','Baixo'],['1 queda sem lesão ou alteração de marcha','Intermediário'],['≥2 quedas, queda com lesão ou fragilidade','Alto']],
+   tip:'O risco de queda na demência é 2 a 3× maior que no idoso sem comprometimento cognitivo, e as consequências são piores.'},
+  {icon:'😟',title:'FES-I',resumo:'Mede o <b>medo de cair</b> em 16 situações do dia a dia. Notas altas indicam medo que já limita a vida.',tag:'Quedas',tc:'t-qv',fn:'Falls Efficacy Scale International',
+   rows:[['Pontuação','16–64. Cada item 1–4.'],['Limitação','Depende de autorrelato — perde validade a partir de CDR 2.']],
+   tbl:[['FES-I','Interpretação'],['16–22','Baixa preocupação'],['23–30','Preocupação moderada'],['≥31','Alta — com restrição de atividade']],
+   tip:'Quando não for aplicável, registre a restrição de atividade observada pelo cuidador — o dado clínico é o mesmo.'},
+  {icon:'💪',title:'SARC-F e Dinamometria',resumo:'Rastreia <b>sarcopenia</b> — perda de força e massa muscular. 5 perguntas mais a medida de força da mão.',tag:'Sarcopenia',tc:'t-func',fn:'SARC-F / Handgrip Strength',
+   rows:[['SARC-F','5 itens, 0–2 cada. ≥4 = sarcopenia provável. Responder com o cuidador.'],['Preensão (EWGSOP2)','♀ <16 kgf; ♂ <27 kgf.'],['Panturrilha','♀ <33 cm; ♂ <34 cm.']],
+   tbl:[['SARC-F','Interpretação'],['0–3','Sem indício'],['≥4','Sarcopenia provável — confirmar']],
+   tip:'Sarcopenia e fragilidade aceleram o declínio na demência e são potencialmente reversíveis com treino de força e ajuste nutricional.'},
 ];}
 
 
@@ -4106,9 +4404,64 @@ function buildExtraField(){
     +'<option>1 — Leve</option><option>2 — Moderado</option><option>3 — Grave</option></select></div>';
 }
 function getPBadge(p){return p.cdr_init?'<span class="chip chip-or">CDR '+p.cdr_init.charAt(0)+'</span>':'';}
+function calcTC10alz(){
+  const t1=parseFloat(document.querySelector('[data-key="tc10_h1"]')?.value);
+  const t2=parseFloat(document.querySelector('[data-key="tc10_h2"]')?.value);
+  const tv=[t1,t2].filter(v=>!isNaN(v)&&v>0);
+  const o=document.getElementById('tc10_alz');
+  const c=document.getElementById('tc10_class_alz');
+  if(!tv.length){if(o)o.value='';if(c)c.value='';return;}
+  const vel=10/(tv.reduce((a,b)=>a+b,0)/tv.length);
+  if(o)o.value=vel.toFixed(3);
+  const f=document.querySelector('[data-key="tc10m_vel"]');if(f)f.value=vel.toFixed(3);
+  if(c)c.value = vel<0.6?'Alto risco — <0,6 m/s' : vel<1.0?'Mobilidade limitada — 0,6–1,0 m/s' : 'Mobilidade comunitária — >1,0 m/s';
+}
+function calcSPPB(){
+  const g=k=>{const v=parseFloat(document.querySelector('[data-key="'+k+'"]')?.value);return isNaN(v)?null:v;};
+  const side=g('sppb_side'), semi=g('sppb_semi'), tan=g('sppb_tandem');
+  let bal=null;
+  if(side!==null||semi!==null||tan!==null){
+    bal=0;
+    if(side!==null&&side>=10){
+      bal=1;
+      if(semi!==null&&semi>=10){
+        bal=2;
+        if(tan!==null){ if(tan>=10)bal=4; else if(tan>=3)bal=3; }
+      }
+    }
+  }
+  const gt=g('sppb_gait_t');
+  let gait=null;
+  if(gt!==null) gait = gt<=0?0 : gt<4.82?4 : gt<=6.20?3 : gt<=8.70?2 : 1;
+  const ct=g('ftsts');
+  let chair=null;
+  if(ct!==null) chair = (ct<=0||ct>60)?0 : ct<=11.19?4 : ct<=13.69?3 : ct<=16.69?2 : 1;
+  const setv=(id,val)=>{const e=document.getElementById(id);if(e)e.value=(val===null?'':val);
+    const f=document.querySelector('[data-key="'+id.replace('_out','')+'"]');if(f&&f!==e)f.value=(val===null?'':val);};
+  setv('sppb_bal_out',bal); setv('sppb_gait_out',gait); setv('sppb_chair_out',chair);
+  const bf=document.querySelector('[data-key="sppb_bal"]');if(bf)bf.value=(bal===null?'':bal);
+  const gf=document.querySelector('[data-key="sppb_gait"]');if(gf)gf.value=(gait===null?'':gait);
+  const cf=document.querySelector('[data-key="sppb_chair"]');if(cf)cf.value=(chair===null?'':chair);
+  const parts=[bal,gait,chair];
+  const to=document.getElementById('sppb_tot_out'), co=document.getElementById('sppb_class_out');
+  const tf=document.querySelector('[data-key="sppb_total"]'), clf=document.querySelector('[data-key="sppb_class"]');
+  if(parts.every(p=>p===null)){
+    if(to)to.value='';if(co)co.value='';if(tf)tf.value='';if(clf)clf.value='';return;
+  }
+  const tot=parts.reduce((a,b)=>a+(b||0),0);
+  const incompleto=parts.some(p=>p===null);
+  const cls=(tot<=6?'Desempenho ruim — alto risco':tot<=9?'Desempenho intermediário':'Bom desempenho')+(incompleto?' (parcial)':'');
+  if(to)to.value=tot;if(tf)tf.value=tot;
+  if(co)co.value=cls;if(clf)clf.value=cls;
+}
 function recalcAll(){
   calcTUG();
-  ['meem_alz','moca_alz','barthel_alz','berg'].forEach(sfx=>calcSG(sfx));
+  ['meem_alz','moca_alz','barthel_alz','berg','fga','sarcf'].forEach(sfx=>calcSG(sfx));
+  calcTC10alz(); calcSPPB();
+  const sf=document.getElementById('sarcf_alz_out');
+  const sk=['sarcf_s','sarcf_a','sarcf_r','sarcf_c','sarcf_f'];
+  const sv=sk.map(k=>parseFloat(document.querySelector('[data-key="'+k+'"]')?.value)).filter(v=>!isNaN(v));
+  if(sf)sf.value=sv.length?sv.reduce((a,b)=>a+b,0):'';
   const bk=['b_ali','b_ban','b_hig','b_vest','b_int','b_ves','b_toil','b_cad','b_dea','b_esc'];
   const bv=bk.map(k=>parseFloat(document.querySelector('[data-key="'+k+'"]')?.value)||0).reduce((a,b)=>a+b,0);
   const bo=document.getElementById('barthel_alz_out');if(bo)bo.value=bv;
@@ -4136,6 +4489,15 @@ document.addEventListener('input',function(e){
     const pv=parseFloat(document.querySelector('[data-key="poma_eq"]')?.value)||0;
     const pm=parseFloat(document.querySelector('[data-key="poma_marcha"]')?.value)||0;
     const po=document.getElementById('poma_out');if(po)po.value=pv+pm;schedSave();
+  }
+  if(k==='tc10_h1'||k==='tc10_h2'){ if(document.getElementById('tc10_alz')){calcTC10alz();schedSave();} }
+  const sppbK=['sppb_side','sppb_semi','sppb_tandem','sppb_gait_t','ftsts'];
+  if(sppbK.includes(k)){ if(document.getElementById('sppb_tot_out')){calcSPPB();schedSave();} }
+  const sarcK=['sarcf_s','sarcf_a','sarcf_r','sarcf_c','sarcf_f'];
+  if(sarcK.includes(k)){
+    const sf=document.getElementById('sarcf_alz_out');
+    if(sf){const sv=sarcK.map(x=>parseFloat(document.querySelector('[data-key="'+x+'"]')?.value)).filter(v=>!isNaN(v));
+      sf.value=sv.length?sv.reduce((a,b)=>a+b,0):'';schedSave();}
   }
 });
 APP.reg("alzheimer",{buildSections:typeof buildSections!=="undefined"?buildSections:function(){return ""},getChips:typeof getChips!=="undefined"?getChips:function(ev){return ""},getMetrics:typeof getMetrics!=="undefined"?getMetrics:function(){return []},getGuideCards:typeof getGuideCards!=="undefined"?getGuideCards:function(){return []},buildExtraField:typeof buildExtraField!=="undefined"?buildExtraField:function(){},getPBadge:typeof getPBadge!=="undefined"?getPBadge:function(p){return ""},recalcAll:typeof recalcAll!=="undefined"?recalcAll:function(){},});
@@ -5316,17 +5678,17 @@ function buildSections(){
 
   +sec('📐','2. Avaliação Radiográfica — Ângulo de Cobb',
     how('<strong>Como medir:</strong> Na radiografia em PA: identificar as vértebras limítrofes superior e inferior da curva. Traçar linha paralela ao platô superior da vértebra limite superior e linha paralela ao platô inferior da vértebra limite inferior. O ângulo entre essas linhas (ou suas perpendiculares) é o ângulo de Cobb. Para escoliose múltipla, medir cada curva separadamente.')
-    +fg([['Curva principal — Cobb (°)','cobb_principal','number',null,{step:'0.1',ph:'°'}],
+    +fg([['Curva principal — Cobb (°)','cobb_principal','number',null,{step:'0.1',ph:'°',min:0,max:90}],
          ['Região curva principal','regiao_principal','select',['—','Cervicotorácica','Torácica','Toracolombar','Lombar','Lombossacra'],null],
          ['Convexidade','convexidade_principal','select',['—','Direita','Esquerda'],null],
          ['Vértebra ápice','vertice_principal','text',null,{ph:'Ex: T8'}],
          ['Vértebra limite superior','vlim_sup','text',null,{ph:'Ex: T5'}],
          ['Vértebra limite inferior','vlim_inf','text',null,{ph:'Ex: T11'}]])
     +sub('Curva Secundária / Compensatória')
-    +fg([['Cobb curva 2 (°)','cobb_secundaria','number',null,{step:'0.1'}],
+    +fg([['Cobb curva 2 (°)','cobb_secundaria','number',null,{step:'0.1',min:0,max:90}],
          ['Região curva 2','regiao_secundaria','select',['—','Cervicotorácica','Torácica','Toracolombar','Lombar'],null],
          ['Convexidade curva 2','convex_2','select',['—','Direita','Esquerda'],null],
-         ['Cobb curva 3 (°)','cobb_terciaria','number',null,{step:'0.1'}],
+         ['Cobb curva 3 (°)','cobb_terciaria','number',null,{step:'0.1',min:0,max:90}],
          ['Rotação vertebral (Nash-Moe)','rotacao','select',['—','0 — Sem rotação','I — Leve','II — Moderada','III — Acentuada','IV — Grave'],null]])
     +sub('Avaliação da Progressão')
     +fg([['Data da Rx','data_rx','date',null,null],
@@ -5356,7 +5718,7 @@ function buildSections(){
 
   +sec('🔄','3. Avaliação de Cifose Torácica',
     how('<strong>Como avaliar:</strong> Na radiografia em perfil: ângulo de Cobb entre T4 e T12 (cifose torácica). Normal: 20–45°. Use o inclinômetro clínico ou escoliômetro na posição sagital para avaliação clínica. Verificar flexibilidade (cifose estrutural vs postural).')
-    +fg([['Ângulo de cifose — Rx perfil (°)','cifose_cobb','number',null,{step:'0.1',ph:'Ex: 52°'}],
+    +fg([['Ângulo de cifose — Rx perfil (°)','cifose_cobb','number',null,{step:'0.1',ph:'Ex: 52°',min:0,max:100}],
          ['Classificação','cifose_class','select',['—','Normal (20–45°)','Hipocifose (<20°)','Hipercifose leve (46–60°)','Hipercifose moderada (61–80°)','Hipercifose grave (>80°)'],null],
          ['Vértebra limite superior','cifose_vlim_sup','text',null,{ph:'Ex: T4'}],
          ['Vértebra limite inferior','cifose_vlim_inf','text',null,{ph:'Ex: T12'}],
@@ -5383,7 +5745,7 @@ function buildSections(){
          ['Lordose lombar','lordose','select',['Normal (30–60°)','Hipolordose','Hiperlordose leve','Hiperlordose moderada','Hiperlordose grave'],null]])
     +sub('Teste de Adams')
     +how('<strong>Como realizar:</strong> Paciente em pé, joelhos estendidos, inclinar o tronco para frente com braços pendentes e joelhos unidos. Observar de trás e de lado. Medir a altura da gibosidade com o escoliômetro (>7° = significativo).')
-    +fg([['Escoliômetro — Ângulo de rotação de tronco (°)','escoliometro','number',null,{step:'0.1',ph:'>7° = significativo'}],
+    +fg([['Escoliômetro — Ângulo de rotação de tronco (°)','escoliometro','number',null,{step:'0.1',ph:'>7° = significativo',min:0,max:30}],
          ['Resultado Adams','adams','select',['Negativo','Positivo — gibosidade torácica D','Positivo — gibosidade torácica E','Positivo — gibosidade lombar D','Positivo — gibosidade lombar E'],null]])
     +sub('Medidas Antropométricas')
     +fg([['Altura (cm)','altura','number',null,{step:'0.1'}],['Peso (kg)','peso','number',null,{step:'0.1'}],
@@ -8490,5 +8852,377 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     });
   });
 }
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   FICHA DE PRÉ-CADASTRO — preenchimento sem cadastro prévio
+   Envia o conteúdo formatado direto para o WhatsApp.
+   ══════════════════════════════════════════════════════════ */
+var PC_TEL_CLINICA='81996150609';
+
+var PC_FORM=[
+{icon:'👤',title:'Dados do Paciente',fields:[
+  {id:'nome',lb:'Nome completo',t:'text',rq:1,full:1,ph:'Nome como no documento'},
+  {id:'nasc',lb:'Data de nascimento',t:'date',rq:1},
+  {id:'sexo',lb:'Sexo biológico',t:'select',rq:1,op:['Masculino','Feminino']},
+  {id:'cpf',lb:'CPF',t:'text',ph:'000.000.000-00'},
+  {id:'convenio',lb:'Convênio / plano de saúde',t:'text',ph:'Ex: Unimed, particular...'},
+  {id:'endereco',lb:'Endereço completo',t:'text',rq:1,full:1,ph:'Rua, número, complemento, bairro, cidade'}
+]},
+{icon:'🤝',title:'Responsável e Cuidadores',fields:[
+  {t:'sub',lb:'Responsável legal / familiar principal'},
+  {id:'resp_nome',lb:'Nome do responsável',t:'text',rq:1,ph:'Nome completo'},
+  {id:'resp_par',lb:'Parentesco',t:'select',rq:1,op:['Cônjuge / companheiro(a)','Filho(a)','Neto(a)','Irmão / Irmã','Sobrinho(a)','Cuidador profissional','Outro']},
+  {id:'resp_tel',lb:'Telefone / WhatsApp',t:'tel',rq:1,ph:'(81) 9 0000-0000'},
+  {id:'resp_email',lb:'E-mail',t:'email',ph:'seuemail@exemplo.com'},
+  {id:'acompanhante',lb:'Quem acompanhará nas sessões',t:'text',full:1,rq:1,ph:'Nome e parentesco de quem virá às consultas'},
+  {t:'sub',lb:'Equipe de cuidado'},
+  {id:'cuid_fixo',lb:'Há cuidador profissional fixo?',t:'select',op:['Sim — tempo integral (24h)','Sim — período parcial','Não — cuidado exclusivamente familiar']},
+  {id:'turno',lb:'Turno de maior dificuldade',t:'select',op:['Manhã','Tarde','Noite / madrugada','Sem diferença entre turnos']},
+  {id:'equipe',lb:'Outras pessoas da equipe de cuidado',t:'textarea',full:1,ph:'Ex: filha cuida pela manhã, cuidadora noturna à noite, neto leva ao médico...'}
+]},
+{icon:'🧠',title:'Diagnóstico e Histórico de Saúde',fields:[
+  {t:'sub',lb:'Diagnóstico principal'},
+  {id:'diag',lb:'Diagnóstico médico confirmado',t:'checks',full:1,rq:1,op:['Alzheimer','Demência vascular','Demência com Corpos de Lewy','Demência frontotemporal','Doença de Parkinson com demência','AVC / sequela neurológica','Outro / ainda em investigação']},
+  {id:'diag_outro',lb:'Outro diagnóstico (se marcou "Outro")',t:'text',ph:'Descreva o diagnóstico'},
+  {id:'diag_tempo',lb:'Há quanto tempo tem o diagnóstico?',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
+  {id:'medico',lb:'Neurologista / médico responsável',t:'text',ph:'Nome do médico'},
+  {id:'hospital',lb:'Hospital / clínica de referência',t:'text',ph:'Ex: Hospital das Clínicas, clínica particular...'},
+  {t:'sub',lb:'Histórico relevante'},
+  {id:'comorb',lb:'Doenças associadas',t:'checks',full:1,op:['Hipertensão arterial','Diabetes','Insuficiência cardíaca','Fibrilação atrial','Osteoporose','Doença de Parkinson','Epilepsia / convulsões','Depressão / ansiedade','Insuficiência renal']},
+  {id:'cirurgias',lb:'Cirurgias ou internações recentes (últimos 2 anos)',t:'textarea',full:1,ph:'Ex: fratura de fêmur com cirurgia em 2023, pneumonia com internação...'},
+  {id:'alergias',lb:'Alergias conhecidas',t:'text',full:1,ph:"Medicamentos, alimentos, látex — ou 'Nenhuma conhecida'"}
+]},
+{icon:'💊',title:'Medicamentos em Uso',fields:[
+  {t:'note',lb:'Liste os remédios usados regularmente. Se tiver a lista da farmácia ou a receita, pode trazer no dia da consulta.'},
+  {id:'medicamentos',lb:'Medicamentos e horários',t:'textarea',full:1,rows:5,ph:'Ex:\nDonepezila 10mg — 1x à noite\nMemantina 10mg — 2x ao dia\nLosartana 50mg — manhã'},
+  {id:'med_comp',lb:'Usa medicação para agitação, sono ou comportamento?',t:'select',full:1,op:['Sim — e estão controlando bem','Sim — mas ainda há episódios frequentes','Não usa este tipo de medicamento','Não sei informar']}
+]},
+{icon:'🚶',title:'Mobilidade e Funcionamento Atual',fields:[
+  {t:'sub',lb:'Locomoção'},
+  {id:'locomocao',lb:'Como o paciente se locomove?',t:'select',rq:1,op:['Caminha de forma independente','Caminha com apoio de pessoa','Usa andador','Usa bengala ou muleta','Usa cadeira de rodas parcialmente','Usa cadeira de rodas o tempo todo','Acamado — não deambula']},
+  {id:'quedas',lb:'Quedas nos últimos 6 meses',t:'select',rq:1,op:['Nenhuma','1 queda','2 a 3 quedas','4 ou mais quedas']},
+  {id:'queda_lesao',lb:'Última queda resultou em lesão?',t:'select',op:['Não houve queda','Sim — fratura','Sim — hematoma ou escoriação','Não — sem lesão']},
+  {id:'disp',lb:'Dispositivos de auxílio no domicílio',t:'checks',op:['Grades na cama','Barra no banheiro','Cadeira de banho','Nenhum']},
+  {t:'sub',lb:'Atividades de vida diária'},
+  {id:'avd_alim',lb:'Alimentação',t:'select',op:['Come sozinho sem ajuda','Precisa de supervisão','Precisa de ajuda parcial','Totalmente dependente','Uso de sonda / gastrostomia']},
+  {id:'avd_hig',lb:'Higiene pessoal / banho',t:'select',op:['Independente','Supervisão','Ajuda parcial','Totalmente dependente']},
+  {id:'avd_urin',lb:'Continência urinária',t:'select',op:['Continente','Incontinência ocasional','Incontinência frequente','Usa fralda o tempo todo','Usa sonda vesical']},
+  {id:'avd_int',lb:'Continência intestinal',t:'select',op:['Normal','Constipação frequente','Incontinência fecal']},
+  {id:'avd_transf',lb:'Transferências (cama / cadeira)',t:'select',op:['Independente','Ajuda de 1 pessoa','Ajuda de 2 pessoas','Equipamento de transferência']},
+  {id:'avd_sono',lb:'Sono',t:'select',op:['Dorme bem à noite','Inversão do ciclo sono-vigília','Insônia frequente','Agitação noturna']},
+  {t:'sub',lb:'Comunicação e cognição'},
+  {id:'comunic',lb:'Como o paciente se comunica?',t:'select',rq:1,op:['Fala com clareza e coerência','Fala, mas com dificuldade de encontrar palavras','Fala frases curtas ou palavras isoladas','Comunicação não verbal (gestos, expressão)','Praticamente sem comunicação verbal']},
+  {id:'reconhece',lb:'Reconhece familiares próximos?',t:'select',rq:1,op:['Sim — reconhece a maioria','Às vezes — confunde nomes','Raramente','Não reconhece']},
+  {id:'desorient',lb:'Apresenta desorientação?',t:'select',rq:1,op:['Raramente','Às vezes — principalmente à noite','Frequentemente','Praticamente o tempo todo']},
+  {id:'comport',lb:'Comportamentos alterados presentes',t:'checks',full:1,op:['Agitação / irritabilidade','Agressividade verbal','Agressividade física','Alucinações','Delírios (crenças falsas)','Deambulação sem propósito','Apatia / isolamento','Nenhum']},
+  {t:'sub',lb:'Dor e conforto'},
+  {id:'dor',lb:'O paciente demonstra ou relata dor?',t:'select',rq:1,op:['Não aparenta sentir dor','Sim — relata verbalmente','Sim — demonstra por expressão / comportamento','Difícil avaliar']},
+  {id:'dor_local',lb:'Onde parece localizar-se a dor?',t:'text',ph:'Ex: costas, joelho direito, ombro...'}
+]},
+{icon:'🏠',title:'Rotina e Ambiente de Vida',fields:[
+  {id:'moradia',lb:'Onde o paciente mora?',t:'select',rq:1,op:['Residência familiar (casa/apartamento)','ILPI / lar de idosos','Casa de repouso particular']},
+  {id:'escadas',lb:'O domicílio tem escadas?',t:'select',rq:1,op:['Não','Sim — e o paciente acessa','Sim — mas o paciente não sobe']},
+  {id:'atividades',lb:'Atividades que ainda realiza / aprecia',t:'textarea',full:1,ph:'Ex: ouve música, assiste TV, caminha no quintal, participa das refeições em família...',hint:'Essas informações ajudam a adaptar os exercícios às motivações do paciente.'},
+  {id:'fisio_antes',lb:'Já fez fisioterapia antes?',t:'select',op:['Sim — e teve boa resposta','Sim — mas sem resultado notável','Não']},
+  {id:'objetivos',lb:'Principais objetivos com a fisioterapia',t:'checks',full:1,rq:1,op:['Manter / melhorar equilíbrio','Prevenir quedas','Facilitar transferências','Manter a marcha','Controle de dor','Manter funcionalidade geral','Orientar o cuidador']}
+]},
+{icon:'💬',title:'Informações Complementares',fields:[
+  {id:'familia',lb:'Como a família está lidando com a situação?',t:'select',full:1,op:['Bem — nos adaptamos','Com dificuldade — mas seguimos','Com muita sobrecarga — precisamos de suporte','Prefiro não responder']},
+  {id:'importante',lb:'Algo importante que a fisioterapeuta deve saber?',t:'textarea',full:1,ph:'Ex: tem medo de cair, fica agitado com estranhos, prefere música durante as atividades, horário de medicação que não pode atrasar...'},
+  {id:'duvidas',lb:'Dúvidas ou expectativas para o primeiro atendimento',t:'textarea',full:1,ph:'Escreva aqui qualquer dúvida ou o que espera da fisioterapia'},
+  {t:'sub',lb:'Carga do cuidador'},
+  {id:'cansaco',lb:'De 0 a 10, o nível de cansaço de quem cuida',t:'scale',full:1,l:'Sem cansaço',r:'Esgotamento total',hint:'Confidencial — ajuda a oferecer orientações também para quem cuida.'}
+]},
+{icon:'✍️',title:'Declaração e Autorização',fields:[
+  {t:'note',lb:'As informações fornecidas são declaradas verdadeiras pelo responsável, que está autorizado a representar o(a) paciente. Os dados serão usados exclusivamente para fins de atendimento fisioterapêutico, conforme a Lei nº 13.709/2018 (LGPD), armazenados com sigilo e não compartilhados com terceiros sem consentimento.'},
+  {id:'consent',lb:'Consentimento',t:'checks',full:1,rq:1,op:['Li e concordo com o uso dos dados para fins de atendimento fisioterapêutico (LGPD)']},
+  {id:'data_pre',lb:'Data de preenchimento',t:'date'},
+  {id:'quem_preencheu',lb:'Nome de quem preencheu',t:'text',ph:'Nome legível do responsável'}
+]}
+];
+
+function pcEsc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function pcRenderField(f){
+  if(f.t==='sub')return '<div class="pc-sub-t">'+pcEsc(f.lb)+'</div>';
+  if(f.t==='note')return '<div class="pc-note">'+pcEsc(f.lb)+'</div>';
+  var s='<div class="pc-f'+(f.full?' full':'')+'">'
+    +'<label>'+pcEsc(f.lb)+(f.rq?'<span class="rq">*</span>':'')+'</label>';
+  if(f.t==='select'){
+    s+='<select id="pc_'+f.id+'"><option value="">Selecione</option>';
+    f.op.forEach(function(o){s+='<option>'+pcEsc(o)+'</option>';});
+    s+='</select>';
+  } else if(f.t==='textarea'){
+    s+='<textarea id="pc_'+f.id+'"'+(f.rows?' style="min-height:'+(f.rows*20)+'px"':'')+' placeholder="'+pcEsc(f.ph||'')+'"></textarea>';
+  } else if(f.t==='checks'){
+    s+='<div class="pc-chips">';
+    f.op.forEach(function(o,i){
+      s+='<label class="pc-chip"><input type="checkbox" id="pc_'+f.id+'_'+i+'" value="'+pcEsc(o)+'"> '+pcEsc(o)+'</label>';
+    });
+    s+='</div>';
+  } else if(f.t==='scale'){
+    s+='<div class="pc-scale"><span class="lb">'+pcEsc(f.l||'0')+'</span><div class="op">';
+    for(var n=0;n<=10;n++){
+      s+='<label><input type="radio" name="pc_'+f.id+'" value="'+n+'"><span>'+n+'</span></label>';
+    }
+    s+='</div><span class="lb">'+pcEsc(f.r||'10')+'</span></div>';
+  } else {
+    s+='<input type="'+(f.t||'text')+'" id="pc_'+f.id+'" placeholder="'+pcEsc(f.ph||'')+'">';
+  }
+  if(f.hint)s+='<span class="hint">'+pcEsc(f.hint)+'</span>';
+  return s+'</div>';
+}
+
+function showPreCadastro(){
+  curView='precadastro';curPid=null;curCond=null;
+  setAccent('parkinson');
+  if(typeof renderList==='function')renderList();
+  var h='<div class="pc-scroll"><div class="pc-wrap">'
+   +'<div class="pc-bar">'
+   +'<button class="pc-btn" onclick="showWelcome()">← Voltar</button>'
+   +'<button class="pc-btn pc-btn-wa" onclick="pcEnviarWhats()">📲 Enviar por WhatsApp</button>'
+   +'<button class="pc-btn" onclick="pcCopiar()">📋 Copiar texto</button>'
+   +'<button class="pc-btn" onclick="pcImprimir()">🖨️ Imprimir</button>'
+   +'<button class="pc-btn pc-btn-or" onclick="pcCriarPaciente()">➕ Cadastrar no sistema</button>'
+   +'<button class="pc-btn" onclick="pcLimpar()">🧹 Limpar</button>'
+   +'<div class="pc-dest"><label>Enviar p/</label><input type="tel" id="pc_dest" value="(81) 99615-0609" placeholder="(00) 00000-0000"></div>'
+   +'</div>'
+   +'<div class="pc-cover">'
+   +'<div class="pc-eyebrow">Bianca Viniski Fisioterapia</div>'
+   +'<div class="pc-title">Ficha de <em>Pré-Cadastro</em></div>'
+   +'<p class="pc-sub">Preencha com calma — estas informações ajudam a fisioterapeuta a preparar o melhor atendimento. Não é necessário cadastro prévio no sistema.</p>'
+   +'<div class="pc-badge">📋 A ser preenchida pelo familiar ou cuidador responsável</div>'
+   +'</div>'
+   +'<div class="pc-notice"><span style="font-size:18px">💛</span><div><b>Atenção — responsável pelo preenchimento</b>Como o(a) paciente pode ter dificuldade para responder por si mesmo(a), pedimos que o familiar ou cuidador principal preencha esta ficha. Não é preciso ter certeza de tudo: escreva o que sabe e deixe em branco o que não souber.</div></div>';
+
+  PC_FORM.forEach(function(sec,idx){
+    h+='<div class="pc-sec"><div class="pc-sec-h"><span class="ic">'+sec.icon+'</span>'
+      +'<span class="tt">'+pcEsc(sec.title)+'</span>'
+      +'<span class="nn">Seção '+(idx+1<10?'0':'')+(idx+1)+'</span></div>'
+      +'<div class="pc-sec-b">';
+    sec.fields.forEach(function(f){h+=pcRenderField(f);});
+    h+='</div></div>';
+  });
+
+  h+='<div class="pc-foot"><b>Bianca Viniski Fisioterapia</b>'
+   +'Reabilitação Neurofuncional · você de volta em movimento<br>'
+   +'📱 (81) 99615-0609 &nbsp;·&nbsp; ✉️ biancaviniski@hotmail.com &nbsp;·&nbsp; CREFITO 409973-F'
+   +'<div class="lg">Dados coletados exclusivamente para fins terapêuticos, protegidos pela Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).</div></div>'
+   +'</div></div>';
+
+  document.getElementById('mainArea').innerHTML=h;
+  var dp=document.getElementById('pc_data_pre');
+  if(dp&&!dp.value)dp.value=new Date().toISOString().slice(0,10);
+  pcRestaurar();
+  var area=document.getElementById('mainArea');
+  if(area){area.removeEventListener('change',pcSalvarRascunho);area.addEventListener('change',pcSalvarRascunho);}
+}
+
+/* ── leitura dos campos ── */
+function pcVal(id){var el=document.getElementById('pc_'+id);return el?(''+el.value).trim():'';}
+function pcDataBR(v){
+  if(!v||v.indexOf('-')<0)return v;
+  var p=v.split('-');return p[2]+'/'+p[1]+'/'+p[0];
+}
+function pcCollect(){
+  var out=[];
+  PC_FORM.forEach(function(sec){
+    var items=[];
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      var v='';
+      if(f.t==='checks'){
+        var arr=[];
+        f.op.forEach(function(o,i){var el=document.getElementById('pc_'+f.id+'_'+i);if(el&&el.checked)arr.push(o);});
+        v=arr.join(', ');
+      } else if(f.t==='scale'){
+        var r=document.querySelector('input[name="pc_'+f.id+'"]:checked');
+        v=r?r.value+'/10':'';
+      } else if(f.t==='date'){
+        v=pcDataBR(pcVal(f.id));
+      } else {
+        v=pcVal(f.id);
+      }
+      if(v)items.push({lb:f.lb,v:v,multi:(f.t==='textarea'||v.length>58)});
+    });
+    if(items.length)out.push({icon:sec.icon,title:sec.title,items:items});
+  });
+  return out;
+}
+
+function pcMsg(){
+  var data=pcCollect();
+  var nome=pcVal('nome')||'(sem nome)';
+  var msg='*FICHA DE PRÉ-CADASTRO*\n'
+    +'_Bianca Viniski Fisioterapia_\n'
+    +'_Reabilitação Neurofuncional_\n'
+    +'━━━━━━━━━━━━━━━━\n'
+    +'👤 *Paciente:* '+nome+'\n';
+  data.forEach(function(sec){
+    msg+='\n*'+sec.icon+' '+sec.title.toUpperCase()+'*\n';
+    sec.items.forEach(function(it){
+      if(it.multi)msg+='• *'+it.lb+':*\n'+it.v+'\n';
+      else msg+='• *'+it.lb+':* '+it.v+'\n';
+    });
+  });
+  msg+='\n━━━━━━━━━━━━━━━━\n'
+    +'Ficha preenchida em '+new Date().toLocaleDateString('pt-BR')+'\n'
+    +'📱 (81) 99615-0609 · CREFITO 409973-F';
+  return msg;
+}
+
+function pcEnviarWhats(){
+  if(!pcVal('nome')){toast('Informe ao menos o nome do paciente','err');
+    var el=document.getElementById('pc_nome');if(el){el.focus();el.scrollIntoView({block:'center'});}return;}
+  var tel=pcVal('dest').replace(/\D/g,'');
+  if(!tel)tel=PC_TEL_CLINICA;
+  if(!tel.startsWith('55'))tel='55'+tel;
+  var msg=pcMsg();
+  if(msg.length>4000){
+    pcCopiar(true);
+    toast('Ficha longa — texto copiado. Cole no WhatsApp.','err');
+    var u='https://wa.me/'+tel;
+    window.open(u,'_blank');
+    return;
+  }
+  var url='https://wa.me/'+tel+'?text='+encodeURIComponent(msg);
+  var w=window.open(url,'_blank');
+  if(!w)window.location.href=url;
+  else toast('Abrindo WhatsApp...','ok');
+}
+
+function pcCopiar(silent){
+  var msg=pcMsg();
+  function ok(){if(!silent)toast('Ficha copiada para a área de transferência','ok');}
+  function fallback(){
+    var ta=document.createElement('textarea');
+    ta.value=msg;ta.style.cssText='position:fixed;top:-999px;left:-999px';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');ok();}catch(e){if(!silent)toast('Não foi possível copiar','err');}
+    ta.remove();
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(ok,fallback);
+  } else fallback();
+}
+
+function pcImprimir(){
+  var data=pcCollect();
+  var w=window.open('','_blank');
+  if(!w){toast('Permita pop-ups para imprimir','err');return;}
+  var h='<html><head><meta charset="utf-8"><title>Ficha de Pré-Cadastro</title><style>'
+   +'body{font-family:Arial,Helvetica,sans-serif;color:#2b2b24;max-width:760px;margin:0 auto;padding:24px;font-size:13px;line-height:1.55}'
+   +'h1{font-size:20px;color:#C86A32;margin:0 0 2px}h2{font-size:13px;color:#C86A32;border-bottom:1.5px solid #F5A97A;padding-bottom:3px;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.7px}'
+   +'.sb{font-size:11px;color:#6E6E64;margin-bottom:14px}table{width:100%;border-collapse:collapse}'
+   +'td{padding:4px 6px;vertical-align:top;border-bottom:1px solid #eee}td.k{width:38%;font-weight:bold;color:#5A5A52}'
+   +'.sig{margin-top:34px;display:flex;gap:36px}.sig div{flex:1;border-top:1px solid #999;padding-top:5px;font-size:10px;color:#666;text-align:center}'
+   +'.ft{margin-top:22px;font-size:9.5px;color:#888;border-top:1px solid #ddd;padding-top:8px}'
+   +'</style></head><body>'
+   +'<h1>Ficha de Pré-Cadastro</h1><div class="sb">Bianca Viniski Fisioterapia · Reabilitação Neurofuncional · CREFITO 409973-F</div>';
+  data.forEach(function(sec){
+    h+='<h2>'+sec.icon+' '+pcEsc(sec.title)+'</h2><table>';
+    sec.items.forEach(function(it){
+      h+='<tr><td class="k">'+pcEsc(it.lb)+'</td><td>'+pcEsc(it.v).replace(/\n/g,'<br>')+'</td></tr>';
+    });
+    h+='</table>';
+  });
+  h+='<div class="sig"><div>Assinatura do responsável / familiar</div><div>Nome legível e CPF do responsável</div></div>'
+   +'<div class="ft">Dados coletados exclusivamente para fins terapêuticos, protegidos pela LGPD (Lei nº 13.709/2018). Impresso em '+new Date().toLocaleString('pt-BR')+'.</div>'
+   +'</body></html>';
+  w.document.write(h);w.document.close();
+  setTimeout(function(){w.print();},350);
+}
+
+/* ── rascunho local (não some ao navegar) ── */
+var PC_DRAFT={};
+function pcSalvarRascunho(){
+  if(!document.getElementById('pc_nome'))return; /* ficha não está na tela */
+  PC_FORM.forEach(function(sec){
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      if(f.t==='checks'){
+        f.op.forEach(function(o,i){var el=document.getElementById('pc_'+f.id+'_'+i);if(el)PC_DRAFT[f.id+'_'+i]=el.checked;});
+      } else if(f.t==='scale'){
+        var r=document.querySelector('input[name="pc_'+f.id+'"]:checked');
+        PC_DRAFT[f.id]=r?r.value:'';
+      } else {
+        var el=document.getElementById('pc_'+f.id);if(el)PC_DRAFT[f.id]=el.value;
+      }
+    });
+  });
+  var d=document.getElementById('pc_dest');if(d)PC_DRAFT.dest=d.value;
+}
+function pcRestaurar(){
+  if(!Object.keys(PC_DRAFT).length)return;
+  PC_FORM.forEach(function(sec){
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      if(f.t==='checks'){
+        f.op.forEach(function(o,i){var el=document.getElementById('pc_'+f.id+'_'+i);if(el&&PC_DRAFT[f.id+'_'+i])el.checked=true;});
+      } else if(f.t==='scale'){
+        if(PC_DRAFT[f.id]!==''&&PC_DRAFT[f.id]!==undefined){
+          var r=document.querySelector('input[name="pc_'+f.id+'"][value="'+PC_DRAFT[f.id]+'"]');if(r)r.checked=true;
+        }
+      } else {
+        var el=document.getElementById('pc_'+f.id);if(el&&PC_DRAFT[f.id])el.value=PC_DRAFT[f.id];
+      }
+    });
+  });
+  var d=document.getElementById('pc_dest');if(d&&PC_DRAFT.dest)d.value=PC_DRAFT.dest;
+}
+function pcLimpar(){
+  if(!confirm('Limpar todos os campos da ficha?'))return;
+  PC_DRAFT={};
+  showPreCadastro();
+  toast('Ficha limpa','ok');
+}
+
+/* ── converter ficha em paciente do sistema ── */
+function pcCriarPaciente(){
+  var nome=pcVal('nome');
+  if(!nome){toast('Informe o nome do paciente','err');
+    var el=document.getElementById('pc_nome');if(el){el.focus();el.scrollIntoView({block:'center'});}return;}
+  var diag=[];
+  (PC_FORM[2].fields.find(function(f){return f.id==='diag';})||{op:[]}).op.forEach(function(o,i){
+    var cb=document.getElementById('pc_diag_'+i);if(cb&&cb.checked)diag.push(o);
+  });
+  var conds=[];
+  function add(c){if(conds.indexOf(c)<0&&COND_META[c])conds.push(c);}
+  diag.forEach(function(d){
+    if(/Alzheimer|Demência/i.test(d))add('alzheimer');
+    if(/Parkinson/i.test(d))add('parkinson');
+    if(/AVC/i.test(d))add('avc');
+  });
+  add('geriatria');
+
+  var birth=pcVal('nasc');
+  var obs=[];
+  pcCollect().forEach(function(sec){
+    obs.push('【'+sec.title+'】');
+    sec.items.forEach(function(it){obs.push('• '+it.lb+': '+it.v);});
+    obs.push('');
+  });
+
+  var p={
+    id:db.nid++, name:nome, birth:birth,
+    age:birth?Math.floor((Date.now()-new Date(birth))/(365.25*864e5))+' anos':'',
+    sex:pcVal('sexo'), cpf:pcVal('cpf'), rg:'',
+    phone:pcVal('resp_tel'), endereco:pcVal('endereco'),
+    emerg_nome:pcVal('resp_nome')+(pcVal('resp_par')?' ('+pcVal('resp_par')+')':''),
+    emerg_tel:pcVal('resp_tel'), rec:'', med:pcVal('medico'),
+    obs:'PRÉ-CADASTRO recebido em '+new Date().toLocaleDateString('pt-BR')+'\n\n'+obs.join('\n'),
+    conds:conds, condEvals:{},
+    created:new Date().toISOString()
+  };
+  db.patients.push(p);
+  saveDB();
+  PC_DRAFT={};
+  renderList();
+  selPatient(p.id);
+  toast('Paciente cadastrado a partir da ficha!','ok');
+  if(typeof aposCriarPaciente==='function')aposCriarPaciente(p.id);
+}
+
 </script>
 </body></html>
