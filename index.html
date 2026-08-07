@@ -525,6 +525,39 @@
 @media(max-width:640px){.integ-info{margin-left:0;width:100%}.fsh .integ-src{font-size:8.5px;padding:1px 5px}}
 [data-theme="dark"] .integ-bar{background:#242420;}
 
+/* ── ABA "COMO APLICAR" (recolhível) ── */
+.how-acc{margin:5px 0 10px;border:1.5px solid var(--g2);border-radius:9px;overflow:hidden;background:var(--w);}
+.how-tgl{display:flex;align-items:center;gap:8px;width:100%;padding:8px 11px;background:var(--gr-p);border:none;border-left:3px solid var(--gr);cursor:pointer;font-family:'DM Sans';text-align:left;transition:background .15s;}
+.how-tgl:active{opacity:.75;}
+.how-q{flex-shrink:0;width:17px;height:17px;border-radius:50%;background:var(--gr);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.how-lb{font-size:11.5px;font-weight:700;color:var(--gr2);}
+.how-sub{font-size:10px;color:var(--g4);margin-left:auto;white-space:nowrap;}
+.how-chev{font-size:11px;color:var(--gr2);transition:transform .2s;flex-shrink:0;}
+.how-acc.op .how-chev{transform:rotate(180deg);}
+.how-bd{display:none;padding:11px 13px;border-top:1px solid var(--g2);}
+.how-acc.op .how-bd{display:block;}
+.how-leigo{font-size:12.5px;color:var(--g8);line-height:1.68;}
+.how-leigo b{color:var(--gr2);display:block;margin-top:9px;margin-bottom:1px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+.how-leigo b:first-child{margin-top:0;}
+.how-leigo ol{margin:5px 0 0;padding-left:19px;}
+.how-leigo li{margin-bottom:5px;padding-left:2px;}
+.how-leigo li b,.how-leigo li::marker{display:inline;text-transform:none;letter-spacing:0;font-size:inherit;}
+.how-leigo li b{display:inline;margin:0;font-size:inherit;text-transform:none;letter-spacing:0;}
+.how-leigo i{color:var(--g4);}
+.how-tec{margin-top:11px;padding-top:9px;border-top:1px dashed var(--g2);font-size:11px;color:var(--g4);line-height:1.55;}
+.how-tec-lb{display:block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--g4);margin-bottom:3px;opacity:.75;}
+.how-tec strong{color:var(--g6);}
+.how-bulk{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.how-bulk button{padding:6px 11px;border:1.5px solid var(--g2);border-radius:8px;background:var(--w);font-family:'DM Sans';font-size:11px;font-weight:600;color:var(--g6);cursor:pointer;}
+.how-bulk button:active{opacity:.7;}
+@media(max-width:640px){
+  .how-sub{display:none;}
+  .how-lb{font-size:11px;}
+  .how-leigo{font-size:12px;}
+}
+[data-theme="dark"] .how-acc{background:#242420;}
+[data-theme="dark"] .how-leigo{color:#e8e8e0;}
+
 </style>
 <!-- Firebase SDK -->
 <script type="module">
@@ -1663,6 +1696,7 @@ function openForm(pid,cond,eid){
     +'<button class="btn btn-del" onclick="selPatient('+pid+')">← Voltar</button>'
     +'<button class="btn btn-gr" onclick="saveNow()">💾 Salvar</button>'
     +'</div></div>'
+    +'<div class="how-bulk"><span style="font-size:11px;color:var(--g4);align-self:center;margin-right:2px">Explicações dos testes:</span><button type="button" onclick="howAll(true)">? Abrir todas</button><button type="button" onclick="howAll(false)">Recolher todas</button></div>'
     +antropometriaSection()+buildSections(cond)
     +'<div style="display:flex;gap:9px;margin-top:16px;margin-bottom:32px">'
     +'<button class="btn btn-del" onclick="selPatient('+pid+')" style="flex:1">← Voltar</button>'
@@ -1751,7 +1785,488 @@ function tugHTML(){
 function planoHTML(){
   return fg([['Hipótese diagnóstica','hipotese','textarea',null,{full:true,ph:'Deficiências, limitações (CIF)...'}],['Metas — Curto prazo','meta_curto','textarea',null,{full:true}],['Metas — Médio prazo','meta_medio','textarea',null,{full:true}],['Metas — Longo prazo','meta_longo','textarea',null,{full:true}],['Plano de tratamento','plano','textarea',null,{full:true,ph:'Modalidades, técnicas...'}],['Frequência','freq','text',null,{ph:'Ex: 3x/semana'}],['Duração sessão (min)','duracao','number',null,null],['Prognóstico','prognostico','select',['Favorável','Reservado','Desfavorável'],null],['Observações finais','obs_finais','textarea',null,{full:true}]]);
 }
-function how(t){return '<div class="how-to">'+t+'</div>';}
+/* ══════════════════════════════════════════════════════════════════
+   GUIA EM LINGUAGEM SIMPLES — explicação de cada teste escrita para
+   quem não é da área conseguir entender e reproduzir.
+   Aparece dentro da aba "Como aplicar este teste", fechada por padrão.
+   ══════════════════════════════════════════════════════════════════ */
+var GUIA_LEIGO={
+
+/* ── Equilíbrio, marcha e quedas ─────────────────────────────── */
+berg:'<b>O que mede:</b> o equilíbrio da pessoa em 14 situações do dia a dia — ficar em pé, virar-se, pegar algo no chão, ficar num pé só.'
+ +'<b>O que você precisa:</b> uma cadeira com braços, uma cadeira sem braços, um cronômetro, um degrau ou banquinho, uma régua e um chinelo ou objeto no chão.'
+ +'<ol><li>Explique que ela vai fazer 14 tarefas e que pode parar se não se sentir segura.</li>'
+ +'<li>Fique sempre ao lado dela, pronto para segurar, mas <b>sem tocar</b> enquanto ela tenta.</li>'
+ +'<li>Em cada tarefa, dê a nota de <b>0 a 4</b>: 0 = não consegue fazer, 4 = faz sozinha, com segurança e no tempo pedido.</li>'
+ +'<li>Se ela precisar de ajuda ou supervisão, a nota já cai. Anote o que realmente aconteceu, não o que ela diz que consegue.</li></ol>'
+ +'<b>O resultado:</b> soma das 14 tarefas, de 0 a 56. Quanto mais alto, melhor o equilíbrio. Abaixo de 45 o risco de queda já é grande; abaixo de 36 o risco é alto.',
+
+tug:'<b>O que mede:</b> quanto tempo a pessoa leva para levantar da cadeira, andar um pouco, virar e voltar a sentar. É o teste de mobilidade mais usado no mundo.'
+ +'<b>O que você precisa:</b> uma cadeira com braços, uma fita ou marca no chão a <b>3 metros</b> da cadeira, e um cronômetro (o do celular serve).'
+ +'<ol><li>A pessoa senta com as costas apoiadas e os braços sobre os apoios.</li>'
+ +'<li>Ela pode usar bengala ou andador se for o que usa normalmente — anote qual usou.</li>'
+ +'<li>Diga: "quando eu falar <i>vai</i>, levante, caminhe até a marca, dê a volta, volte e sente".</li>'
+ +'<li>Comece a cronometrar <b>na palavra "vai"</b> e pare quando ela encostar as costas na cadeira de novo.</li>'
+ +'<li>Faça uma vez para treinar e depois 2 ou 3 vezes valendo. Registre a média.</li></ol>'
+ +'<b>O resultado:</b> abaixo de 10 segundos é normal. Acima de 12 segundos indica risco de queda aumentado. Acima de 20 segundos, mobilidade bastante reduzida.',
+
+tc10m:'<b>O que mede:</b> a velocidade com que a pessoa caminha. É considerado o "sinal vital" da mobilidade — junto com pressão e batimentos.'
+ +'<b>O que você precisa:</b> um corredor livre de <b>14 metros</b>, fita crepe para marcar o chão e um cronômetro.'
+ +'<ol><li>Marque o chão em 0m, 2m, 12m e 14m. A pessoa começa a andar em 0 e para em 14.</li>'
+ +'<li>Você cronometra <b>só o trecho do meio</b>, dos 2m aos 12m — ou seja, 10 metros. Os 2 metros do começo e do fim servem para ela acelerar e desacelerar.</li>'
+ +'<li>Peça para caminhar <b>no ritmo normal dela</b>, como se estivesse indo até a padaria. Não peça pressa.</li>'
+ +'<li>Faça duas vezes e some os tempos, dividindo por dois para achar a média.</li>'
+ +'<li>Divida 10 pelo tempo médio. Ex.: 12,5 segundos → 10 ÷ 12,5 = 0,80 metros por segundo.</li></ol>'
+ +'<b>O resultado:</b> acima de 1,0 m/s a pessoa consegue circular na rua com segurança (dá para atravessar a rua no tempo do semáforo). Entre 0,6 e 1,0 a mobilidade já é limitada. Abaixo de 0,6 o risco de quedas, internação e perda de independência é alto.',
+
+tc6m:'<b>O que mede:</b> quanto a pessoa aguenta caminhar em 6 minutos. Mostra o fôlego e a resistência para as atividades do dia a dia.'
+ +'<b>O que você precisa:</b> um corredor plano de <b>30 metros</b> com cones nas pontas, cronômetro, cadeira para descanso, e se possível oxímetro de dedo e aparelho de pressão.'
+ +'<ol><li>A pessoa descansa sentada por 10 minutos antes. Meça pressão, batimentos e oxigênio.</li>'
+ +'<li>Explique: "caminhe o máximo que conseguir em 6 minutos, indo e voltando entre os cones. Pode diminuir o ritmo ou parar para descansar se precisar, mas volte a andar assim que der".</li>'
+ +'<li><b>Não caminhe junto com ela</b> — isso muda o ritmo. Fique parado e conte as voltas.</li>'
+ +'<li>Fale só as frases padronizadas de incentivo, sempre iguais: a cada minuto, "está indo bem, faltam X minutos".</li>'
+ +'<li>Ao final, meça de novo pressão, batimentos e oxigênio, e calcule a distância total.</li></ol>'
+ +'<b>Pare o teste se:</b> a pessoa sentir dor no peito, falta de ar intensa, tontura, suor frio, ou se o oxigênio cair abaixo de 85%.'
+ +'<b>O resultado:</b> a distância em metros. O mais importante é comparar com a avaliação anterior da mesma pessoa — uma diferença de cerca de 30 metros já é significativa.',
+
+ftsts:'<b>O que mede:</b> a força das pernas e a facilidade de levantar da cadeira — movimento que a pessoa repete dezenas de vezes por dia.'
+ +'<b>O que você precisa:</b> uma cadeira firme <b>sem braços</b>, encostada na parede, e um cronômetro.'
+ +'<ol><li>A pessoa senta com os braços <b>cruzados sobre o peito</b> — não pode se apoiar nas mãos.</li>'
+ +'<li>Demonstre o movimento uma vez para ela ver.</li>'
+ +'<li>Diga: "levante e sente 5 vezes, o mais rápido que conseguir, sem usar as mãos".</li>'
+ +'<li>Cronometre da palavra "vai" até o momento em que ela <b>senta pela quinta vez</b>.</li>'
+ +'<li>Conte em voz alta junto com ela para não se perder na contagem.</li></ol>'
+ +'<b>O resultado:</b> abaixo de 12 segundos é bom. Entre 12 e 16 segundos, atenção. Acima de 16 segundos indica fraqueza nas pernas e risco de queda.',
+
+chair30:'<b>O que mede:</b> a força e a resistência das pernas contando quantas vezes a pessoa levanta da cadeira em 30 segundos.'
+ +'<b>O que você precisa:</b> cadeira firme sem braços encostada na parede e cronômetro.'
+ +'<ol><li>A pessoa senta com os braços cruzados sobre o peito.</li>'
+ +'<li>Diga: "levante e sente o máximo de vezes que conseguir em 30 segundos".</li>'
+ +'<li>Conte apenas as repetições <b>completas</b> — de pé totalmente esticada e sentada de volta.</li>'
+ +'<li>Se no momento em que o tempo acabar ela estiver mais da metade do caminho de pé, conte como uma repetição.</li></ol>'
+ +'<b>O resultado:</b> menos de 8 repetições em idosos indica fraqueza importante nas pernas. A referência muda com a idade e o sexo — o mais útil é comparar com a avaliação anterior da própria pessoa.',
+
+sppb:'<b>O que mede:</b> três coisas de uma vez — equilíbrio, velocidade de caminhada e força das pernas — resumidas numa única nota de 0 a 12. Leva cerca de 10 minutos.'
+ +'<b>O que você precisa:</b> cronômetro, fita para marcar 4 metros no chão e uma cadeira sem braços.'
+ +'<ol><li><b>Equilíbrio:</b> peça para ficar em pé de três jeitos, 10 segundos cada — (a) pés juntos lado a lado; (b) um pé meio à frente do outro, encostando o calcanhar no meio do outro pé; (c) um pé exatamente na frente do outro, calcanhar encostando na ponta. Anote quantos segundos aguentou em cada.</li>'
+ +'<li><b>Caminhada:</b> cronometre quanto tempo leva para andar 4 metros no ritmo normal. Faça duas vezes e use o melhor tempo.</li>'
+ +'<li><b>Força:</b> use o tempo do teste de levantar 5 vezes da cadeira.</li></ol>'
+ +'<b>O resultado:</b> o sistema calcula sozinho a nota de cada parte e o total de 0 a 12. Até 6 pontos indica desempenho físico ruim e risco alto. De 7 a 9, intermediário. De 10 a 12, bom. Uma diferença de 1 ponto entre avaliações já é relevante.',
+
+poma:'<b>O que mede:</b> o equilíbrio e a qualidade da caminhada, observando como a pessoa se move — se cambaleia, se arrasta o pé, se o passo é irregular.'
+ +'<b>O que você precisa:</b> uma cadeira sem braços e um espaço livre de uns 3 metros.'
+ +'<ol><li><b>Parte do equilíbrio (16 pontos):</b> observe a pessoa sentada, levantando, em pé parada, com os olhos fechados, sendo levemente empurrada no peito, girando 360° e sentando de novo.</li>'
+ +'<li><b>Parte da marcha (12 pontos):</b> peça para caminhar até o fim do corredor e voltar. Observe se o passo é simétrico, se os pés saem do chão, se o tronco balança, se ela desvia do caminho reto.</li>'
+ +'<li>Dê a nota de cada item conforme a descrição da escala e some as duas partes.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 28. Abaixo de 19 pontos o risco de queda é alto; entre 19 e 24, moderado.',
+
+fga:'<b>O que mede:</b> o equilíbrio durante a caminhada em situações mais difíceis do que andar em linha reta — virar a cabeça, passar por cima de algo, andar de olhos fechados.'
+ +'<b>O que você precisa:</b> corredor de 6 metros com uma faixa de 30 cm marcada no chão, uma caixa de sapato, dois cones e um degrau.'
+ +'<ol><li>São 10 tarefas de caminhada, cada uma valendo de 0 a 3 pontos.</li>'
+ +'<li>Fique sempre ao lado da pessoa, pronto para segurar.</li>'
+ +'<li>As tarefas incluem: andar no ritmo normal, andar rápido, virar a cabeça para os lados e para cima e para baixo enquanto anda, girar e parar, passar por cima da caixa, andar em volta dos cones, andar com um pé quase na frente do outro, subir degraus e andar de olhos fechados.</li>'
+ +'<li>Nota 3 = faz sem desviar do caminho e sem perder o equilíbrio. Nota 0 = não consegue fazer.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 30. Abaixo de 22 pontos indica risco alto de queda.',
+
+minibest:'<b>O que mede:</b> quatro tipos diferentes de equilíbrio — a capacidade de se preparar para um movimento, de reagir a um empurrão, de manter-se em pé parado e de se equilibrar andando.'
+ +'<b>O que você precisa:</b> cadeira sem braços, uma rampa ou superfície inclinada, uma almofada de espuma firme, cronômetro e uma caixa.'
+ +'<ol><li>São 14 tarefas, cada uma valendo de 0 a 2 pontos.</li>'
+ +'<li>Inclui levantar da cadeira, ficar na ponta dos pés, ficar num pé só, reagir a empurrões para frente, para trás e para os lados, ficar em pé sobre a espuma e caminhar mudando a velocidade.</li>'
+ +'<li>Nota 2 = normal, 1 = com dificuldade ou adaptação, 0 = incapaz.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 28. Abaixo de 20 pontos o risco de queda é alto. É mais sensível que o Berg para detectar problemas iniciais de equilíbrio.',
+
+pushrelease:'<b>O que mede:</b> a capacidade de recuperar o equilíbrio quando a pessoa é desestabilizada — o chamado reflexo postural.'
+ +'<b>O que você precisa:</b> apenas espaço livre atrás da pessoa e alguém preparado para segurá-la.'
+ +'<ol><li>A pessoa fica em pé, de costas para você, com os pés confortavelmente afastados.</li>'
+ +'<li>Peça para ela se apoiar para trás nas suas mãos, que ficam nas costas dela, na altura das escápulas.</li>'
+ +'<li>Quando sentir que ela está apoiando o peso, <b>retire as mãos de repente</b>.</li>'
+ +'<li>Observe o que ela faz para não cair.</li></ol>'
+ +'<b>O resultado:</b> 0 = recupera com 1 ou 2 passos; 1 = precisa de 3 ou mais passos; 2 = recupera sozinha mas com muita dificuldade; 3 = cairia se não fosse segurada; 4 = cai sem nem tentar dar um passo. Este teste é mais seguro e confiável que o antigo "pull test".',
+
+wfg:'<b>O que mede:</b> o risco de a pessoa cair, com três perguntas simples que orientam o quanto a avaliação precisa ser aprofundada.'
+ +'<ol><li>Pergunte: <b>"o senhor caiu alguma vez nos últimos 12 meses?"</b></li>'
+ +'<li>Pergunte: <b>"sente dificuldade para caminhar ou se equilibrar?"</b></li>'
+ +'<li>Pergunte: <b>"tem medo de cair?"</b></li>'
+ +'<li>Faça as mesmas perguntas ao familiar ou cuidador. Isso é essencial: quem tem problema de memória quase sempre esquece as quedas que sofreu.</li></ol>'
+ +'<b>O resultado:</b> nenhuma resposta positiva = risco baixo. Uma queda sem lesão ou dificuldade de equilíbrio = risco intermediário. Duas ou mais quedas, queda com machucado ou desmaio = <b>risco alto</b>, que exige avaliação completa.',
+
+fesi:'<b>O que mede:</b> o quanto a pessoa tem medo de cair no dia a dia. O medo é importante porque faz a pessoa deixar de sair e se mexer, o que enfraquece e aumenta ainda mais o risco de cair.'
+ +'<ol><li>São 16 situações comuns: tomar banho, vestir-se, fazer compras, subir escada, atender o telefone, visitar um parente...</li>'
+ +'<li>Para cada uma pergunte: <b>"o quanto o senhor se preocupa em cair fazendo isso?"</b></li>'
+ +'<li>A resposta é 1 (nada preocupado), 2 (um pouco), 3 (bastante) ou 4 (muito preocupado).</li>'
+ +'<li>Se a pessoa não faz a atividade, pergunte o quanto ela se preocuparia <b>se fizesse</b>.</li></ol>'
+ +'<b>O resultado:</b> soma de 16 a 64. Até 22 é baixa preocupação. De 23 a 30, moderada. Acima de 31, medo intenso que já está limitando a vida dela.'
+ +'<b>Atenção:</b> depende da pessoa entender e responder por si. Em demência moderada ou grave o resultado deixa de ser confiável.',
+
+/* ── Cognição e humor ────────────────────────────────────────── */
+meem:'<b>O que mede:</b> a memória, a atenção, a orientação no tempo e no espaço e a linguagem. É o rastreio de memória mais usado no mundo.'
+ +'<b>O que você precisa:</b> papel, lápis, um relógio e um objeto qualquer (caneta, por exemplo).'
+ +'<ol><li><b>Orientação no tempo (5 pontos):</b> pergunte o dia, mês, ano, dia da semana e a hora aproximada.</li>'
+ +'<li><b>Orientação no espaço (5 pontos):</b> pergunte onde estamos — local, andar, bairro, cidade, estado.</li>'
+ +'<li><b>Memória imediata (3 pontos):</b> fale três palavras devagar e peça para repetir.</li>'
+ +'<li><b>Atenção e cálculo (5 pontos):</b> peça para subtrair 7 de 100, cinco vezes seguidas. Ou soletrar "MUNDO" de trás para frente.</li>'
+ +'<li><b>Evocação (3 pontos):</b> peça para lembrar as três palavras do começo.</li>'
+ +'<li><b>Linguagem (8 pontos):</b> nomear dois objetos, repetir uma frase, seguir um comando de três etapas, ler e obedecer uma ordem escrita, e escrever uma frase.</li>'
+ +'<li><b>Desenho (1 ponto):</b> copiar dois pentágonos entrelaçados.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 30. O ponto de corte <b>muda conforme a escolaridade</b>: para quem não estudou usa-se cerca de 20; para quem tem ensino fundamental, cerca de 25; para ensino superior, cerca de 28. Sem isso o resultado engana.',
+
+moca:'<b>O que mede:</b> problemas de memória mais leves, que o MEEM não consegue detectar. É mais difícil e mais sensível.'
+ +'<b>O que você precisa:</b> a folha oficial impressa do teste, lápis e um relógio.'
+ +'<ol><li>São 8 áreas avaliadas ao longo de cerca de 10 minutos: desenho e planejamento, nomear animais, memória, atenção, linguagem, abstração, lembrar as palavras e orientação.</li>'
+ +'<li>Aplique exatamente na ordem da folha oficial, sem pular etapas.</li>'
+ +'<li><b>Regra importante:</b> se a pessoa estudou 12 anos ou menos, some 1 ponto ao total.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 30. Acima de 26 é considerado normal. Abaixo disso, sugere comprometimento cognitivo e merece investigação médica.',
+
+cdr:'<b>O que mede:</b> o estágio da demência — se é leve, moderada ou grave. Não é um teste que a pessoa faz: é uma <b>entrevista com quem convive com ela</b>.'
+ +'<ol><li>Converse separadamente com a pessoa e com o familiar ou cuidador.</li>'
+ +'<li>Avalie 6 áreas: memória, orientação, julgamento e solução de problemas, atividades na comunidade, atividades em casa e passatempos, e cuidados pessoais.</li>'
+ +'<li>Dê a cada área uma nota: 0 (normal), 0,5 (duvidoso), 1 (leve), 2 (moderado) ou 3 (grave).</li>'
+ +'<li>A memória é a área principal e tem mais peso no resultado final.</li></ol>'
+ +'<b>O resultado:</b> 0 = sem demência; 0,5 = comprometimento duvidoso; 1 = demência leve; 2 = moderada; 3 = grave. A "soma das caixas" (somar as 6 notas, de 0 a 18) é mais sensível para acompanhar a evolução ao longo do tempo.',
+
+fast:'<b>O que mede:</b> em que fase da doença de Alzheimer a pessoa está, olhando o que ela ainda consegue fazer sozinha no dia a dia.'
+ +'<ol><li>É uma escala de observação: você identifica em qual dos 7 estágios a pessoa se encaixa.</li>'
+ +'<li>Estágio 1 e 2: sem alteração ou só esquecimentos normais da idade.</li>'
+ +'<li>Estágio 3 e 4: dificuldade no trabalho, em lidar com dinheiro e organizar tarefas complexas.</li>'
+ +'<li>Estágio 5: precisa de ajuda para escolher a roupa adequada.</li>'
+ +'<li>Estágio 6: precisa de ajuda para se vestir, tomar banho e usar o banheiro.</li>'
+ +'<li>Estágio 7: perde a fala, a capacidade de andar, de sentar sozinha e de sorrir.</li></ol>'
+ +'<b>Para que serve:</b> ajuda a família a entender o momento da doença e a planejar os cuidados necessários daqui para frente.',
+
+gds:'<b>O que mede:</b> sinais de depressão em pessoas idosas. As perguntas evitam sintomas físicos (como cansaço e falta de sono), que na idade avançada podem ser de outras causas.'
+ +'<ol><li>São 15 perguntas com resposta apenas <b>sim ou não</b>.</li>'
+ +'<li>Peça para a pessoa responder pensando em <b>como se sentiu na última semana</b>.</li>'
+ +'<li>Leia as perguntas em voz alta se ela tiver dificuldade de leitura ou visão.</li>'
+ +'<li>Respostas como "não me sinto satisfeito com a vida", "sinto que minha vida está vazia" ou "prefiro ficar em casa a sair" contam ponto.</li></ol>'
+ +'<b>O resultado:</b> soma de 0 a 15. Até 4 pontos, sem indício de depressão. De 5 a 9, depressão leve — vale investigar. Acima de 10, sugestivo de depressão, e a pessoa deve ser encaminhada ao médico.',
+
+zarit:'<b>O que mede:</b> o quanto o cuidador está sobrecarregado. Não avalia o paciente, e sim <b>quem cuida dele</b>.'
+ +'<ol><li>Entregue ao cuidador principal e explique que não há resposta certa ou errada.</li>'
+ +'<li>Se possível, deixe que ele responda sozinho, sem o paciente por perto — a presença inibe respostas sinceras.</li>'
+ +'<li>São 22 perguntas sobre a rotina, respondidas de 0 (nunca) a 4 (sempre).</li></ol>'
+ +'<b>O resultado:</b> soma de 0 a 88. Até 20, sobrecarga leve ou ausente. De 21 a 40, moderada. Acima de 41, sobrecarga intensa — o cuidador precisa de ajuda, e isso deve entrar no plano de tratamento. Cuidadores muito sobrecarregados adoecem, e o paciente perde o cuidado.',
+
+/* ── Independência e vida diária ─────────────────────────────── */
+barthel:'<b>O que mede:</b> o quanto a pessoa consegue se cuidar sozinha nas 10 atividades básicas do dia — comer, tomar banho, vestir-se, usar o banheiro, andar.'
+ +'<ol><li>É uma entrevista com a pessoa e com quem cuida dela.</li>'
+ +'<li>A regra de ouro: registre <b>o que ela realmente faz no dia a dia</b>, não o que ela seria capaz de fazer se tentasse.</li>'
+ +'<li>Para cada atividade, escolha entre independente, precisa de ajuda parcial ou totalmente dependente.</li>'
+ +'<li>Na dúvida entre duas notas, escolha sempre a menor.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 100. Acima de 90 é independente. De 60 a 90, dependência leve. De 21 a 59, dependência moderada a grave. Abaixo de 20, dependência total.',
+
+lawton:'<b>O que mede:</b> atividades mais complexas que as básicas — usar o telefone, tomar remédio na hora certa, cuidar do dinheiro, fazer compras, cozinhar, usar transporte.'
+ +'<ol><li>Entrevista com a pessoa e, obrigatoriamente, com o familiar — este é o ponto em que a pessoa costuma superestimar a própria capacidade.</li>'
+ +'<li>Para cada uma das 9 atividades, marque: faz sozinha, faz com ajuda parcial, ou não consegue fazer.</li>'
+ +'<li>Se a pessoa nunca fez aquela atividade na vida (por exemplo, um homem que nunca cozinhou), avalie a capacidade atual de aprender a fazer, não o hábito.</li></ol>'
+ +'<b>O resultado:</b> quanto maior, mais independente. A perda nestas atividades costuma aparecer <b>antes</b> da perda nas atividades básicas — por isso é um sinal precoce importante.',
+
+fim:'<b>O que mede:</b> quanta ajuda de outra pessoa o paciente precisa em 18 tarefas — desde comer e tomar banho até se comunicar e resolver problemas.'
+ +'<ol><li>Observe a pessoa fazendo as atividades sempre que possível, em vez de só perguntar.</li>'
+ +'<li>Cada tarefa recebe nota de <b>1 a 7</b>.</li>'
+ +'<li>Nota 7 = faz sozinha, com segurança e no tempo normal. Nota 6 = faz sozinha mas com adaptação, mais devagar ou com algum risco.</li>'
+ +'<li>Notas 5 a 1 indicam que <b>outra pessoa precisa ajudar</b>. Note 5 = só supervisão; 4 = o paciente faz 75% do esforço; 3 = faz 50%; 2 = faz 25%; 1 = faz menos de 25%.</li>'
+ +'<li>A pergunta-chave para se orientar é: <b>quanto do esforço é do paciente e quanto é de quem ajuda?</b></li></ol>'
+ +'<b>O resultado:</b> total de 18 a 126. Acima de 108, independência completa ou quase. De 54 a 107, dependência modificada. Abaixo de 54, dependência importante.',
+
+scim:'<b>O que mede:</b> a independência de quem tem lesão na medula espinhal. Foi criada especificamente para essa situação, então avalia coisas que outras escalas ignoram — como cuidar da bexiga e do intestino e a respiração.'
+ +'<ol><li>Avalie três áreas: <b>cuidados pessoais</b> (comer, banho, vestir), <b>respiração e controle de esfíncteres</b>, e <b>mobilidade</b> (na cama, nas transferências e nos deslocamentos).</li>'
+ +'<li>Observe o paciente realizando as tarefas no ambiente real dele sempre que possível.</li>'
+ +'<li>Considere o uso de adaptações e cadeira de rodas como parte normal da independência, não como falha.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 100. É mais sensível que outras escalas para detectar progresso em lesão medular, principalmente nas áreas de esfíncteres e mobilidade em cadeira de rodas.',
+
+schwab:'<b>O que mede:</b> em uma única nota de porcentagem, o quanto a pessoa com Parkinson consegue tocar a vida sozinha.'
+ +'<ol><li>Converse com a pessoa e com a família sobre a rotina real.</li>'
+ +'<li>Escolha a porcentagem que melhor descreve o dia a dia dela.</li>'
+ +'<li>100% = completamente independente, sem lentidão. 80% = independente, mas leva o dobro do tempo. 60% = precisa de ajuda em algumas tarefas. 40% = muito dependente. 20% = não faz nada sozinha. 0% = acamada, com funções vitais comprometidas.</li></ol>'
+ +'<b>Dica:</b> registre também se a avaliação foi feita no período em que o remédio está fazendo efeito (ON) ou não (OFF) — a diferença pode ser enorme.',
+
+/* ── Parkinson ───────────────────────────────────────────────── */
+hy:'<b>O que mede:</b> em que fase a doença de Parkinson está, de forma simples e direta.'
+ +'<ol><li>Estágio 1: sintomas em <b>um lado só</b> do corpo.</li>'
+ +'<li>Estágio 1,5: um lado do corpo mais o tronco/pescoço.</li>'
+ +'<li>Estágio 2: sintomas nos <b>dois lados</b>, mas o equilíbrio ainda está bom.</li>'
+ +'<li>Estágio 2,5: dois lados, com leve dificuldade de recuperar o equilíbrio quando desestabilizada, mas ainda recupera sozinha.</li>'
+ +'<li>Estágio 3: dois lados com alteração do equilíbrio — a pessoa já cai. Ainda é independente.</li>'
+ +'<li>Estágio 4: incapacidade importante, mas ainda consegue andar e ficar em pé sem ajuda.</li>'
+ +'<li>Estágio 5: presa à cadeira de rodas ou acamada, dependente de ajuda.</li></ol>'
+ +'<b>Importante:</b> anote sempre se a avaliação foi feita com o remédio fazendo efeito (ON) ou não (OFF).',
+
+updrs3:'<b>O que mede:</b> a parte motora do Parkinson, item por item — tremor, rigidez, lentidão, marcha e equilíbrio. É o exame padrão no mundo todo.'
+ +'<ol><li>São 33 itens, cada um pontuado de <b>0 (normal) a 4 (grave)</b>.</li>'
+ +'<li>Avalie fala, expressão do rosto, rigidez dos braços, pernas e pescoço, movimentos rápidos dos dedos e dos pés, levantar da cadeira, postura, marcha, congelamento da marcha, equilíbrio e tremor.</li>'
+ +'<li>Os movimentos repetitivos (bater os dedos, abrir e fechar a mão) devem ser feitos <b>10 vezes de cada lado</b>, observando se ficam menores ou mais lentos ao longo das repetições.</li>'
+ +'<li><b>Regra fundamental:</b> registre sempre se está no período ON (com o remédio fazendo efeito) ou OFF. Comparar um exame ON com um OFF não faz sentido nenhum.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 132. Quanto maior, mais comprometimento motor.',
+
+mpas:'<b>O que mede:</b> o desempenho da pessoa com Parkinson em atividades que costumam ficar difíceis — virar na cama, levantar da cadeira e caminhar.'
+ +'<b>O que você precisa:</b> uma cama ou maca, uma cadeira e espaço para andar.'
+ +'<ol><li>Peça para a pessoa deitar e virar de um lado para o outro na cama, com e sem cobertor.</li>'
+ +'<li>Peça para levantar da cadeira e sentar novamente.</li>'
+ +'<li>Observe a caminhada, incluindo passar por um espaço estreito e dar meia-volta.</li>'
+ +'<li>Pontue cada tarefa de 0 a 4 conforme a facilidade e a necessidade de ajuda.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 27. Quanto maior, melhor o desempenho nas atividades do dia a dia.',
+
+nfogq:'<b>O que mede:</b> o "congelamento da marcha" — aquele momento em que os pés parecem colar no chão e a pessoa não consegue dar o próximo passo.'
+ +'<ol><li>A primeira pergunta é filtro: <b>a pessoa já teve esse episódio de pés grudados no chão?</b> Se nunca teve, o questionário termina aqui.</li>'
+ +'<li>Se já teve, mostre um <b>vídeo demonstrativo</b> — muitas pessoas não reconhecem o congelamento só pela descrição.</li>'
+ +'<li>Pergunte com que frequência acontece, quanto tempo dura o episódio mais longo, e em que situações aparece (ao começar a andar, ao virar, ao passar por portas, em lugares apertados, sob pressão de tempo).</li>'
+ +'<li>Pergunte também o quanto isso atrapalha a vida dela.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 28. Quanto maior, mais grave e mais frequente o congelamento.',
+
+rigidez:'<b>O que mede:</b> a rigidez muscular — a resistência que o músculo faz quando alguém movimenta o braço ou a perna da pessoa relaxada.'
+ +'<ol><li>Peça para a pessoa <b>relaxar completamente</b> o membro. Ela não deve ajudar nem resistir.</li>'
+ +'<li>Movimente lentamente o cotovelo, o punho, o joelho e o pescoço, e sinta a resistência.</li>'
+ +'<li>Se não sentir rigidez, peça para a pessoa <b>mexer o outro lado do corpo</b> ao mesmo tempo — isso faz a rigidez leve aparecer.</li>'
+ +'<li>Pontue de 0 a 4: 0 = ausente; 1 = só aparece com o outro lado se mexendo; 2 = leve a moderada; 3 = importante, mas o movimento completo ainda é possível; 4 = grave, com dificuldade de completar o movimento.</li></ol>',
+
+pdq39:'<b>O que mede:</b> como a doença de Parkinson afeta a vida da pessoa segundo ela mesma — não segundo o exame do profissional.'
+ +'<ol><li>São 39 perguntas que a própria pessoa responde, divididas em 8 áreas: mobilidade, atividades do dia a dia, bem-estar emocional, constrangimento, apoio social, memória, comunicação e desconforto corporal.</li>'
+ +'<li>Peça para responder pensando <b>no último mês</b>.</li>'
+ +'<li>As opções vão de "nunca" a "sempre".</li>'
+ +'<li>Deixe a pessoa responder sozinha se conseguir. Só leia em voz alta se ela tiver dificuldade de visão ou leitura.</li></ol>'
+ +'<b>O resultado:</b> uma nota de 0 a 100, onde <b>quanto menor, melhor</b> — 0 significa nenhum impacto na qualidade de vida e 100, impacto máximo.',
+
+gas:'<b>O que é:</b> não é um teste, e sim um jeito de combinar metas com o paciente e a família e depois medir se elas foram alcançadas.'
+ +'<ol><li>Converse e escolha <b>2 ou 3 metas</b> que importem de verdade para a pessoa.</li>'
+ +'<li>Escreva cada meta de forma que dê para <b>ver e medir</b>. Em vez de "melhorar o equilíbrio", escreva "caminhar do quarto até a sala sem se apoiar em ninguém".</li>'
+ +'<li>Combine qual seria o resultado esperado (nota 0), o que seria ficar abaixo (−1 e −2) e o que seria superar (+1 e +2).</li>'
+ +'<li>Na reavaliação, veja em qual nível a pessoa chegou.</li></ol>'
+ +'<b>Por que vale a pena:</b> metas escolhidas pela própria pessoa aumentam muito a adesão ao tratamento. Em demência, as metas mais úteis costumam vir do cuidador e do cotidiano — como "não cair no caminho do banheiro à noite".',
+
+/* ── AVC ─────────────────────────────────────────────────────── */
+nihss:'<b>O que mede:</b> a gravidade do AVC logo depois que ele acontece, examinando 11 áreas do funcionamento do cérebro.'
+ +'<ol><li>Avalie: nível de consciência, movimento dos olhos, campo de visão, movimento do rosto, força dos braços e das pernas, coordenação, sensibilidade, linguagem, fala e atenção a um dos lados.</li>'
+ +'<li>Aplique sempre <b>na ordem da escala</b>, sem voltar atrás para corrigir uma nota já dada.</li>'
+ +'<li>Registre a <b>primeira resposta</b> da pessoa, não a melhor tentativa depois de treinar.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 42. Zero = sem déficit. De 1 a 4, AVC leve. De 5 a 15, moderado. De 16 a 20, moderado a grave. Acima de 21, grave.',
+
+mrs:'<b>O que mede:</b> em uma única nota, o quanto o AVC deixou sequela na vida da pessoa.'
+ +'<ol><li>É uma entrevista, não um exame físico. Converse com a pessoa e com a família sobre a rotina.</li>'
+ +'<li>Escolha a nota de 0 a 6 que melhor descreve a situação.</li>'
+ +'<li>0 = sem nenhum sintoma. 1 = tem sintomas mas faz tudo o que fazia antes. 2 = não faz tudo o que fazia, mas se cuida sozinha. 3 = precisa de alguma ajuda, mas anda sem apoio de pessoa. 4 = precisa de ajuda para andar e para se cuidar. 5 = acamada, precisa de cuidado constante. 6 = óbito.</li></ol>'
+ +'<b>A pergunta-chave:</b> "o que o senhor deixou de fazer depois do AVC?"',
+
+fuglmeyer:'<b>O que mede:</b> a recuperação do movimento do braço e da perna do lado afetado depois do AVC — se os movimentos já saem separados uns dos outros ou se ainda vêm todos juntos em bloco.'
+ +'<ol><li>A pessoa fica sentada, e você pede movimentos específicos do ombro, cotovelo, punho, mão, quadril, joelho e tornozelo.</li>'
+ +'<li>Cada movimento vale <b>0, 1 ou 2 pontos</b>: 0 = não consegue nada; 1 = consegue em parte; 2 = faz completamente.</li>'
+ +'<li>Avalie também os reflexos, a coordenação e a velocidade.</li>'
+ +'<li>Não ajude nem corrija a postura durante a tentativa.</li></ol>'
+ +'<b>O resultado:</b> até 100 pontos somando braço e perna. Mede a qualidade do movimento — não confunda com o quanto a pessoa usa o braço no dia a dia, que é outra coisa.',
+
+ashworth:'<b>O que mede:</b> a espasticidade — o aumento do tônus que faz o músculo ficar "duro" e resistir quando alguém tenta esticá-lo.'
+ +'<ol><li>A pessoa deve estar <b>relaxada e confortável</b>, sem ansiedade, frio ou dor, porque tudo isso aumenta o tônus.</li>'
+ +'<li>Segure o membro e movimente a articulação em cerca de <b>1 segundo</b>, de uma ponta a outra do movimento.</li>'
+ +'<li>Sinta se e quando aparece a resistência.</li>'
+ +'<li>Pontue: 0 = sem aumento; 1 = pega no fim do movimento; 1+ = pega em menos da metade do movimento; 2 = resistência na maior parte do movimento, mas o membro ainda se move fácil; 3 = movimento difícil; 4 = o membro está travado, rígido.</li></ol>',
+
+/* ── Lesão medular ───────────────────────────────────────────── */
+asia:'<b>O que mede:</b> exatamente onde a medula foi lesada e o quanto de movimento e sensibilidade ainda existe abaixo da lesão. É a classificação oficial usada no mundo todo.'
+ +'<b>O que você precisa:</b> um alfinete de segurança descartável e um chumaço de algodão.'
+ +'<ol><li><b>Força:</b> teste 10 músculos-chave de cada lado (5 no braço e 5 na perna), dando nota de 0 a 5 para cada.</li>'
+ +'<li><b>Sensibilidade:</b> teste 28 pontos do corpo de cada lado, duas vezes — uma com o algodão (toque leve) e outra com o alfinete (dor). Nota 0 = não sente; 1 = sente diferente do normal; 2 = normal.</li>'
+ +'<li>Compare sempre com uma área que a pessoa sente normalmente, como o rosto.</li>'
+ +'<li><b>Nunca pule o exame da região anal</b> — a preservação da sensibilidade e da contração ali é o que define se a lesão é completa ou incompleta, e isso muda todo o prognóstico.</li></ol>'
+ +'<b>O resultado:</b> a classificação AIS vai de A (lesão completa, nada preservado) a E (tudo normal).',
+
+wisci:'<b>O que mede:</b> quanta ajuda, aparelho ou apoio a pessoa com lesão medular precisa para conseguir caminhar 10 metros.'
+ +'<ol><li>Peça para a pessoa caminhar 10 metros do jeito que ela consegue.</li>'
+ +'<li>Observe três coisas: usa <b>órteses</b> (aparelhos nas pernas)? usa <b>andador, muletas ou bengala</b>? precisa de <b>quantas pessoas</b> ajudando?</li>'
+ +'<li>Escolha o nível de 0 a 20 que corresponde exatamente a essa combinação.</li></ol>'
+ +'<b>O resultado:</b> 0 = não consegue caminhar de jeito nenhum. 20 = caminha os 10 metros sem nenhum aparelho, apoio ou ajuda de pessoa. Cada ponto a mais representa um ganho real de independência.',
+
+vesical:'<b>O que avaliar:</b> como estão funcionando a bexiga, o intestino e a função sexual depois da lesão medular. São áreas que a pessoa raramente traz espontaneamente, mas que afetam profundamente a qualidade de vida.'
+ +'<ol><li>Pergunte de forma direta e sem constrangimento — a naturalidade da sua pergunta é o que dá permissão para ela responder.</li>'
+ +'<li>Sobre a bexiga: como esvazia (sozinha, com sonda, com manobra), quantas vezes por dia, se tem escapes, se já teve infecção urinária.</li>'
+ +'<li>Sobre o intestino: com que frequência evacua, se usa laxante ou estímulo, quanto tempo leva, se tem escapes.</li>'
+ +'<li><b>Disreflexia autonômica:</b> pergunte se já teve crise de dor de cabeça forte e súbita com suor e rosto vermelho. É uma emergência médica e a causa mais comum é bexiga cheia ou intestino preso.</li></ol>',
+
+respiratoria:'<b>O que mede:</b> a força dos músculos que fazem a pessoa respirar e tossir. Em lesão medular alta, isso é questão de sobrevivência — a maioria das complicações graves é respiratória.'
+ +'<b>O que você precisa:</b> manovacuômetro (mede a força respiratória) e, se possível, espirômetro ou peak flow.'
+ +'<ol><li>A pessoa fica sentada, com um clipe fechando o nariz.</li>'
+ +'<li><b>Força para inspirar:</b> peça para soltar todo o ar e depois puxar o ar com toda a força contra o aparelho, segurando 1 a 2 segundos.</li>'
+ +'<li><b>Força para expirar:</b> peça para encher o peito e soprar com toda a força.</li>'
+ +'<li>Repita 3 vezes cada e registre o melhor valor.</li>'
+ +'<li>Avalie também a tosse: peça para tossir com força e observe se sai forte, fraca ou se não consegue.</li></ol>'
+ +'<b>Por que importa:</b> tosse fraca significa que a pessoa não consegue limpar as secreções sozinha, o que leva a pneumonia.',
+
+/* ── Força e músculo ─────────────────────────────────────────── */
+mrc:'<b>O que mede:</b> a força de cada músculo, numa escala simples de 0 a 5.'
+ +'<ol><li>Posicione a pessoa de forma que o músculo testado trabalhe confortavelmente.</li>'
+ +'<li>Peça o movimento e vá aumentando a resistência com a sua mão.</li>'
+ +'<li>Nota 0 = nenhuma contração, nem sinal. Nota 1 = dá para ver ou sentir o músculo contrair, mas não move nada.</li>'
+ +'<li>Nota 2 = move, mas só se você tirar o peso da gravidade (por exemplo, deslizando na maca). Nota 3 = consegue vencer a gravidade, mas não aguenta nenhuma resistência sua.</li>'
+ +'<li>Nota 4 = vence alguma resistência sua. Nota 5 = força normal.</li>'
+ +'<li>Compare sempre um lado com o outro.</li></ol>',
+
+dinamometria:'<b>O que mede:</b> a força da mão ao apertar. Parece um detalhe, mas é um dos melhores indicadores de força do corpo inteiro e de saúde geral.'
+ +'<b>O que você precisa:</b> um dinamômetro de mão.'
+ +'<ol><li>A pessoa senta com o cotovelo dobrado a 90 graus, junto ao corpo, e o punho reto.</li>'
+ +'<li>Demonstre no aparelho antes para ela entender.</li>'
+ +'<li>Peça para apertar com <b>toda a força durante 3 segundos</b>, incentivando em voz alta.</li>'
+ +'<li>Faça 3 vezes em cada mão, com 1 minuto de descanso entre elas.</li>'
+ +'<li>Registre o <b>maior</b> valor de cada lado.</li></ol>'
+ +'<b>O resultado:</b> abaixo de 16 kgf em mulheres e 27 kgf em homens indica provável sarcopenia (perda de massa e força muscular), que precisa ser tratada com exercício de força e ajuste da alimentação.',
+
+sarcf:'<b>O que mede:</b> rastreia a sarcopenia — a perda de músculo que vem com a idade — com 5 perguntas rápidas.'
+ +'<ol><li><b>Força:</b> tem dificuldade para carregar 4,5 kg (mais ou menos um saco de arroz de 5 kg)?</li>'
+ +'<li><b>Ajuda para andar:</b> tem dificuldade para atravessar um cômodo?</li>'
+ +'<li><b>Levantar da cadeira:</b> tem dificuldade para levantar de uma cadeira ou da cama?</li>'
+ +'<li><b>Subir escadas:</b> tem dificuldade para subir 10 degraus?</li>'
+ +'<li><b>Quedas:</b> quantas vezes caiu no último ano?</li>'
+ +'<li>Cada resposta vale 0 (nenhuma dificuldade), 1 (alguma) ou 2 (muita ou incapaz). Em caso de demência, pergunte ao cuidador.</li></ol>'
+ +'<b>O resultado:</b> soma de 0 a 10. A partir de 4 pontos a sarcopenia é provável e deve ser confirmada com a medida de força da mão.',
+
+adm:'<b>O que mede:</b> quantos graus a articulação consegue se mover — se está com o movimento completo ou limitado.'
+ +'<b>O que você precisa:</b> um goniômetro (o "transferidor" da fisioterapia).'
+ +'<ol><li>Posicione a pessoa de forma estável e deixe a articulação livre.</li>'
+ +'<li>Encaixe o centro do goniômetro exatamente sobre o eixo da articulação.</li>'
+ +'<li>Um braço do aparelho fica alinhado com o osso que não se move; o outro acompanha o osso que se move.</li>'
+ +'<li>Meça primeiro o movimento que a pessoa faz sozinha (ativo) e depois o que você consegue fazer movendo o membro dela (passivo).</li>'
+ +'<li>Anote sempre os dois lados para comparar.</li></ol>'
+ +'<b>Dica:</b> use sempre a mesma posição e os mesmos pontos de referência nas reavaliações, senão a comparação não vale.',
+
+/* ── Dor e fibromialgia ──────────────────────────────────────── */
+dor:'<b>O que avaliar:</b> a dor precisa ser medida como qualquer outro sinal, e não apenas descrita.'
+ +'<ol><li>Peça para a pessoa dar uma <b>nota de 0 a 10</b> para a dor, onde 0 é nenhuma dor e 10 é a pior dor que ela consegue imaginar.</li>'
+ +'<li>Pergunte a nota da dor <b>agora</b>, a dor <b>no pior momento</b> e a dor <b>no melhor momento</b> da última semana.</li>'
+ +'<li>Pergunte onde dói, como é a dor (queimação, pontada, peso, formigamento) e o que melhora e o que piora.</li>'
+ +'<li>Se a pessoa não consegue falar, observe o rosto, os gemidos, a tensão do corpo e a resistência ao ser tocada.</li></ol>',
+
+mapador:'<b>O que faz:</b> transforma a queixa "dói tudo" num mapa objetivo, que dá para comparar entre as consultas.'
+ +'<ol><li>Mostre o desenho do corpo, de frente e de costas.</li>'
+ +'<li>Peça para a pessoa <b>marcar todos os lugares onde sente dor</b> — sem pressa e sem interferência sua.</li>'
+ +'<li>Se possível, use símbolos diferentes para tipos de dor: queimação, pontada, formigamento, peso.</li>'
+ +'<li>Guarde o mapa. Na reavaliação, compare os dois lado a lado — é a forma mais visual de mostrar melhora para a pessoa.</li></ol>',
+
+wpi:'<b>O que mede:</b> em quantas regiões do corpo a pessoa sentiu dor na última semana. É metade do critério de diagnóstico da fibromialgia.'
+ +'<ol><li>Pergunte, região por região: <b>"o senhor sentiu dor aqui na última semana?"</b></li>'
+ +'<li>São 19 regiões: ombros, braços, antebraços, quadris, coxas e pernas (cada um dos dois lados), mais mandíbula direita e esquerda, tórax, abdome, pescoço, costas de cima e costas de baixo.</li>'
+ +'<li>Marque cada região com dor. Não some intensidade — aqui só conta <b>se doeu ou não</b>.</li></ol>'
+ +'<b>O resultado:</b> de 0 a 19 regiões.',
+
+ss:'<b>O que mede:</b> a intensidade dos sintomas que acompanham a fibromialgia além da dor. É a outra metade do critério de diagnóstico.'
+ +'<ol><li>Avalie três sintomas na última semana, cada um de 0 a 3: <b>cansaço</b>, <b>acordar sem se sentir descansado</b> e <b>dificuldade de concentração e memória</b>.</li>'
+ +'<li>0 = sem problema; 1 = leve ou ocasional; 2 = moderado, presente com frequência; 3 = grave, contínuo, atrapalha a vida.</li>'
+ +'<li>Depois, some 0 a 3 pontos conforme a presença de outros sintomas nos últimos 6 meses — dor de cabeça, dor ou cólica na barriga, e depressão.</li></ol>'
+ +'<b>O resultado:</b> de 0 a 12 pontos.',
+
+fiqr:'<b>O que mede:</b> o quanto a fibromialgia atrapalha a vida da pessoa. É o questionário mais usado para acompanhar se o tratamento está funcionando.'
+ +'<ol><li>São 21 perguntas que a própria pessoa responde, cada uma com uma régua de 0 a 10.</li>'
+ +'<li>Peça para responder pensando <b>nos últimos 7 dias</b>.</li>'
+ +'<li>Cobre três áreas: o que ela consegue fazer no dia a dia, o impacto geral na vida, e a intensidade dos sintomas.</li></ol>'
+ +'<b>O resultado:</b> de 0 a 100, onde quanto menor, melhor. Abaixo de 43 o impacto é leve; de 43 a 59, moderado; acima de 59, grave.',
+
+fss:'<b>O que mede:</b> o quanto o cansaço atrapalha a vida — não se a pessoa está cansada, mas o quanto isso a impede de fazer as coisas.'
+ +'<ol><li>São 9 afirmações, cada uma pontuada de 1 (discordo totalmente) a 7 (concordo totalmente).</li>'
+ +'<li>Exemplos: "o cansaço me impede de fazer exercício"; "o cansaço atrapalha meu trabalho, minha família ou minha vida social".</li>'
+ +'<li>Peça para responder pensando na última semana.</li></ol>'
+ +'<b>O resultado:</b> soma de 9 a 63. Abaixo de 36, cansaço não significativo. De 36 a 47, significativo. Acima de 48, cansaço intenso.',
+
+psqi:'<b>O que mede:</b> a qualidade do sono no último mês, em sete aspectos diferentes.'
+ +'<ol><li>Pergunte a que horas costuma deitar, quanto tempo demora para pegar no sono, a que horas acorda e quantas horas realmente dorme.</li>'
+ +'<li>Pergunte com que frequência teve dificuldades: acordar de madrugada, levantar para ir ao banheiro, dores, calor, frio, pesadelos.</li>'
+ +'<li>Pergunte sobre o uso de remédio para dormir e sobre a dificuldade de ficar acordada durante o dia.</li>'
+ +'<li>Peça uma nota geral para a qualidade do sono.</li></ol>'
+ +'<b>O resultado:</b> de 0 a 21. Até 5 pontos, sono bom. De 6 a 10, sono ruim. Acima de 10, distúrbio importante do sono, que merece investigação.',
+
+pcs:'<b>O que mede:</b> o quanto a pessoa "catastrofiza" a dor — ou seja, pensa no pior, não consegue tirar a dor da cabeça e se sente impotente diante dela.'
+ +'<ol><li>São 13 afirmações sobre o que passa pela cabeça da pessoa quando está com dor.</li>'
+ +'<li>Cada uma é respondida de 0 (nunca penso assim) a 4 (penso assim o tempo todo).</li>'
+ +'<li>Exemplos: "fico o tempo todo pensando em como a dor vai acabar"; "sinto que não aguento mais"; "fico com medo de que a dor piore".</li></ol>'
+ +'<b>Por que importa:</b> quem catastrofiza sente mais dor e melhora mais devagar, mesmo com a mesma lesão. Nota acima de 30 indica que trabalhar isso precisa fazer parte do tratamento — muitas vezes com apoio psicológico.',
+
+algometria:'<b>O que mede:</b> a partir de quanta pressão a pessoa começa a sentir dor. Serve para acompanhar objetivamente a sensibilidade ao longo do tratamento.'
+ +'<b>O que você precisa:</b> um algômetro de pressão.'
+ +'<ol><li>Explique antes: "vou apertar aqui aos poucos. Avise no momento exato em que a pressão <b>deixar de ser só pressão e começar a doer</b>".</li>'
+ +'<li>Encoste o aparelho perpendicular à pele e aumente a pressão devagar e de forma constante.</li>'
+ +'<li>Pare assim que a pessoa avisar e anote o valor.</li>'
+ +'<li>Meça 3 vezes em cada ponto, com pelo menos 30 segundos de intervalo, e use a média.</li></ol>'
+ +'<b>Importante:</b> isto serve para acompanhar a evolução, <b>não para diagnosticar</b> fibromialgia — a contagem de pontos dolorosos deixou de ser critério diagnóstico desde 2016.',
+
+/* ── Escoliose e postura ─────────────────────────────────────── */
+cobb:'<b>O que mede:</b> o tamanho da curva da coluna em graus, medido no raio-X. É o padrão mundial para escoliose.'
+ +'<ol><li>Use um raio-X de coluna inteira, feito com a pessoa <b>em pé</b>.</li>'
+ +'<li>Identifique a vértebra mais inclinada no topo da curva e a mais inclinada na base.</li>'
+ +'<li>Trace uma linha acompanhando a borda de cima da vértebra superior e outra acompanhando a borda de baixo da vértebra inferior.</li>'
+ +'<li>O ângulo formado pelo cruzamento dessas duas linhas é o ângulo de Cobb.</li></ol>'
+ +'<b>O resultado:</b> abaixo de 10° não é escoliose. De 10 a 24°, leve — só observação. De 25 a 44°, moderada — geralmente indica colete. A partir de 45°, grave — avaliar cirurgia. Uma diferença precisa ser <b>maior que 5°</b> para ser considerada progressão real, porque abaixo disso pode ser só erro de medida.',
+
+cifose:'<b>O que mede:</b> a curvatura das costas vista de lado — se está com o "corcunda" acentuado ou com as costas retas demais.'
+ +'<ol><li>Use o raio-X de perfil, com a pessoa em pé e os braços apoiados à frente.</li>'
+ +'<li>Aplique o mesmo método do ângulo de Cobb, geralmente entre a 4ª e a 12ª vértebra torácica.</li></ol>'
+ +'<b>O resultado:</b> entre 20 e 45 graus é considerado normal. Abaixo de 20, as costas estão retas demais. Acima de 45, hipercifose. Acima de 60 graus, acentuada.',
+
+postural:'<b>O que avaliar:</b> os sinais visíveis da escoliose no corpo, sem precisar de raio-X.'
+ +'<ol><li>A pessoa fica em pé, de costas para você, descalça, com o mínimo de roupa possível e os pés levemente afastados.</li>'
+ +'<li>Observe se os <b>ombros</b> estão na mesma altura e se as <b>escápulas</b> (as "asinhas" das costas) estão simétricas.</li>'
+ +'<li>Observe os <b>triângulos de Tales</b> — o espaço entre o braço e a cintura de cada lado. Se um é maior que o outro, há assimetria.</li>'
+ +'<li>Veja se a <b>bacia</b> está nivelada e se a cabeça está centralizada em relação ao bumbum (use um fio de prumo a partir da 7ª vértebra do pescoço).</li>'
+ +'<li>Fotografe sempre da mesma distância e na mesma posição para comparar depois.</li></ol>',
+
+adams:'<b>O que faz:</b> revela a rotação da coluna, que é o que diferencia uma escoliose verdadeira de uma assimetria postural qualquer.'
+ +'<b>O que você precisa:</b> um escoliômetro (ou aplicativo de celular com essa função).'
+ +'<ol><li>A pessoa fica em pé, descalça, com os pés juntos e os joelhos esticados.</li>'
+ +'<li>Peça para <b>juntar as palmas das mãos e se inclinar lentamente para a frente</b>, deixando os braços soltos, até o tronco ficar paralelo ao chão.</li>'
+ +'<li>Fique atrás e olhe a linha das costas na altura dos olhos.</li>'
+ +'<li>Se um lado ficar mais alto que o outro, existe uma "gibosidade" — sinal de rotação vertebral.</li>'
+ +'<li>Apoie o escoliômetro sobre a parte mais alta e leia quantos graus marca.</li></ol>'
+ +'<b>O resultado:</b> a partir de 7 graus, a recomendação é solicitar raio-X para medir o ângulo de Cobb.',
+
+muscular_escoliose:'<b>O que avaliar:</b> a força e a flexibilidade dos músculos que sustentam a coluna, que dão suporte ao tratamento da escoliose.'
+ +'<ol><li><b>Resistência das costas (teste de Biering-Sørensen):</b> a pessoa deita de bruços na maca com o tronco para fora, apoiada da bacia para baixo, braços cruzados no peito. Cronometre quanto tempo consegue manter o tronco na horizontal. Acima de 2 minutos é bom.</li>'
+ +'<li><b>Flexibilidade da coluna (teste de Schober):</b> com a pessoa em pé, marque um ponto na base da coluna e outro 10 cm acima. Peça para se inclinar para a frente ao máximo e meça de novo. O aumento normal é de pelo menos 5 cm.</li>'
+ +'<li><b>Distância dedo-chão:</b> em pé, com joelhos esticados, peça para tentar tocar o chão. Meça quantos centímetros faltam.</li>'
+ +'<li><b>Expansibilidade do tórax:</b> meça a circunferência do peito ao encher e ao esvaziar todo o ar. A diferença normal é de pelo menos 5 cm.</li></ol>',
+
+/* ── Membro superior e joelho ────────────────────────────────── */
+dash:'<b>O que mede:</b> a dificuldade da pessoa nas atividades que usam o braço, o ombro ou a mão.'
+ +'<ol><li>São 30 perguntas que a própria pessoa responde, pensando <b>na última semana</b>.</li>'
+ +'<li>Pergunta sobre coisas concretas: abrir um vidro apertado, escrever, virar a chave, carregar sacola, arrumar as costas do cabelo, trocar uma lâmpada.</li>'
+ +'<li>Cada item vai de 1 (sem dificuldade nenhuma) a 5 (incapaz de fazer).</li>'
+ +'<li>Se a pessoa deixar mais de 3 perguntas em branco, o resultado não pode ser calculado.</li></ol>'
+ +'<b>O resultado:</b> de 0 a 100, onde <b>quanto menor, melhor</b>. Uma diferença de cerca de 10 pontos entre avaliações já representa uma melhora que a pessoa percebe na vida.',
+
+womac:'<b>O que mede:</b> dor, rigidez e dificuldade funcional em pessoas com artrose de joelho ou de quadril.'
+ +'<ol><li>São 24 perguntas respondidas pela própria pessoa, pensando <b>nas últimas 48 horas</b>.</li>'
+ +'<li>Divide-se em três partes: 5 perguntas sobre <b>dor</b>, 2 sobre <b>rigidez</b> e 17 sobre <b>dificuldade nas atividades</b>.</li>'
+ +'<li>Cada item vai de 0 (nenhum) a 4 (extremo).</li>'
+ +'<li>As perguntas são bem concretas: dor ao subir escada, rigidez ao acordar, dificuldade para calçar meia, levantar do vaso sanitário, entrar no carro.</li></ol>'
+ +'<b>O resultado:</b> total de 0 a 96, onde quanto menor, melhor. Analise cada uma das três partes separadamente — às vezes a dor melhora mas a função ainda não.',
+
+/* ── Blocos gerais ───────────────────────────────────────────── */
+resp_deglut:'<b>O que avaliar:</b> a respiração e a capacidade de engolir sem engasgar. No Parkinson, a pneumonia por engasgo é uma das principais causas de internação.'
+ +'<ol><li>Pergunte se a pessoa <b>tosse ou engasga durante as refeições</b>, se a voz fica "molhada" depois de beber, e se as refeições estão demorando mais.</li>'
+ +'<li>Pergunte se já teve pneumonia — e quantas vezes no último ano.</li>'
+ +'<li>Observe se ela consegue tossir com força quando você pede.</li>'
+ +'<li>Se houver qualquer sinal de engasgo, <b>encaminhe para fonoaudiólogo</b> antes de continuar com exercícios que envolvam esforço respiratório.</li></ol>',
+
+acomp_clinico:'<b>O que registrar:</b> a situação clínica atual da pessoa — o que está acontecendo agora, e não apenas o histórico.'
+ +'<ol><li>Anote os <b>remédios em uso</b> com o nome, a dose e o horário. Se a pessoa não souber, peça a caixa ou a receita na próxima consulta.</li>'
+ +'<li>Registre quedas, internações e mudanças recentes na rotina ou na moradia.</li>'
+ +'<li>Meça pressão, batimentos e oxigênio antes de iniciar qualquer teste de esforço.</li>'
+ +'<li>Pergunte sobre alterações no apetite, no peso e no sono.</li></ol>',
+
+};
+
+function how(t,slug){
+  var g=(typeof GUIA_LEIGO!=='undefined'&&slug&&GUIA_LEIGO[slug])?GUIA_LEIGO[slug]:'';
+  var id='hw'+Math.random().toString(36).substr(2,7);
+  return '<div class="how-acc" id="'+id+'">'
+    +'<button type="button" class="how-tgl" onclick="howToggle(\''+id+'\')">'
+    +'<span class="how-q">?</span>'
+    +'<span class="how-lb">Como aplicar este teste</span>'
+    +'<span class="how-sub">'+(g?'explicação passo a passo':'orientação técnica')+'</span>'
+    +'<span class="how-chev">▾</span></button>'
+    +'<div class="how-bd">'
+    +(g?'<div class="how-leigo">'+g+'</div>':'')
+    +'<div class="how-tec"><span class="how-tec-lb">Resumo técnico</span>'+t+'</div>'
+    +'</div></div>';
+}
+function howToggle(id){var e=document.getElementById(id);if(e)e.classList.toggle('op');}
+function howAll(open){
+  document.querySelectorAll('.how-acc').forEach(function(e){
+    if(open)e.classList.add('op');else e.classList.remove('op');});
+}
 function getExtra(){return {};}
 function sbx(key,label,max,sfx){return '<div class="sbox"><div class="sbox-lbl">'+label+'</div><input type="number" class="sbox-inp sc_'+sfx+'" data-key="'+key+'" min="0" max="'+max+'" placeholder="0"><div class="sbox-max">/'+max+'</div></div>';}
 function sgrid(items,sfx,cols){var h='<div class="sg sg-'+(cols||3)+'">';items.forEach(function(it){h+=sbx(it[0],it[1],it[2],sfx);});return h+'</div>';}
@@ -3629,11 +4144,11 @@ function buildSections(){
         ['Observações','obs_gerais','textarea',null,{full:true}]]),true)
   +sec('📊','2. Estadiamento — H&Y e MDS-UPDRS III',
     sub('Hoehn & Yahr')
-    +how('<strong>Como aplicar:</strong> Avaliação clínica observacional. Identifique qual lado está mais comprometido. Realize o <em>Teste Pull</em>: posicione-se atrás do paciente e empurre pelos ombros para trás — observe a resposta protetora (passos de recuperação).')
+    +how('<strong>Como aplicar:</strong> Avaliação clínica observacional. Identifique qual lado está mais comprometido. Realize o <em>Teste Pull</em>: posicione-se atrás do paciente e empurre pelos ombros para trás — observe a resposta protetora (passos de recuperação).','hy')
     +fg([['Estágio H&Y','hy','select',['','1 — Unilateral','1,5 — Unilateral+axial','2 — Bilateral s/ instabilidade','2,5 — Bilateral com pull leve','3 — Instabilidade leve/mod','4 — Severa, caminha sozinho','5 — Cadeirante/acamado'],null],
          ['Observação H&Y','hy_obs','text',null,{ph:'Notas...'}]])
     +sub('MDS-UPDRS Parte III — Exame Motor (0–132)')
-    +how('<strong>Como aplicar:</strong> Avalie em fase ON. 0=normal, 1=mínimo, 2=leve, 3=moderado, 4=grave. Aplicar os itens na ordem, avaliando D e E separadamente nos membros. Os itens 3.1–3.9 são pontuados diretamente; 3.10–3.18 avaliam marcha e postura global.')
+    +how('<strong>Como aplicar:</strong> Avalie em fase ON. 0=normal, 1=mínimo, 2=leve, 3=moderado, 4=grave. Aplicar os itens na ordem, avaliando D e E separadamente nos membros. Os itens 3.1–3.9 são pontuados diretamente; 3.10–3.18 avaliam marcha e postura global.','updrs3')
     +sgrid([
       ['u3_fala','Fala (3.1)',4],['u3_exp','Exp. facial (3.2)',4],['u3_rig_pesc','Rigidez pescoço (3.3a)',4],
       ['u3_rig_msd','Rigidez MSD (3.3b)',4],['u3_rig_mse','Rigidez MSE (3.3c)',4],['u3_rig_mid','Rigidez MID (3.3d)',4],
@@ -3654,7 +4169,7 @@ function buildSections(){
           ['UPDRS IV (complicações, máx 24)','updrs4','number',null,{min:0,max:24}]])
     +fld('UPDRS Total (I+II+III+IV)','updrs_total','ro',null,{id:'updrs_tot_out'}))
   +sec('⚖️','3. Berg Balance Scale (0–56)',
-    how('<strong>Como aplicar:</strong> Paciente realiza 14 tarefas em sequência. <em>Materiais:</em> 2 cadeiras (com e sem braços), régua de 25cm, objeto no chão, banco/degrau. <em>Pontuação:</em> 4=independente, 3=supervisão, 2=mínima assistência, 1=máxima assistência, 0=incapaz. Tempo ~15 min. <em>Referência:</em> ≥45 pts = baixo risco; <45 = alto risco de quedas.')
+    how('<strong>Como aplicar:</strong> Paciente realiza 14 tarefas em sequência. <em>Materiais:</em> 2 cadeiras (com e sem braços), régua de 25cm, objeto no chão, banco/degrau. <em>Pontuação:</em> 4=independente, 3=supervisão, 2=mínima assistência, 1=máxima assistência, 0=incapaz. Tempo ~15 min. <em>Referência:</em> ≥45 pts = baixo risco; <45 = alto risco de quedas.','berg')
     +sgrid([
       ['berg1','1. Sentado→De pé',4],['berg2','2. De pé 2 min',4],['berg3','3. Sentado 2 min',4],
       ['berg4','4. De pé→Sentado',4],['berg5','5. Transferências',4],['berg6','6. Olhos fechados',4],
@@ -3665,20 +4180,20 @@ function buildSections(){
     +atbar('berg','Berg Total',56)
     +fld('Obs. Berg','berg_obs','textarea',null,{ph:'Estratégias, hesitações, freezing durante o teste...'}))
   +sec('⏱️','4. TUG e Transferencias',
-    how('TUG: sentado, costas apoiadas, marcar 3m. Levantar, caminhar, contornar cone, retornar e sentar. 3 tentativas, media das 2 e 3. Mais de 12s = risco aumentado.')
+    how('TUG: sentado, costas apoiadas, marcar 3m. Levantar, caminhar, contornar cone, retornar e sentar. 3 tentativas, media das 2 e 3. Mais de 12s = risco aumentado.','tug')
     +tugHTML()
     +fg([['TUG Cognitivo (s)','tug_cog','number',null,{step:'0.1',ph:'s'}],
          ['TUG Motor (s)','tug_motor','number',null,{step:'0.1',ph:'s'}]])
     +sub('FTSTS - Five Times Sit-to-Stand')
-    +how('Bracos cruzados. 5x levantar e sentar o mais rapido possivel. Cronometrar ate sentar pela 5a vez. Menos de 12s=bom; 12-16s=moderado; mais de 16s=alto risco.')
+    +how('Bracos cruzados. 5x levantar e sentar o mais rapido possivel. Cronometrar ate sentar pela 5a vez. Menos de 12s=bom; 12-16s=moderado; mais de 16s=alto risco.','ftsts')
     +fg([['FTSTS Tempo (s)','ftsts','number',null,{step:'0.1',min:0,ph:'s'}],
          ['FTSTS Observacoes','ftsts_obs','text',null,{ph:'Uso de bracos, dor, hesitacao...'}]])
     +sub('Push and Release - Estabilidade Postural')
-    +how('Fisioterapeuta atras. Empurrar pelos ombros e liberar. Contar passos de recuperacao. 0=sem passos; 1=1-2; 2=3-5; 3=mais de 5; 4=cai. Score 2 ou mais = alto risco.')
+    +how('Fisioterapeuta atras. Empurrar pelos ombros e liberar. Contar passos de recuperacao. 0=sem passos; 1=1-2; 2=3-5; 3=mais de 5; 4=cai. Score 2 ou mais = alto risco.','pushrelease')
     +fg([['Push Release Score (0-4)','push_release','number',null,{min:0,max:4}],
          ['Obs estabilidade postural','pushrel_obs','text',null,{ph:'Passos de recuperacao...'}]])
     +sub('M-PAS - Parkinson Activity Scale (0-27)')
-    +how('3 transferencias observadas: cadeira, cama, espaco estreito. 0=impossivel, 3=independente. Avaliar em fase ON e OFF.')
+    +how('3 transferencias observadas: cadeira, cama, espaco estreito. 0=impossivel, 3=independente. Avaliar em fase ON e OFF.','mpas')
     +fg([['M-PAS Cadeira (0-9)','mpas_cadeira','number',null,{min:0,max:9}],
          ['M-PAS Cama (0-9)','mpas_cama','number',null,{min:0,max:9}],
          ['M-PAS Espaco Estreito (0-9)','mpas_estreito','number',null,{min:0,max:9}],
@@ -3686,19 +4201,19 @@ function buildSections(){
          ['Fase M-PAS','mpas_fase','select',['ON','OFF'],null]]))
   +sec('🚶','5. Escalas de Marcha',
     sub('TC10M — Velocidade de Marcha')
-    +how('<strong>Como aplicar:</strong> Marcar corredor de 14m total. Cronometrar apenas os <strong>10 metros centrais</strong> (desconsiderar 2m para aceleração e 2m para desaceleração). Dar 2 tentativas em velocidade habitual. Fórmula: velocidade (m/s) = 10 ÷ tempo (s).')
+    +how('<strong>Como aplicar:</strong> Marcar corredor de 14m total. Cronometrar apenas os <strong>10 metros centrais</strong> (desconsiderar 2m para aceleração e 2m para desaceleração). Dar 2 tentativas em velocidade habitual. Fórmula: velocidade (m/s) = 10 ÷ tempo (s).','tc10m')
     +fg3([['T1 habitual (s)','tc10_h1','number',null,{step:'0.01'}],
           ['T2 habitual (s)','tc10_h2','number',null,{step:'0.01'}],
           ['Velocidade habitual (m/s)','tc10m_vel','ro',null,{id:'tc10_pk'}]])
     +sub('TC6M — Caminhada 6 Minutos')
-    +how('<strong>Como aplicar:</strong> Corredor plano de 30m demarcado. Instruir: <em>"Caminhe o máximo possível durante 6 minutos. Pode diminuir o ritmo ou parar se necessário."</em> Encorajar a cada minuto com frases padronizadas. Monitorar SpO2 e FC. Interromper se SpO2 <85%, dor torácica, tontura ou solicitação do paciente.')
+    +how('<strong>Como aplicar:</strong> Corredor plano de 30m demarcado. Instruir: <em>"Caminhe o máximo possível durante 6 minutos. Pode diminuir o ritmo ou parar se necessário."</em> Encorajar a cada minuto com frases padronizadas. Monitorar SpO2 e FC. Interromper se SpO2 <85%, dor torácica, tontura ou solicitação do paciente.','tc6m')
     +fg([['Distância percorrida (m)','tc6m_dist','number',null,null],
          ['FC inicial (bpm)','tc6m_fc_ini','number',null,null],['FC final (bpm)','tc6m_fc','number',null,null],
          ['SpO2 inicial (%)','tc6m_spo2_ini','number',null,null],['SpO2 final (%)','tc6m_spo2','number',null,null],
          ['Borg final (0–10)','tc6m_borg','number',null,{min:0,max:10}],
          ['Número de paradas','tc6m_paradas','number',null,{min:0}]])
     +sub('Mini-BESTest (0–28)')
-    +how('<strong>Como aplicar:</strong> 14 itens, pontuação 0–2 cada. <em>Parte I — Antecipatório (3 itens):</em> ponta dos pés, alcance, pegar objeto. <em>Parte II — Reativo (3 itens):</em> resposta ao push, lateral e posterior. <em>Parte III — Sensorial (3 itens):</em> Romberg OF, espuma, inclinação. <em>Parte IV — Marcha (5 itens):</em> velocidade, obstáculo, virada 180°, marcha com cabeça, TUG cognitivo.')
+    +how('<strong>Como aplicar:</strong> 14 itens, pontuação 0–2 cada. <em>Parte I — Antecipatório (3 itens):</em> ponta dos pés, alcance, pegar objeto. <em>Parte II — Reativo (3 itens):</em> resposta ao push, lateral e posterior. <em>Parte III — Sensorial (3 itens):</em> Romberg OF, espuma, inclinação. <em>Parte IV — Marcha (5 itens):</em> velocidade, obstáculo, virada 180°, marcha com cabeça, TUG cognitivo.','minibest')
     +sgrid([
       ['mbt1','I-1 Ponta pés',2],['mbt2','I-2 Alcance ant.',2],['mbt3','I-3 Pegar objeto',2],
       ['mbt4','II-1 Push resp.',2],['mbt5','II-2 Correção lat.',2],['mbt6','II-3 Correção post.',2],
@@ -3708,14 +4223,14 @@ function buildSections(){
     ],'mbt',2)
     +atbar('mbt','Mini-BESTest Total',28)
     +sub('NFOG-Q — Freezing de Marcha (0–28)')
-    +how('<strong>Como aplicar:</strong> Questionário com vídeos demonstrativos. Parte A: identificação do freezing (se ausente, pontuação=0). Parte B: frequência e duração dos episódios. Parte C: impacto nas AVDs. Questionar especificamente: início da caminhada, ao virar, em espaços estreitos e locais cheios, ao realizar dupla tarefa.')
+    +how('<strong>Como aplicar:</strong> Questionário com vídeos demonstrativos. Parte A: identificação do freezing (se ausente, pontuação=0). Parte B: frequência e duração dos episódios. Parte C: impacto nas AVDs. Questionar especificamente: início da caminhada, ao virar, em espaços estreitos e locais cheios, ao realizar dupla tarefa.','nfogq')
     +fg([['NFOG-Q (0–28)','nfogq','number',null,{min:0,max:28}],
          ['Freezing presente','freezing','select',['Não','Sim — leve','Sim — moderado','Sim — grave'],null],
          ['Comprimento passo D (cm)','passo_d','number',null,null],['Comprimento passo E (cm)','passo_e','number',null,null],
          ['Largura da base (cm)','base_sup','number',null,null],
          ['Obs. marcha','marcha_obs','textarea',null,{full:true}]])
     +sub('FGA - Functional Gait Assessment (0-30)')
-    +how('10 tarefas de marcha, 0-3 pontos cada. Menos de 22 = alto risco de quedas na DP. DCMI aprox 4 pts.')
+    +how('10 tarefas de marcha, 0-3 pontos cada. Menos de 22 = alto risco de quedas na DP. DCMI aprox 4 pts.','fga')
     +sgrid([
       ['fga1','1. Vel habitual',3],['fga2','2. Vel rapida',3],['fga3','3. Cabeca-H',3],
       ['fga4','4. Cabeca-V',3],['fga5','5. Olhos fech',3],['fga6','6. Sobre obs',3],
@@ -3724,7 +4239,7 @@ function buildSections(){
     +atbar('fga','FGA Total',30))
   +sec('🧠','6. Cognição — MoCA e MEEM',
     sub('MoCA (0–30) — Montreal Cognitive Assessment')
-    +how('<strong>Como aplicar:</strong> Administrar em fase ON, em ambiente silencioso. Itens em ordem: (1) Trilha A-1-B-2; (2) Cubo (cópia); (3) Relógio (11h10); (4) Nomeação de 3 animais; (5) Dígitos (5 para frente, 3 para trás); (6) Atenção — letras; (7) Subtração 93-7 cinco vezes; (8) Repetição de 2 frases; (9) Fluência verbal — letra F/1 min; (10) Abstração (2 pares); (11) Evocação (5 palavras após 5 min); (12) Orientação (6 itens). <em>+1 pt se ≤12 anos de escolaridade.</em>')
+    +how('<strong>Como aplicar:</strong> Administrar em fase ON, em ambiente silencioso. Itens em ordem: (1) Trilha A-1-B-2; (2) Cubo (cópia); (3) Relógio (11h10); (4) Nomeação de 3 animais; (5) Dígitos (5 para frente, 3 para trás); (6) Atenção — letras; (7) Subtração 93-7 cinco vezes; (8) Repetição de 2 frases; (9) Fluência verbal — letra F/1 min; (10) Abstração (2 pares); (11) Evocação (5 palavras após 5 min); (12) Orientação (6 itens). <em>+1 pt se ≤12 anos de escolaridade.</em>','moca')
     +sgrid([
       ['moca_ve','Visuoesp./Exec.',5],['moca_nom','Nomeação',3],['moca_mem','Memória (encode—não pontua)',0],
       ['moca_at','Atenção',6],['moca_ling','Linguagem',3],['moca_abs','Abstração',2],
@@ -3733,7 +4248,7 @@ function buildSections(){
     +atbar('moca_pk','MoCA Subtotal',30)
     +fg([['MoCA Total (com correção escolaridade)','moca','number',null,{min:0,max:30}]])
     +sub('MEEM (0–30) — Mini Exame do Estado Mental')
-    +how('<strong>Como aplicar:</strong> Orientação temporal (5): ano, estação, mês, dia semana, dia. Orientação espacial (5): estado, cidade, bairro, local, andar. Registro (3): repetir 3 palavras (maçã, vela, carro). Atenção (5): subtrair 7 de 100 (93, 86, 79, 72, 65). Evocação (3): repetir as 3 palavras anteriores. Linguagem (8): nomear 2 objetos, repetir frase, obedecer 3 comandos, ler e obedecer, escrever frase, copiar pentágonos.')
+    +how('<strong>Como aplicar:</strong> Orientação temporal (5): ano, estação, mês, dia semana, dia. Orientação espacial (5): estado, cidade, bairro, local, andar. Registro (3): repetir 3 palavras (maçã, vela, carro). Atenção (5): subtrair 7 de 100 (93, 86, 79, 72, 65). Evocação (3): repetir as 3 palavras anteriores. Linguagem (8): nomear 2 objetos, repetir frase, obedecer 3 comandos, ler e obedecer, escrever frase, copiar pentágonos.','meem')
     +sgrid([
       ['meem_ot','Orient. Temporal',5],['meem_oe','Orient. Espacial',5],['meem_reg','Registro',3],
       ['meem_at','Atenção/Cálculo',5],['meem_evoc','Evocação',3],['meem_ling','Linguagem',8],['meem_prax','Praxia',1],
@@ -3743,11 +4258,11 @@ function buildSections(){
          ['Obs. cognitivas','cogn_obs','textarea',null,{full:true}]]))
   +sec('💪','7. Força, Rigidez e Postura',
     sub('Força Muscular — Escala MRC (0–5)')
-    +how('<strong>Como aplicar:</strong> 0=sem contração; 1=traço de contração; 2=movimento sem gravidade; 3=movimento contra gravidade; 4=movimento contra resistência moderada; 5=força normal. Registrar D e E separadamente. Posicionar o paciente para isolar o grupo muscular testado.')
+    +how('<strong>Como aplicar:</strong> 0=sem contração; 1=traço de contração; 2=movimento sem gravidade; 3=movimento contra gravidade; 4=movimento contra resistência moderada; 5=força normal. Registrar D e E separadamente. Posicionar o paciente para isolar o grupo muscular testado.','mrc')
     +sr4row('f_deltoid','Deltóide')+sr4row('f_bicep','Bíceps/Tríceps')+sr4row('f_quad','Quadríceps')+sr4row('f_tibant','Tibial Anterior')
     +fg([['Dinamometria D (kgf)','dina_d','number',null,{step:'0.1'}],['Dinamometria E (kgf)','dina_e','number',null,{step:'0.1'}]])
     +sub('Rigidez Muscular — Escala UPDRS (0–4)')
-    +how('<strong>Como aplicar:</strong> Mover passivamente o segmento em velocidade moderada e lenta. 0=normal; 1=leve (apenas com ativação contralateral); 2=leve/moderada; 3=moderada; 4=grave. Testar pescoço, MMSS e MMII. <em>Cano de chumbo:</em> resistência constante. <em>Roda dentada:</em> resistência em "trancos" rítmicos, associado ao tremor.')
+    +how('<strong>Como aplicar:</strong> Mover passivamente o segmento em velocidade moderada e lenta. 0=normal; 1=leve (apenas com ativação contralateral); 2=leve/moderada; 3=moderada; 4=grave. Testar pescoço, MMSS e MMII. <em>Cano de chumbo:</em> resistência constante. <em>Roda dentada:</em> resistência em "trancos" rítmicos, associado ao tremor.','rigidez')
     +sr4row('rig_pesc','Pescoço/Cervical')+sr4row('rig_ombro','Ombro')+sr4row('rig_cotov','Cotovelo')
     +sr4row('rig_punho','Punho/Mão')+sr4row('rig_quadril','Quadril')+sr4row('rig_joelho','Joelho')+sr4row('rig_tornoz','Tornozelo')
     +fg([['Tipo de rigidez predominante','rig_tipo','select',['Cano de chumbo','Roda dentada','Misto'],null],
@@ -3758,7 +4273,7 @@ function buildSections(){
          ['Obs. posturais','post_obs','textarea',null,{full:true}]]))
   +sec('🌟','8. Qualidade de Vida — PDQ-39 e FES-I',
     sub('PDQ-39 — Parkinson\'s Disease Questionnaire')
-    +how('<strong>Como aplicar:</strong> Autoaplicável (ou com auxílio). 39 questões em escala: 0=Nunca, 1=Raramente, 2=Às vezes, 3=Frequentemente, 4=Sempre. Calcular cada domínio: (soma dos itens ÷ pontuação máxima do domínio) × 100. <em>PDQ-SI = média aritmética dos 8 domínios.</em> Quanto maior o PDQ-SI, pior a qualidade de vida.')
+    +how('<strong>Como aplicar:</strong> Autoaplicável (ou com auxílio). 39 questões em escala: 0=Nunca, 1=Raramente, 2=Às vezes, 3=Frequentemente, 4=Sempre. Calcular cada domínio: (soma dos itens ÷ pontuação máxima do domínio) × 100. <em>PDQ-SI = média aritmética dos 8 domínios.</em> Quanto maior o PDQ-SI, pior a qualidade de vida.','pdq39')
     +fg4([['Mobilidade (0–100)','pdq_mob','number',null,{min:0,max:100}],['AVD (0–100)','pdq_avd','number',null,{min:0,max:100}],
           ['Bem-estar (0–100)','pdq_bem','number',null,{min:0,max:100}],['Estigma (0–100)','pdq_est','number',null,{min:0,max:100}],
           ['Suporte social (0–100)','pdq_soc','number',null,{min:0,max:100}],['Cognição (0–100)','pdq_cogn','number',null,{min:0,max:100}],
@@ -3808,17 +4323,17 @@ function buildSections(){
     ],'qz_pdq',4,[['0','0 · Nunca'],['1','1 · Raramente'],['2','2 · Às vezes'],['3','3 · Frequentemente'],['4','4 · Sempre']])
     +qbar('qz_pdq','PDQ-SI (índice sumário 0–100)')
     +sub('Schwab & England ADL Scale')
-    +how('<strong>Como aplicar:</strong> Observação e relato do paciente/cuidador. 100%=totalmente independente, sem dificuldade. 90%=independente, com dificuldade mínima. Reduzir 10% para cada nível de dependência adicional. 50%=mais dependente que independente. 0%=vegetativo.')
+    +how('<strong>Como aplicar:</strong> Observação e relato do paciente/cuidador. 100%=totalmente independente, sem dificuldade. 90%=independente, com dificuldade mínima. Reduzir 10% para cada nível de dependência adicional. 50%=mais dependente que independente. 0%=vegetativo.','schwab')
     +fg([['% Independência (0–100)','schwab','number',null,{min:0,max:100,step:'10'}],
          ['Descrição funcional','schwab_desc','text',null,{ph:'Ex: 70% — não completamente independente'}]])
     +sub('FES-I Brasil — Falls Efficacy Scale International')
-    +how('<strong>Como aplicar:</strong> 16 atividades cotidianas. Pergunta: <em>"Quão preocupado(a) você está com a possibilidade de CAIR ao realizar esta atividade?"</em> Respostas: 1=Nada preocupado, 2=Um pouco preocupado, 3=Bastante preocupado, 4=Muito preocupado. Somar os 16 itens (16–64). ≥28 = alta preocupação.')
+    +how('<strong>Como aplicar:</strong> 16 atividades cotidianas. Pergunta: <em>"Quão preocupado(a) você está com a possibilidade de CAIR ao realizar esta atividade?"</em> Respostas: 1=Nada preocupado, 2=Um pouco preocupado, 3=Bastante preocupado, 4=Muito preocupado. Somar os 16 itens (16–64). ≥28 = alta preocupação.','fesi')
     +fg([['Quedas últimos 12 meses (n)','quedas_12m','number',null,{min:0}],
          ['FES-I Brasil (16–64)','fesi','number',null,{min:16,max:64}],
          ['Medo de cair','medo_cair','select',['Não','Sim — leve','Sim — moderado','Sim — intenso'],null],
          ['Dispositivo auxiliar','dispositivo','select',['Não usa','Bengala','Andador','Muleta','Cadeira de rodas','Órtese'],null]]))
   +sec('🫁','9. Respiratório e Deglutição',
-    how('<strong>Como aplicar:</strong> SpO2 e FC: oxímetro digital em repouso por 1 min. FR: contagem visual por 1 min. <em>Manovacuometria:</em> PImáx após expiração máxima (esforço inspiratório máximo por 1,5 seg); PEmáx após inspiração máxima. Realizar 3 medidas, registrar a maior. <em>FOIS:</em> 1=nada via oral → 7=dieta oral total sem restrições.')
+    how('<strong>Como aplicar:</strong> SpO2 e FC: oxímetro digital em repouso por 1 min. FR: contagem visual por 1 min. <em>Manovacuometria:</em> PImáx após expiração máxima (esforço inspiratório máximo por 1,5 seg); PEmáx após inspiração máxima. Realizar 3 medidas, registrar a maior. <em>FOIS:</em> 1=nada via oral → 7=dieta oral total sem restrições.','resp_deglut')
     +fg([['SpO2 (%)','spo2','number',null,null],['FR (rpm)','fr','number',null,null],
         ['PImáx (cmH₂O)','pimax','number',null,null],['PEmáx (cmH₂O)','pemax','number',null,null],
         ['Hipofonia','hipofonia','select',['Ausente','Leve','Moderada','Grave'],null],
@@ -3831,7 +4346,7 @@ function buildSections(){
   +sec('📝','10. Plano Terapeutico',
     ib('Recomendacoes GRADE KNGF 2014: Fisioterapia convencional (FORTE). Esteira (FORTE). Pistas externas (FORTE). Tai Chi (FORTE). Dose minima: 3x/semana 30 min.')
     +sub('GAS - Goal Attainment Scaling')
-    +how('Definir 2-3 metas funcionais com o paciente. Escalonar: -2=muito abaixo; -1=abaixo; 0=meta atingida; +1=acima; +2=muito acima.')
+    +how('Definir 2-3 metas funcionais com o paciente. Escalonar: -2=muito abaixo; -1=abaixo; 0=meta atingida; +1=acima; +2=muito acima.','gas')
     +fg([['Meta 1','gas_meta1','text',null,{ph:'Ex: Marcha sem apoio'}],
          ['GAS Meta 1','gas_score1','select',['','+2','+1','0','-1','-2'],null],
          ['Meta 2','gas_meta2','text',null,{ph:'Ex: Reduzir quedas'}],
@@ -4063,17 +4578,17 @@ function buildSections(){
 
   +sec('📊','2. Estadiamento — CDR e FAST',
     sub('CDR — Clinical Dementia Rating')
-    +how('<strong>Como aplicar:</strong> Entrevista semiestruturada com o paciente E um informante confiável (cuidador). Avaliar 6 domínios: memória, orientação, julgamento/resolução de problemas, vida comunitária, atividades domésticas/passatempos, cuidados pessoais. Cada domínio recebe 0, 0,5, 1, 2 ou 3. O escore global segue regras de pontuação específicas baseado na memória como domínio principal.')
+    +how('<strong>Como aplicar:</strong> Entrevista semiestruturada com o paciente E um informante confiável (cuidador). Avaliar 6 domínios: memória, orientação, julgamento/resolução de problemas, vida comunitária, atividades domésticas/passatempos, cuidados pessoais. Cada domínio recebe 0, 0,5, 1, 2 ou 3. O escore global segue regras de pontuação específicas baseado na memória como domínio principal.','cdr')
     +fg([['CDR Global','cdr_eval','select',['','0 — Normal','0,5 — Questionável','1 — Leve','2 — Moderado','3 — Grave'],null],
          ['CDR Soma das Caixas (0–18)','cdr_soma','number',null,{min:0,max:18}]])
     +sub('FAST — Functional Assessment Staging Test')
-    +how('<strong>Como aplicar:</strong> Questionário respondido pelo cuidador sobre o funcionamento atual do paciente. Identifique o estágio mais avançado que descreve as dificuldades atuais. Estágio 6 e 7 possuem subestágios (a–e e a–f). Aplicação: 10 min.')
+    +how('<strong>Como aplicar:</strong> Questionário respondido pelo cuidador sobre o funcionamento atual do paciente. Identifique o estágio mais avançado que descreve as dificuldades atuais. Estágio 6 e 7 possuem subestágios (a–e e a–f). Aplicação: 10 min.','fast')
     +fg([['FAST (estágio 1–7)','fast','number',null,{min:1,max:7}],
          ['Subestágio (se aplicável)','fast_sub','text',null,{ph:'Ex: 6b, 7c'}]]))
 
   +sec('🧠','3. Cognição — MEEM e MoCA',
     sub('MEEM — Mini Exame do Estado Mental (0–30)')
-    +how('<strong>Como aplicar:</strong> (1) <em>Orientação temporal (5):</em> ano, estação, mês, dia da semana, dia do mês. (2) <em>Orientação espacial (5):</em> estado, cidade, bairro, local, andar. (3) <em>Registro (3):</em> repetir 3 palavras — maçã, vela, carro. (4) <em>Atenção/cálculo (5):</em> subtrair 7 de 100 cinco vezes consecutivas. (5) <em>Evocação (3):</em> repetir as 3 palavras do item 3. (6) <em>Linguagem (8):</em> nomear caneta e relógio, repetir frase, obedecer comando de 3 etapas, ler e obedecer, escrever frase completa. (7) <em>Praxia construtiva (1):</em> copiar figura dos pentágonos sobrepostos. <em>Referência:</em> analfabeto ≤13; 1–4 anos ≤18; 5–8 anos ≤21; 9–11 anos ≤24; >11 anos ≤26.')
+    +how('<strong>Como aplicar:</strong> (1) <em>Orientação temporal (5):</em> ano, estação, mês, dia da semana, dia do mês. (2) <em>Orientação espacial (5):</em> estado, cidade, bairro, local, andar. (3) <em>Registro (3):</em> repetir 3 palavras — maçã, vela, carro. (4) <em>Atenção/cálculo (5):</em> subtrair 7 de 100 cinco vezes consecutivas. (5) <em>Evocação (3):</em> repetir as 3 palavras do item 3. (6) <em>Linguagem (8):</em> nomear caneta e relógio, repetir frase, obedecer comando de 3 etapas, ler e obedecer, escrever frase completa. (7) <em>Praxia construtiva (1):</em> copiar figura dos pentágonos sobrepostos. <em>Referência:</em> analfabeto ≤13; 1–4 anos ≤18; 5–8 anos ≤21; 9–11 anos ≤24; >11 anos ≤26.','meem')
     +sgrid([
       ['meem_ot','Orient. Temporal',5],['meem_oe','Orient. Espacial',5],['meem_reg','Registro',3],
       ['meem_at','Atenção/Cálculo',5],['meem_evoc','Evocação',3],['meem_ling','Linguagem',8],['meem_prax','Praxia',1],
@@ -4081,7 +4596,7 @@ function buildSections(){
     +atbar('meem_alz','MEEM Total',30)
     +fld('MEEM resultado','meem','ro',null,{id:'meem_alz_out'})
     +sub('MoCA — Montreal Cognitive Assessment (0–30)')
-    +how('<strong>Como aplicar:</strong> (1) <em>Visuoespacial/Executivo (5):</em> trilha A-1-B-2, cubo 3D, relógio. (2) <em>Nomeação (3):</em> leão, rinoceronte, camelo. (3) <em>Memória (0 pts):</em> registrar 5 palavras — tarefa, claro, veludo, igreja, margarida. (4) <em>Atenção (6):</em> dígitos 5-frente/3-trás, letras, subtração 93-7. (5) <em>Linguagem (3):</em> repetir 2 frases, fluência F. (6) <em>Abstração (2):</em> trem/bicicleta, régua/relógio. (7) <em>Evocação (5):</em> recordar as 5 palavras após 5 min. (8) <em>Orientação (6).</em> <em>+1 pt se ≤12 anos de escolaridade.</em>')
+    +how('<strong>Como aplicar:</strong> (1) <em>Visuoespacial/Executivo (5):</em> trilha A-1-B-2, cubo 3D, relógio. (2) <em>Nomeação (3):</em> leão, rinoceronte, camelo. (3) <em>Memória (0 pts):</em> registrar 5 palavras — tarefa, claro, veludo, igreja, margarida. (4) <em>Atenção (6):</em> dígitos 5-frente/3-trás, letras, subtração 93-7. (5) <em>Linguagem (3):</em> repetir 2 frases, fluência F. (6) <em>Abstração (2):</em> trem/bicicleta, régua/relógio. (7) <em>Evocação (5):</em> recordar as 5 palavras após 5 min. (8) <em>Orientação (6).</em> <em>+1 pt se ≤12 anos de escolaridade.</em>','moca')
     +sgrid([
       ['moca_vs','Visuoesp./Exec.',5],['moca_nom','Nomeação',3],['moca_mem','Memória (encode)',0],
       ['moca_at','Atenção',6],['moca_ling','Linguagem',3],['moca_abs','Abstração',2],
@@ -4094,7 +4609,7 @@ function buildSections(){
 
   +sec('😔','4. Humor e Comportamento',
     sub('GDS — Geriatric Depression Scale')
-    +how('<strong>Como aplicar:</strong> Versão de 15 itens: perguntas de sim/não sobre o humor na última semana. Pontuação: GDS-15 — 0–4 normal; 5–10 depressão leve; 11–15 depressão grave. <em>Quando o comprometimento cognitivo é grave, usar relato do cuidador com o NPI.</em>')
+    +how('<strong>Como aplicar:</strong> Versão de 15 itens: perguntas de sim/não sobre o humor na última semana. Pontuação: GDS-15 — 0–4 normal; 5–10 depressão leve; 11–15 depressão grave. <em>Quando o comprometimento cognitivo é grave, usar relato do cuidador com o NPI.</em>','gds')
     +fg([['GDS-15 (0–15)','gds','number',null,{min:0,max:15}],
          ['NPI — Inventário Neuropsiquiátrico','npi','number',null,{min:0}],
          ['Agitação','agitacao','select',['Ausente','Leve','Moderada','Grave'],null],
@@ -4104,7 +4619,7 @@ function buildSections(){
 
   +sec('🏃','5. Funcionalidade — Barthel',
     sub('Índice de Barthel (0–100)')
-    +how('<strong>Como aplicar:</strong> Observação direta ou relato do cuidador. Pontuar a performance REAL do paciente (não o que é capaz de fazer, mas o que faz). Cada atividade tem pontuação própria (0, 5, 10 ou 15). <em>Referência:</em> 100=independente; 75–95=dependência leve; 50–74=moderada; 25–49=grave; <25=total. Aplicação: 10–15 min.')
+    +how('<strong>Como aplicar:</strong> Observação direta ou relato do cuidador. Pontuar a performance REAL do paciente (não o que é capaz de fazer, mas o que faz). Cada atividade tem pontuação própria (0, 5, 10 ou 15). <em>Referência:</em> 100=independente; 75–95=dependência leve; 50–74=moderada; 25–49=grave; <25=total. Aplicação: 10–15 min.','barthel')
     +sgrid([
       ['b_ali','Alimentação',10],['b_ban','Banho',5],['b_hig','Higiene pessoal',5],
       ['b_vest','Vestuário',10],['b_int','Cont. intestinal',10],['b_ves','Cont. vesical',10],
@@ -4113,13 +4628,13 @@ function buildSections(){
     +atbar('barthel_alz','Barthel Total',100)
     +fld('Barthel resultado','barthel','ro',null,{id:'barthel_alz_out'})
     +sub('POMA — Performance Oriented Mobility Assessment (Tinetti)')
-    +how('<strong>Como aplicar:</strong> <em>Subescala Equilíbrio (16 pts):</em> avaliar equilíbrio sentado, ao levantar, em pé, durante virada de 360° e ao sentar. <em>Subescala Marcha (12 pts):</em> avaliar iniciação, comprimento e altura do passo, simetria, continuidade, desvio, tronco e distância dos calcanhares. Total 28 pts. <em>Referência:</em> <19=alto risco de quedas; 19–24=risco moderado; >24=baixo risco.')
+    +how('<strong>Como aplicar:</strong> <em>Subescala Equilíbrio (16 pts):</em> avaliar equilíbrio sentado, ao levantar, em pé, durante virada de 360° e ao sentar. <em>Subescala Marcha (12 pts):</em> avaliar iniciação, comprimento e altura do passo, simetria, continuidade, desvio, tronco e distância dos calcanhares. Total 28 pts. <em>Referência:</em> <19=alto risco de quedas; 19–24=risco moderado; >24=baixo risco.','poma')
     +fg3([['POMA Equilíbrio (0–16)','poma_eq','number',null,{min:0,max:16}],
           ['POMA Marcha (0–12)','poma_marcha','number',null,{min:0,max:12}],
           ['POMA Total (0–28)','poma_total','ro',null,{id:'poma_out'}]]))
 
   +sec('⚖️','6. Berg Balance Scale (0–56)',
-    how('<strong>Como aplicar:</strong> 14 tarefas funcionais. 4=independente e seguro; 3=independente com supervisão; 2=necessita de assistência mínima; 1=assistência máxima; 0=incapaz. <em>Na DA:</em> aplicar em ambiente silencioso e livre de distrações — déficits de atenção interferem diretamente no desempenho. Tempo: 15–20 min.')
+    how('<strong>Como aplicar:</strong> 14 tarefas funcionais. 4=independente e seguro; 3=independente com supervisão; 2=necessita de assistência mínima; 1=assistência máxima; 0=incapaz. <em>Na DA:</em> aplicar em ambiente silencioso e livre de distrações — déficits de atenção interferem diretamente no desempenho. Tempo: 15–20 min.','berg')
     +sgrid([
       ['berg1','1. Sentado→De pé',4],['berg2','2. De pé 2 min',4],['berg3','3. Sentado 2 min',4],
       ['berg4','4. De pé→Sentado',4],['berg5','5. Transferências',4],['berg6','6. Olhos fechados',4],
@@ -4131,24 +4646,24 @@ function buildSections(){
     +fld('Obs. Berg','berg_obs','textarea',null,{ph:'Estratégias compensatórias, necessidade de supervisão...'}))
 
   +sec('⏱️','7. TUG — Timed Up and Go',
-    how('<strong>Como aplicar:</strong> Paciente sentado com costas apoiadas. Ao sinal: levantar, caminhar 3m, contornar marca, retornar, sentar. Sem auxílio. 3 tentativas, calcular média. <em>Na DA:</em> aplicar o TUG Cognitivo (contar regressivo de 100 de 1 em 1) para avaliar dupla tarefa — a diferença entre TUG simples e cognitivo reflete a reserva cognitiva e prediz quedas.')
+    how('<strong>Como aplicar:</strong> Paciente sentado com costas apoiadas. Ao sinal: levantar, caminhar 3m, contornar marca, retornar, sentar. Sem auxílio. 3 tentativas, calcular média. <em>Na DA:</em> aplicar o TUG Cognitivo (contar regressivo de 100 de 1 em 1) para avaliar dupla tarefa — a diferença entre TUG simples e cognitivo reflete a reserva cognitiva e prediz quedas.','tug')
     +tugHTML()
     +fg([['TUG Cognitivo — contar regressivo (s)','tug_cog','number',null,{step:'0.1'}]]))
 
   +sec('🚶','8. Marcha e Capacidade Física',
     ib('<strong>Por que estas medidas:</strong> a diretriz internacional de atividade física em demência (Veronese et al., <em>Eur Geriatr Med</em> 2023) recomenda medidas objetivas de desempenho físico. A <strong>velocidade de marcha</strong> é o preditor isolado mais forte de declínio funcional, quedas e institucionalização na demência.')
     +sub('TC10M — Velocidade de Marcha')
-    +how('<strong>Como aplicar:</strong> Percurso de 14m; cronometrar apenas os <strong>10m centrais</strong> (2m de aceleração e 2m de desaceleração). Velocidade habitual, 2 tentativas. Fórmula: v = 10 ÷ tempo médio. <em>Na demência:</em> dar comando curto e único ("caminhe até a marca no seu passo normal"), acompanhar ao lado sem tocar, e repetir a instrução se o paciente parar. <em>Referência:</em> &lt;0,6 m/s = alto risco de eventos adversos; 0,6–1,0 m/s = mobilidade limitada; &gt;1,0 m/s = mobilidade comunitária. Queda &gt;0,1 m/s entre avaliações é clinicamente relevante.')
+    +how('<strong>Como aplicar:</strong> Percurso de 14m; cronometrar apenas os <strong>10m centrais</strong> (2m de aceleração e 2m de desaceleração). Velocidade habitual, 2 tentativas. Fórmula: v = 10 ÷ tempo médio. <em>Na demência:</em> dar comando curto e único ("caminhe até a marca no seu passo normal"), acompanhar ao lado sem tocar, e repetir a instrução se o paciente parar. <em>Referência:</em> &lt;0,6 m/s = alto risco de eventos adversos; 0,6–1,0 m/s = mobilidade limitada; &gt;1,0 m/s = mobilidade comunitária. Queda &gt;0,1 m/s entre avaliações é clinicamente relevante.','tc10m')
     +fg3([['T1 habitual (s)','tc10_h1','number',null,{step:'0.01'}],
           ['T2 habitual (s)','tc10_h2','number',null,{step:'0.01'}],
           ['Velocidade (m/s)','tc10m_vel','ro',null,{id:'tc10_alz'}]])
     +fld('Interpretação da velocidade','tc10_class','ro',null,{id:'tc10_class_alz'})
     +sub('5TSTS — Cinco Vezes Sentar e Levantar')
-    +how('<strong>Como aplicar:</strong> Cadeira sem braços, braços cruzados no peito. Levantar e sentar completamente 5 vezes, o mais rápido possível. Cronometrar do início até sentar pela 5ª vez. <em>Na demência:</em> demonstrar antes; se o paciente perder a conta, contar em voz alta junto. <em>Referência:</em> &lt;12s bom; 12–16s moderado; &gt;16s alto risco de quedas. Este mesmo tempo alimenta o componente de força do SPPB abaixo.')
+    +how('<strong>Como aplicar:</strong> Cadeira sem braços, braços cruzados no peito. Levantar e sentar completamente 5 vezes, o mais rápido possível. Cronometrar do início até sentar pela 5ª vez. <em>Na demência:</em> demonstrar antes; se o paciente perder a conta, contar em voz alta junto. <em>Referência:</em> &lt;12s bom; 12–16s moderado; &gt;16s alto risco de quedas. Este mesmo tempo alimenta o componente de força do SPPB abaixo.','ftsts')
     +fg([['5TSTS — tempo para 5 repetições (s)','ftsts','number',null,{step:'0.1',min:0,ph:'s'}],
          ['Observações 5TSTS','ftsts_obs','text',null,{ph:'Uso dos braços, apoio, hesitação, necessidade de pistas...'}]])
     +sub('SPPB — Short Physical Performance Battery (0–12)')
-    +how('<strong>Como aplicar:</strong> Bateria recomendada especificamente para demência e fragilidade — 10 min, boa tolerância. <em>(1) Equilíbrio:</em> pés juntos, semi-tandem e tandem, até 10s cada. <em>(2) Marcha:</em> 4 metros em passo habitual, melhor de 2 tentativas. <em>(3) Força:</em> tempo do 5TSTS acima. Insira os tempos brutos — os subescores e o total são calculados automaticamente. <em>Referência:</em> ≤6 = desempenho ruim e alto risco; 7–9 = intermediário; 10–12 = bom. Mudança de 1 ponto já é clinicamente significativa.')
+    +how('<strong>Como aplicar:</strong> Bateria recomendada especificamente para demência e fragilidade — 10 min, boa tolerância. <em>(1) Equilíbrio:</em> pés juntos, semi-tandem e tandem, até 10s cada. <em>(2) Marcha:</em> 4 metros em passo habitual, melhor de 2 tentativas. <em>(3) Força:</em> tempo do 5TSTS acima. Insira os tempos brutos — os subescores e o total são calculados automaticamente. <em>Referência:</em> ≤6 = desempenho ruim e alto risco; 7–9 = intermediário; 10–12 = bom. Mudança de 1 ponto já é clinicamente significativa.','sppb')
     +fg3([['Equilíbrio — pés juntos (s, máx 10)','sppb_side','number',null,{step:'0.1',min:0,max:10}],
           ['Equilíbrio — semi-tandem (s, máx 10)','sppb_semi','number',null,{step:'0.1',min:0,max:10}],
           ['Equilíbrio — tandem (s, máx 10)','sppb_tandem','number',null,{step:'0.1',min:0,max:10}]])
@@ -4159,7 +4674,7 @@ function buildSections(){
           ['SPPB Total (0–12)','sppb_total','ro',null,{id:'sppb_tot_out'}],
           ['Interpretação SPPB','sppb_class','ro',null,{id:'sppb_class_out'}]])
     +sub('Caminhada de Resistência')
-    +how('<strong>Como aplicar:</strong> Corredor plano demarcado. Use o <strong>TC6M</strong> na demência leve a moderada e o <strong>TC2M</strong> (2 minutos) na moderada a grave — o teste de 6 minutos costuma ser inviável por desatenção e fadiga. Acompanhar ao lado, sem conduzir pelo braço. Monitorar FC e SpO₂. Interromper se SpO₂ &lt;85%, dor torácica, tontura, agitação intensa ou solicitação do paciente.')
+    +how('<strong>Como aplicar:</strong> Corredor plano demarcado. Use o <strong>TC6M</strong> na demência leve a moderada e o <strong>TC2M</strong> (2 minutos) na moderada a grave — o teste de 6 minutos costuma ser inviável por desatenção e fadiga. Acompanhar ao lado, sem conduzir pelo braço. Monitorar FC e SpO₂. Interromper se SpO₂ &lt;85%, dor torácica, tontura, agitação intensa ou solicitação do paciente.','tc6m')
     +fg([['Teste aplicado','tc_tipo','select',['—','TC6M — 6 minutos','TC2M — 2 minutos','Não aplicável'],null],
          ['Distância percorrida (m)','tc6m_dist','number',null,{min:0}],
          ['FC inicial (bpm)','tc6m_fc_ini','number',null,null],['FC final (bpm)','tc6m_fc_fin','number',null,null],
@@ -4167,7 +4682,7 @@ function buildSections(){
          ['Borg final (0–10)','tc6m_borg','number',null,{min:0,max:10}],
          ['Paradas / necessidade de pistas','tc6m_paradas','number',null,{min:0}]])
     +sub('FGA — Functional Gait Assessment (0–30)')
-    +how('<strong>Como aplicar:</strong> 10 tarefas de marcha, 0–3 pontos cada. Compõe o core set da APTA/ANPT para condições neurológicas. <em>Na demência:</em> viável na fase leve a moderada; em CDR 2–3 a compreensão das tarefas costuma ser insuficiente — nesse caso registre 0 e apoie-se no SPPB e no POMA. <em>Referência:</em> &lt;22 = alto risco de quedas.')
+    +how('<strong>Como aplicar:</strong> 10 tarefas de marcha, 0–3 pontos cada. Compõe o core set da APTA/ANPT para condições neurológicas. <em>Na demência:</em> viável na fase leve a moderada; em CDR 2–3 a compreensão das tarefas costuma ser insuficiente — nesse caso registre 0 e apoie-se no SPPB e no POMA. <em>Referência:</em> &lt;22 = alto risco de quedas.','fga')
     +sgrid([
       ['fga1','1. Vel. habitual',3],['fga2','2. Vel. rápida',3],['fga3','3. Cabeça horiz.',3],
       ['fga4','4. Cabeça vert.',3],['fga5','5. Olhos fechados',3],['fga6','6. Sobre obstáculo',3],
@@ -4179,7 +4694,7 @@ function buildSections(){
   +sec('⚠️','9. Histórico de Quedas e Medo de Cair',
     ib('<strong>Por que:</strong> o risco de queda na demência é 2 a 3× maior que no idoso sem comprometimento cognitivo, e as consequências são piores. A triagem em três perguntas segue as <em>World Falls Guidelines</em> (Montero-Odasso et al., <em>Age Ageing</em> 2022).')
     +sub('Triagem — World Falls Guidelines')
-    +how('<strong>Como aplicar:</strong> Três perguntas ao paciente E ao cuidador (na demência o autorrelato subestima muito o número de quedas — priorize o relato do cuidador). <em>Estratificação:</em> nenhuma resposta positiva = risco baixo; 1 queda sem lesão ou alteração de marcha/equilíbrio = risco intermediário; ≥2 quedas, queda com lesão, queda com perda de consciência ou fragilidade = <strong>risco alto</strong> → avaliação multifatorial completa.')
+    +how('<strong>Como aplicar:</strong> Três perguntas ao paciente E ao cuidador (na demência o autorrelato subestima muito o número de quedas — priorize o relato do cuidador). <em>Estratificação:</em> nenhuma resposta positiva = risco baixo; 1 queda sem lesão ou alteração de marcha/equilíbrio = risco intermediário; ≥2 quedas, queda com lesão, queda com perda de consciência ou fragilidade = <strong>risco alto</strong> → avaliação multifatorial completa.','wfg')
     +fg([['Caiu nos últimos 12 meses?','tri_queda','select',['—','Não','Sim — 1 vez','Sim — 2 ou mais vezes'],null],
          ['Sente dificuldade de marcha ou equilíbrio?','tri_marcha','select',['—','Não','Sim','Não sabe informar'],null],
          ['Tem medo de cair?','tri_medo','select',['—','Não','Sim','Não consegue responder'],null],
@@ -4196,7 +4711,7 @@ function buildSections(){
          ['Restringiu atividades por medo de cair?','queda_restricao','select',['—','Não','Sim — algumas','Sim — muitas'],null],
          ['Circunstâncias e fatores contribuintes','quedas_circ','textarea',null,{full:true,ph:'Ex: levantou à noite para ir ao banheiro sem acender a luz; tapete solto na sala; calçado sem firmeza; agitação vespertina...'}]])
     +sub('FES-I Brasil — Medo de Cair (16–64)')
-    +how('<strong>Como aplicar:</strong> 16 situações do dia a dia; para cada uma o paciente indica quanto se preocupa em cair. <em>Referência:</em> ≥23 pts = associação com quedas recorrentes; ≥31 = medo intenso com restrição de atividade. <strong>Atenção na demência:</strong> o FES-I depende de autorrelato e julgamento preservado — a partir de CDR 2 (moderado) o resultado perde validade. Nesses casos, deixe em branco e registre a restrição de atividade observada pelo cuidador no campo acima.')
+    +how('<strong>Como aplicar:</strong> 16 situações do dia a dia; para cada uma o paciente indica quanto se preocupa em cair. <em>Referência:</em> ≥23 pts = associação com quedas recorrentes; ≥31 = medo intenso com restrição de atividade. <strong>Atenção na demência:</strong> o FES-I depende de autorrelato e julgamento preservado — a partir de CDR 2 (moderado) o resultado perde validade. Nesses casos, deixe em branco e registre a restrição de atividade observada pelo cuidador no campo acima.','fesi')
     +fg([['FES-I Total (16–64)','fesi','number',null,{min:16,max:64}],
          ['FES-I aplicável?','fesi_aplic','select',['—','Sim — respondido pelo paciente','Não — comprometimento cognitivo impede'],null]])
     +ib('Aplique o questionário completo abaixo — o total é calculado e preenchido automaticamente no campo acima.')
@@ -4223,13 +4738,13 @@ function buildSections(){
   +sec('💪','10. Força, Fragilidade e Sarcopenia',
     ib('<strong>Por que:</strong> as recomendações de manejo da fragilidade em pessoas com demência (Borda et al.) indicam rastreio sistemático de fragilidade e sarcopenia, que aceleram o declínio funcional e são potencialmente reversíveis com treino de força e ajuste nutricional.')
     +sub('Força de Preensão Palmar — Dinamometria')
-    +how('<strong>Como aplicar:</strong> Sentado, cotovelo a 90°, punho neutro. Apertar com força máxima por 3 segundos; 3 tentativas por lado com 1 min de intervalo; registrar a maior. <em>Na demência:</em> demonstrar no próprio dinamômetro antes e usar comando gestual. <em>Referência EWGSOP2 — sarcopenia provável:</em> ♀ &lt;16 kgf; ♂ &lt;27 kgf.')
+    +how('<strong>Como aplicar:</strong> Sentado, cotovelo a 90°, punho neutro. Apertar com força máxima por 3 segundos; 3 tentativas por lado com 1 min de intervalo; registrar a maior. <em>Na demência:</em> demonstrar no próprio dinamômetro antes e usar comando gestual. <em>Referência EWGSOP2 — sarcopenia provável:</em> ♀ &lt;16 kgf; ♂ &lt;27 kgf.','dinamometria')
     +fg3([['Dinamometria D — maior (kgf)','dina_d','number',null,{step:'0.1'}],
           ['Dinamometria E — maior (kgf)','dina_e','number',null,{step:'0.1'}],
           ['Circunferência de panturrilha (cm)','circ_pant','number',null,{step:'0.1'}]])
     +ib('Circunferência de panturrilha — ponto de corte para baixa massa muscular: ♀ &lt;33 cm; ♂ &lt;34 cm. Medir na maior circunferência, com o paciente sentado e joelho a 90°.')
     +sub('Triagem de Sarcopenia — SARC-F (0–10)')
-    +how('<strong>Como aplicar:</strong> 5 itens, 0–2 pontos cada: (S) força para carregar 4,5 kg; (A) auxílio para andar pelo quarto; (R) levantar de cadeira; (C) subir 10 degraus; (F) quedas no último ano. <em>Na demência, responder com o cuidador.</em> <em>Referência:</em> ≥4 = sarcopenia provável — confirmar com dinamometria e massa muscular.')
+    +how('<strong>Como aplicar:</strong> 5 itens, 0–2 pontos cada: (S) força para carregar 4,5 kg; (A) auxílio para andar pelo quarto; (R) levantar de cadeira; (C) subir 10 degraus; (F) quedas no último ano. <em>Na demência, responder com o cuidador.</em> <em>Referência:</em> ≥4 = sarcopenia provável — confirmar com dinamometria e massa muscular.','sarcf')
     +sgrid([
       ['sarcf_s','S — Força (0–2)',2],['sarcf_a','A — Auxílio marcha (0–2)',2],['sarcf_r','R — Levantar cadeira (0–2)',2],
       ['sarcf_c','C — Subir escadas (0–2)',2],['sarcf_f','F — Quedas (0–2)',2],
@@ -4245,7 +4760,7 @@ function buildSections(){
 
   +sec('🌟','11. Qualidade de Vida e Cuidador',
     sub('Zarit Burden Interview (0–88)')
-    +how('<strong>Como aplicar:</strong> 22 questões autoaplicáveis pelo cuidador. Escala: 0=Nunca, 1=Raramente, 2=Às vezes, 3=Frequentemente, 4=Sempre. Somar todos os itens. <em>Referência:</em> <21=pouca/nenhuma sobrecarga; 21–40=leve a moderada; 41–60=moderada a severa; >60=severa. Aplicação: 10 min.')
+    +how('<strong>Como aplicar:</strong> 22 questões autoaplicáveis pelo cuidador. Escala: 0=Nunca, 1=Raramente, 2=Às vezes, 3=Frequentemente, 4=Sempre. Somar todos os itens. <em>Referência:</em> <21=pouca/nenhuma sobrecarga; 21–40=leve a moderada; 41–60=moderada a severa; >60=severa. Aplicação: 10 min.','zarit')
     +fg([['Zarit Burden (0–88)','zarit','number',null,{min:0,max:88}],
          ['QOL-AD (13–52)','qolad','number',null,{min:13,max:52}],
          ['Cuidador principal','cuidador','text',null,{ph:'Nome/parentesco'}],
@@ -4284,7 +4799,7 @@ function buildSections(){
     +'<div id="photo_wrap_'+evalId+'"></div>')
   +sec('📝','13. Plano Terapêutico',
     sub('GAS — Goal Attainment Scaling')
-    +how('<strong>Como aplicar:</strong> Definir 2–3 metas funcionais junto com o paciente e o cuidador, escritas de forma observável e mensurável. Reavaliar na alta. Escalonamento: −2 = muito abaixo do esperado; −1 = abaixo; 0 = meta atingida; +1 = acima; +2 = muito acima. <em>Na demência:</em> as metas mais úteis costumam ser do cuidador e do cotidiano — transferir da cama com uma pessoa, caminhar até a mesa nas refeições, reduzir episódios de queda no banheiro.')
+    +how('<strong>Como aplicar:</strong> Definir 2–3 metas funcionais junto com o paciente e o cuidador, escritas de forma observável e mensurável. Reavaliar na alta. Escalonamento: −2 = muito abaixo do esperado; −1 = abaixo; 0 = meta atingida; +1 = acima; +2 = muito acima. <em>Na demência:</em> as metas mais úteis costumam ser do cuidador e do cotidiano — transferir da cama com uma pessoa, caminhar até a mesa nas refeições, reduzir episódios de queda no banheiro.','gas')
     +fg([['Meta 1','gas_meta1','text',null,{ph:'Ex: caminhar do quarto à sala sem apoio de pessoa'}],
          ['GAS Meta 1','gas_score1','select',['','+2','+1','0','-1','-2'],null],
          ['Meta 2','gas_meta2','text',null,{ph:'Ex: levantar da cadeira sem uso das mãos'}],
@@ -4553,7 +5068,7 @@ function buildSections(){
         ['Queixa / Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
   +sec('📊','2. NIHSS — NIH Stroke Scale',
-    how('<strong>Como aplicar:</strong> Aplique os 15 itens na ordem exata. Cada item: 0=normal, pontuações maiores indicam déficit crescente. <em>Regras:</em> pontuar o que o paciente FAZ, não o que supostamente conseguiria. Em caso de dúvida, pontuar o escore mais alto. Recomendada certificação NIHSS. <em>Referência:</em> 0=normal; 1–4=leve; 5–15=moderado; 16–20=grave; 21–42=muito grave.')
+    how('<strong>Como aplicar:</strong> Aplique os 15 itens na ordem exata. Cada item: 0=normal, pontuações maiores indicam déficit crescente. <em>Regras:</em> pontuar o que o paciente FAZ, não o que supostamente conseguiria. Em caso de dúvida, pontuar o escore mais alto. Recomendada certificação NIHSS. <em>Referência:</em> 0=normal; 1–4=leve; 5–15=moderado; 16–20=grave; 21–42=muito grave.','nihss')
     +sgrid([
       ['nih_nc','1a. Nível consciência (0-3)',3],['nih_perg','1b. Perguntas (0-2)',2],['nih_ord','1c. Ordens (0-2)',2],
       ['nih_olh','2. Olhar (0-2)',2],['nih_camp','3. Campo visual (0-3)',3],['nih_fac','4. Paralisia facial (0-3)',3],
@@ -4565,24 +5080,24 @@ function buildSections(){
     +atbar('nihss','NIHSS Total',42)
     +fg([['NIHSS resultado','nihss','ro',null,{id:'nihss_out'}]])
     +sub('Modified Rankin Scale (mRS)')
-    +how('<strong>Como aplicar:</strong> Avaliação global do funcionamento. Perguntar ao paciente e cuidador sobre limitações nas atividades habituais. 0=sem sintomas; 1=sem incapacidade significativa — pode realizar atividades habituais; 2=incapacidade leve — independente sem assistência; 3=incapacidade moderada — requer alguma ajuda; 4=incapacidade moderada-grave — não deambula sem ajuda; 5=incapacidade grave — acamado/incontinente; 6=óbito.')
+    +how('<strong>Como aplicar:</strong> Avaliação global do funcionamento. Perguntar ao paciente e cuidador sobre limitações nas atividades habituais. 0=sem sintomas; 1=sem incapacidade significativa — pode realizar atividades habituais; 2=incapacidade leve — independente sem assistência; 3=incapacidade moderada — requer alguma ajuda; 4=incapacidade moderada-grave — não deambula sem ajuda; 5=incapacidade grave — acamado/incontinente; 6=óbito.','mrs')
     +fg([['mRS (0–6)','mrs','select',['','0 — Sem sintomas','1 — Sem incapacidade','2 — Incapacidade leve','3 — Incapacidade moderada','4 — Incapacidade mod-grave','5 — Incapacidade grave','6 — Óbito'],null]]))
 
   +sec('🤲','3. Fugl-Meyer e Força',
     sub('Fugl-Meyer Assessment — Motor (0–100)')
-    +how('<strong>Como aplicar:</strong> Avaliar em ordem: (1) MMSS — reflexos de estiramento, sinergias flexoras/extensoras, movimentos combinando sinergias, movimentos sem sinergia, atividade reflexa; (2) Punho e mão; (3) Coordenação e velocidade MMSS; (4) Membros inferiores — mesma sequência. <em>Pontuação por item:</em> 0=não realiza; 1=realiza parcialmente; 2=realiza completamente.')
+    +how('<strong>Como aplicar:</strong> Avaliar em ordem: (1) MMSS — reflexos de estiramento, sinergias flexoras/extensoras, movimentos combinando sinergias, movimentos sem sinergia, atividade reflexa; (2) Punho e mão; (3) Coordenação e velocidade MMSS; (4) Membros inferiores — mesma sequência. <em>Pontuação por item:</em> 0=não realiza; 1=realiza parcialmente; 2=realiza completamente.','fuglmeyer')
     +fg4([['FM MMSS (0–66)','fm_mmss','number',null,{min:0,max:66}],
           ['FM MMII (0–34)','fm_mmii','number',null,{min:0,max:34}],
           ['FM Motor Total (0–100)','fm_motor','ro',null,{id:'fm_tot'}],
           ['FM Sensitivo (0–24)','fm_sens','number',null,{min:0,max:24}]])
     +sub('Ashworth Modificada — Espasticidade (0–4)')
-    +how('<strong>Como aplicar:</strong> Mover passivamente o segmento em 1 segundo pela ADM completa. 0=nenhum aumento; 1=leve aumento (resistência ao final da ADM); 1+=leve (resistência em mais de metade da ADM); 2=moderado (movimento passível ainda possível); 3=considerável (movimento passivo difícil); 4=rígido em flexão ou extensão. <em>Registrar horário em relação à medicação antiespástica.</em>')
+    +how('<strong>Como aplicar:</strong> Mover passivamente o segmento em 1 segundo pela ADM completa. 0=nenhum aumento; 1=leve aumento (resistência ao final da ADM); 1+=leve (resistência em mais de metade da ADM); 2=moderado (movimento passível ainda possível); 3=considerável (movimento passivo difícil); 4=rígido em flexão ou extensão. <em>Registrar horário em relação à medicação antiespástica.</em>','ashworth')
     +fg([['Ashworth MMSS','ash_mmss','select',['','0','1','1+','2','3','4'],null],
          ['Ashworth MMII','ash_mmii','select',['','0','1','1+','2','3','4'],null],
          ['Lado acometido','lado','select',['','Direito','Esquerdo','Bilateral'],null],
          ['Grau hemiplegia','grau_hemi','select',['','Hemiplegia completa','Hemiparesia grave','Hemiparesia moderada','Hemiparesia leve','Mínima'],null]])
     +sub('Força Muscular MRC (0–5)')
-    +how('<strong>Como aplicar:</strong> 0=sem contração; 1=traço de contração; 2=movimento sem gravidade; 3=contra gravidade; 4=contra resistência moderada; 5=força normal. Posicionar para isolar o grupo muscular. Registrar D e E.')
+    +how('<strong>Como aplicar:</strong> 0=sem contração; 1=traço de contração; 2=movimento sem gravidade; 3=contra gravidade; 4=contra resistência moderada; 5=força normal. Posicionar para isolar o grupo muscular. Registrar D e E.','mrc')
     +sr4row('f_ombro','Ombro')+sr4row('f_cotov','Cotovelo')+sr4row('f_punho','Punho')
     +sr4row('f_quadril','Quadril')+sr4row('f_joelho','Joelho')+sr4row('f_tornoz','Tornozelo')
     +fg([['Dinamometria D (kgf)','dina_d','number',null,{step:'0.1'}],['Dinamometria E (kgf)','dina_e','number',null,{step:'0.1'}]]))
@@ -4599,7 +5114,7 @@ function buildSections(){
 
   +sec('⚖️','5. Equilíbrio e Marcha',
     sub('Berg Balance Scale (0–56)')
-    +how('<strong>Como aplicar:</strong> 14 tarefas funcionais. 4=independente. <em>No AVC:</em> atenção à heminegligência (paciente pode não perceber desequilíbrio ipsilateral) e à apraxia (dificuldade na execução mesmo com força preservada). Registrar uso de órtese. Tempo: 15–20 min.')
+    +how('<strong>Como aplicar:</strong> 14 tarefas funcionais. 4=independente. <em>No AVC:</em> atenção à heminegligência (paciente pode não perceber desequilíbrio ipsilateral) e à apraxia (dificuldade na execução mesmo com força preservada). Registrar uso de órtese. Tempo: 15–20 min.','berg')
     +sgrid([
       ['berg1','1. Sentado→De pé',4],['berg2','2. De pé 2 min',4],['berg3','3. Sentado 2 min',4],
       ['berg4','4. De pé→Sentado',4],['berg5','5. Transferências',4],['berg6','6. Olhos fechados',4],
@@ -4609,21 +5124,21 @@ function buildSections(){
     ],'berg',4)
     +atbar('berg','Berg Total',56)
     +sub('TUG — Timed Up and Go')
-    +how('<strong>Como aplicar:</strong> Cadeira com braços. 3m marcados. Levantar, caminhar, retornar, sentar. Sem auxílio (ou com dispositivo habitual — registrar qual). 3 tentativas, média das 2 últimas. <em>No AVC:</em> observar estratégia de transferência, padrão de marcha hemiparético (circundução, steppage), estratégia de virada.')
+    +how('<strong>Como aplicar:</strong> Cadeira com braços. 3m marcados. Levantar, caminhar, retornar, sentar. Sem auxílio (ou com dispositivo habitual — registrar qual). 3 tentativas, média das 2 últimas. <em>No AVC:</em> observar estratégia de transferência, padrão de marcha hemiparético (circundução, steppage), estratégia de virada.','tug')
     +tugHTML()
     +sub('TC10M — Velocidade de Marcha')
-    +how('<strong>Como aplicar:</strong> 14m total, cronometrar 10m centrais. 2 tentativas em velocidade habitual. Velocidade = 10 ÷ tempo (s). <em>Mudança clinicamente significativa:</em> ≥0,16 m/s. Registrar uso de órtese e dispositivo auxiliar.')
+    +how('<strong>Como aplicar:</strong> 14m total, cronometrar 10m centrais. 2 tentativas em velocidade habitual. Velocidade = 10 ÷ tempo (s). <em>Mudança clinicamente significativa:</em> ≥0,16 m/s. Registrar uso de órtese e dispositivo auxiliar.','tc10m')
     +fg3([['T1 habitual (s)','tc10_t1','number',null,{step:'0.01'}],
           ['T2 habitual (s)','tc10_t2','number',null,{step:'0.01'}],
           ['Velocidade (m/s)','tc10m_vel','ro',null,{id:'tc10_avc'}]])
     +sub('TC6M — Caminhada 6 Minutos')
-    +how('<strong>Como aplicar:</strong> Corredor plano de 30m. Instruir: <em>"Caminhe o máximo possível em 6 minutos."</em> Encorajar a cada minuto. Monitorar SpO2 e FC. Interromper se SpO2 <85% ou fadiga intensa.')
+    +how('<strong>Como aplicar:</strong> Corredor plano de 30m. Instruir: <em>"Caminhe o máximo possível em 6 minutos."</em> Encorajar a cada minuto. Monitorar SpO2 e FC. Interromper se SpO2 <85% ou fadiga intensa.','tc6m')
     +fg([['Distância (m)','tc6m_dist','number',null,null],['FC final (bpm)','tc6m_fc','number',null,null],
          ['SpO2 final (%)','tc6m_spo2','number',null,null],['Borg final (0–10)','tc6m_borg','number',null,{min:0,max:10}]]))
 
   +sec('🦽','6. Funcionalidade — Barthel e FIM',
     sub('Índice de Barthel (0–100)')
-    +how('<strong>Como aplicar:</strong> Pontuar o que o paciente FAZ, não o que conseguiria fazer. Cada atividade tem pontuação específica. <em>Referência:</em> 100=independente; 75–95=dependência leve; 50–74=moderada; 25–49=grave; <25=total.')
+    +how('<strong>Como aplicar:</strong> Pontuar o que o paciente FAZ, não o que conseguiria fazer. Cada atividade tem pontuação específica. <em>Referência:</em> 100=independente; 75–95=dependência leve; 50–74=moderada; 25–49=grave; <25=total.','barthel')
     +sgrid([
       ['b_ali','Alimentação',10],['b_ban','Banho',5],['b_hig','Higiene',5],
       ['b_vest','Vestuário',10],['b_int','Cont. intestinal',10],['b_ves','Cont. vesical',10],
@@ -4632,7 +5147,7 @@ function buildSections(){
     +atbar('barthel_avc','Barthel Total',100)
     +fld('Barthel resultado','barthel','ro',null,{id:'barthel_avc_out'})
     +sub('FIM — Medida de Independência Funcional (18–126)')
-    +how('<strong>Como aplicar:</strong> 18 atividades, 1–7 cada. 7=independência completa; 6=independência modificada (dispositivo); 5=supervisão; 4=assistência mínima (≥75% esforço); 3=moderada (≥50%); 2=máxima (≥25%); 1=dependência total (<25%). Avaliar tanto domínio motor quanto cognitivo.')
+    +how('<strong>Como aplicar:</strong> 18 atividades, 1–7 cada. 7=independência completa; 6=independência modificada (dispositivo); 5=supervisão; 4=assistência mínima (≥75% esforço); 3=moderada (≥50%); 2=máxima (≥25%); 1=dependência total (<25%). Avaliar tanto domínio motor quanto cognitivo.','fim')
     +fg3([['FIM Autocuidado (0–42)','fim_auto','number',null,{min:0,max:42}],
           ['FIM Esfíncteres (0–14)','fim_esfin','number',null,{min:0,max:14}],
           ['FIM Transferências (0–21)','fim_trans','number',null,{min:0,max:21}],
@@ -4800,7 +5315,7 @@ function buildSections(){
         ['Queixa / Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
   +sec('📊','2. ASIA / ISNCSCI — Classificação da Lesão',
-    how('<strong>Como aplicar:</strong> Avaliação padronizada em decúbito dorsal. (1) <em>Escore motor:</em> testar 10 miotomas chave bilateralmente (C5–T1 e L2–S1), pontuação 0–5 em cada. (2) <em>Escore sensitivo:</em> testar leve toque e picada de alfinete em 28 dermátomos bilateralmente (0=ausente; 1=alterado; 2=normal). (3) <em>Exame perianal</em> (S4-S5): sensação, contração anal voluntária. (4) Determinar nível neurológico de cada lado. (5) Classificar grau ASIA A–E.')
+    how('<strong>Como aplicar:</strong> Avaliação padronizada em decúbito dorsal. (1) <em>Escore motor:</em> testar 10 miotomas chave bilateralmente (C5–T1 e L2–S1), pontuação 0–5 em cada. (2) <em>Escore sensitivo:</em> testar leve toque e picada de alfinete em 28 dermátomos bilateralmente (0=ausente; 1=alterado; 2=normal). (3) <em>Exame perianal</em> (S4-S5): sensação, contração anal voluntária. (4) Determinar nível neurológico de cada lado. (5) Classificar grau ASIA A–E.','asia')
     +sub('Escore Motor MMSS — Direito (miotomas C5–T1)')
     +sgrid([
       ['asia_c5d','C5 D — Cotovelo flex.',5],['asia_c6d','C6 D — Punho ext.',5],['asia_c7d','C7 D — Cotovelo ext.',5],
@@ -4836,7 +5351,7 @@ function buildSections(){
 
   +sec('💪','3. Espasticidade',
     sub('Ashworth Modificada (0–4)')
-    +how('<strong>Como aplicar:</strong> Mover passivamente o segmento em 1 segundo. 0=normal; 1=leve resistência (final da ADM); 1+=leve (>metade ADM); 2=moderado (ainda possível mover); 3=considerável (difícil mover); 4=rígido. <em>Nota:</em> espasticidade moderada pode ser FUNCIONALMENTE ÚTIL para transferências — tratar apenas quando interfere negativamente.')
+    +how('<strong>Como aplicar:</strong> Mover passivamente o segmento em 1 segundo. 0=normal; 1=leve resistência (final da ADM); 1+=leve (>metade ADM); 2=moderado (ainda possível mover); 3=considerável (difícil mover); 4=rígido. <em>Nota:</em> espasticidade moderada pode ser FUNCIONALMENTE ÚTIL para transferências — tratar apenas quando interfere negativamente.','ashworth')
     +sub('MMSS')
     +sr4row('ash_ombro','Ombro')+sr4row('ash_cotov','Cotovelo')+sr4row('ash_punho','Punho')
     +sub('MMII')
@@ -4847,7 +5362,7 @@ function buildSections(){
          ['Babinski','babinski','select',['Ausente','Positivo D','Positivo E','Bilateral'],null]]))
 
   +sec('🚿','4. Função Vesical, Intestinal e Sexual',
-    how('<strong>Como aplicar:</strong> Bexiga hiperativa (lesão acima de S2): espasmos involuntários, incontinência por urgência — manejo com cateterismo intermitente (CI) e anticolinérgicos. Bexiga hipotônica (lesão S2–S4): retenção, overflow — manejo com CI. <em>ALERTA:</em> Disreflexia autonômica em lesões acima T6: PA >150/100 + cefaleia pulsátil + bradicardia → sentar o paciente e identificar/remover o estímulo imediatamente.')
+    how('<strong>Como aplicar:</strong> Bexiga hiperativa (lesão acima de S2): espasmos involuntários, incontinência por urgência — manejo com cateterismo intermitente (CI) e anticolinérgicos. Bexiga hipotônica (lesão S2–S4): retenção, overflow — manejo com CI. <em>ALERTA:</em> Disreflexia autonômica em lesões acima T6: PA >150/100 + cefaleia pulsátil + bradicardia → sentar o paciente e identificar/remover o estímulo imediatamente.','vesical')
     +fg([['Bexiga neurogênica','bexiga','select',['Hiperativa','Hipotônica/Arreflexa','Mista','Em avaliação'],null],
          ['Manejo vesical','manejo_ves','select',['Espontâneo','Cateterismo intermitente','Cateter de demora','Urostomia'],null],
          ['Intestino','intestino','select',['Reflexo (LMN preservado)','Arreflexo (LMN lesado)','Em avaliação'],null],
@@ -4859,10 +5374,10 @@ function buildSections(){
     fg([['Equilíbrio sentado — estático','eq_sed_est','select',['Ausente','Incompleto','Completo'],null],
         ['Equilíbrio sentado — dinâmico','eq_sed_din','select',['Ausente','Incompleto','Completo'],null]])
     +sub('WISCI II — Walking Index for SCI (0–20)')
-    +how('<strong>Como aplicar:</strong> Observar o paciente tentar caminhar 10 metros em superfície plana. Identificar o maior nível de independência: necessidade de assistência de pessoas (0=sem caminhar; depois: 2 assistentes com dispositivo; 1 assistente; dispositivo sem assistente; sem nada) e tipo de dispositivo (barras paralelas, andador, muletas, bengala, sem dispositivo). <em>Referência:</em> progressão de 1 ponto já é clinicamente relevante.')
+    +how('<strong>Como aplicar:</strong> Observar o paciente tentar caminhar 10 metros em superfície plana. Identificar o maior nível de independência: necessidade de assistência de pessoas (0=sem caminhar; depois: 2 assistentes com dispositivo; 1 assistente; dispositivo sem assistente; sem nada) e tipo de dispositivo (barras paralelas, andador, muletas, bengala, sem dispositivo). <em>Referência:</em> progressão de 1 ponto já é clinicamente relevante.','wisci')
     +fg([['WISCI II (0–20)','wisci','number',null,{min:0,max:20}]])
     +sub('Berg Balance Scale (0–56)')
-    +how('<strong>Como aplicar:</strong> 14 tarefas. <em>Na LM incompleta (ASIA C e D):</em> aplicação padrão. <em>Na LM completa torácica:</em> avaliar equilíbrio em sedestação isolado — os itens 1–7 são mais relevantes. Registrar uso de órtese.')
+    +how('<strong>Como aplicar:</strong> 14 tarefas. <em>Na LM incompleta (ASIA C e D):</em> aplicação padrão. <em>Na LM completa torácica:</em> avaliar equilíbrio em sedestação isolado — os itens 1–7 são mais relevantes. Registrar uso de órtese.','berg')
     +sgrid([
       ['berg1','1. Sentado→De pé',4],['berg2','2. De pé 2 min',4],['berg3','3. Sentado 2 min',4],
       ['berg4','4. De pé→Sentado',4],['berg5','5. Transferências',4],['berg6','6. Olhos fechados',4],
@@ -4872,10 +5387,10 @@ function buildSections(){
     ],'berg',4)
     +atbar('berg','Berg Total',56)
     +sub('TUG')
-    +how('<strong>Como aplicar:</strong> Aplicar em ASIA C e D com deambulação funcional. Adaptar conforme dispositivo auxiliar habitual. Registrar qual dispositivo foi utilizado.')
+    +how('<strong>Como aplicar:</strong> Aplicar em ASIA C e D com deambulação funcional. Adaptar conforme dispositivo auxiliar habitual. Registrar qual dispositivo foi utilizado.','tug')
     +tugHTML()
     +sub('TC6M — Caminhada 6 Minutos')
-    +how('<strong>Como aplicar:</strong> Corredor de 30m. Instruir para percorrer maior distância possível em 6 min. Pode usar dispositivo auxiliar habitual. Monitorar SpO2 e FC.')
+    +how('<strong>Como aplicar:</strong> Corredor de 30m. Instruir para percorrer maior distância possível em 6 min. Pode usar dispositivo auxiliar habitual. Monitorar SpO2 e FC.','tc6m')
     +fg([['Distância (m)','tc6m_dist','number',null,null],['Borg final (0–10)','tc6m_borg','number',null,{min:0,max:10}]])
     +sub('Transferências')
     +fg([['Cama → Cad. Rodas','transf_cama','select',['Independente','Sup. mínima','Assistência moderada','Máxima assistência','Dependente'],null],
@@ -4884,7 +5399,7 @@ function buildSections(){
 
   +sec('🦽','6. Funcionalidade — FIM e SCIM',
     sub('FIM — Medida de Independência Funcional (18–126)')
-    +how('<strong>Como aplicar:</strong> 7=independência completa; 6=independência modificada (dispositivo); 5=supervisão; 4=assistência mínima (≥75% esforço do paciente); 3=assistência moderada (≥50%); 2=assistência máxima (≥25%); 1=dependência total (<25%). Avaliar o que o paciente FAZ rotineiramente, não o máximo que consegue.')
+    +how('<strong>Como aplicar:</strong> 7=independência completa; 6=independência modificada (dispositivo); 5=supervisão; 4=assistência mínima (≥75% esforço do paciente); 3=assistência moderada (≥50%); 2=assistência máxima (≥25%); 1=dependência total (<25%). Avaliar o que o paciente FAZ rotineiramente, não o máximo que consegue.','fim')
     +fg3([['Autocuidado (0–42)','fim_auto','number',null,{min:0,max:42}],
           ['Esfíncteres (0–14)','fim_esfin','number',null,{min:0,max:14}],
           ['Transferências (0–21)','fim_trans','number',null,{min:0,max:21}],
@@ -4893,14 +5408,14 @@ function buildSections(){
           ['Cognição (0–21)','fim_cogn','number',null,{min:0,max:21}],
           ['FIM Total (18–126)','fim_total','ro',null,{id:'fim_med_out'}]])
     +sub('SCIM III — Spinal Cord Independence Measure (0–100)')
-    +how('<strong>Como aplicar:</strong> Instrumento específico para LM — mais sensível que FIM para detectar mudanças nessa população. <em>Autocuidado (0–20):</em> alimentação, higiene, banho, vestuário MMSS/MMII. <em>Respiração/Esfíncteres (0–40):</em> respiração, tosse assistida, vesical, intestinal. <em>Mobilidade (0–40):</em> leito, transferências, deslocamentos internos/externos.')
+    +how('<strong>Como aplicar:</strong> Instrumento específico para LM — mais sensível que FIM para detectar mudanças nessa população. <em>Autocuidado (0–20):</em> alimentação, higiene, banho, vestuário MMSS/MMII. <em>Respiração/Esfíncteres (0–40):</em> respiração, tosse assistida, vesical, intestinal. <em>Mobilidade (0–40):</em> leito, transferências, deslocamentos internos/externos.','scim')
     +fg([['Autocuidado (0–20)','scim_auto','number',null,{min:0,max:20}],
          ['Respiração/Esfíncteres (0–40)','scim_resp','number',null,{min:0,max:40}],
          ['Mobilidade (0–40)','scim_mob','number',null,{min:0,max:40}],
          ['SCIM Total (0–100)','scim_total','ro',null,{id:'scim_med_out'}]]))
 
   +sec('🫁','7. Avaliação Respiratória',
-    how('<strong>Como aplicar:</strong> SpO2 e FC: oxímetro em repouso. FR: contagem por 1 min. Manovacuometria: PImáx após expiração máxima; PEmáx após inspiração máxima — 3 medidas, registrar maior. CVF e VEF1: espirometria. <em>Atenção:</em> CVF <50% previsto ou PImáx <30 cmH₂O indicam necessidade de suporte ventilatório. Pico de Fluxo de Tosse <270 L/min = tosse ineficaz.')
+    how('<strong>Como aplicar:</strong> SpO2 e FC: oxímetro em repouso. FR: contagem por 1 min. Manovacuometria: PImáx após expiração máxima; PEmáx após inspiração máxima — 3 medidas, registrar maior. CVF e VEF1: espirometria. <em>Atenção:</em> CVF <50% previsto ou PImáx <30 cmH₂O indicam necessidade de suporte ventilatório. Pico de Fluxo de Tosse <270 L/min = tosse ineficaz.','respiratoria')
     +fg([['SpO2 (%)','spo2','number',null,null],['FR (rpm)','fr','number',null,null],
          ['PImáx (cmH₂O)','pimax','number',null,null],['PEmáx (cmH₂O)','pemax','number',null,null],
          ['CVF (% previsto)','cvf','number',null,null],['VEF1 (% previsto)','vef1','number',null,null],
@@ -5046,7 +5561,7 @@ function buildSections(){
         ['Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
   +sec('🏥','2. Acompanhamento Clínico Atual',
-    how('<strong>Como avaliar:</strong> Levantamento dos dados que mudam entre avaliações — medicamentos em uso, hospitalizações e quedas recentes. A polifarmácia (≥5 medicamentos) é fator de risco independente para quedas. As comorbidades de base estão registradas na <em>História Clínica</em> (Avaliação Inicial).')
+    how('<strong>Como avaliar:</strong> Levantamento dos dados que mudam entre avaliações — medicamentos em uso, hospitalizações e quedas recentes. A polifarmácia (≥5 medicamentos) é fator de risco independente para quedas. As comorbidades de base estão registradas na <em>História Clínica</em> (Avaliação Inicial).','acomp_clinico')
     +fg([['Tempo de acompanhamento','tempo_acomp','text',null,{ph:'Ex: 6 meses'}],
          ['Número de medicamentos','n_medicamentos','number',null,{min:0,ph:'Polifarmácia: ≥5'}],
          ['Hospitalizações últimos 12 meses','hospitalizacoes','number',null,{min:0}],
@@ -5065,7 +5580,7 @@ function buildSections(){
 
   +sec('🧠','3. Avaliação Cognitiva e Humor',
     sub('MEEM — Mini Exame do Estado Mental (0–30)')
-    +how('<strong>Como aplicar:</strong> Orientação temporal (5): ano, estação, mês, dia semana, dia. Orientação espacial (5): estado, cidade, bairro, local, andar. Registro (3): repetir 3 palavras. Atenção (5): subtrair 7 de 100 cinco vezes. Evocação (3): repetir as 3 palavras. Linguagem (8): nomear 2 objetos, repetir frase, obedecer 3 comandos, ler e obedecer, escrever frase, copiar pentágonos. Ponto de corte por escolaridade.')
+    +how('<strong>Como aplicar:</strong> Orientação temporal (5): ano, estação, mês, dia semana, dia. Orientação espacial (5): estado, cidade, bairro, local, andar. Registro (3): repetir 3 palavras. Atenção (5): subtrair 7 de 100 cinco vezes. Evocação (3): repetir as 3 palavras. Linguagem (8): nomear 2 objetos, repetir frase, obedecer 3 comandos, ler e obedecer, escrever frase, copiar pentágonos. Ponto de corte por escolaridade.','meem')
     +sgrid([
       ['meem_ot','Orient. Temporal',5],['meem_oe','Orient. Espacial',5],['meem_reg','Registro',3],
       ['meem_at','Atenção/Cálculo',5],['meem_evoc','Evocação',3],['meem_ling','Linguagem',8],['meem_prax','Praxia',1],
@@ -5073,7 +5588,7 @@ function buildSections(){
     +atbar('meem_ger','MEEM Total',30)
     +fld('MEEM resultado','meem','ro',null,{id:'meem_ger_out'})
     +sub('GDS — Escala de Depressão Geriátrica')
-    +how('<strong>Como aplicar:</strong> GDS-15: 15 perguntas de sim/não sobre o humor na última semana. Pontuar 1 quando a resposta indica depressão. Referência: 0–4=normal; 5–10=depressão leve; 11–15=depressão grave. Em pacientes com comprometimento cognitivo grave, usar NPI pelo cuidador.')
+    +how('<strong>Como aplicar:</strong> GDS-15: 15 perguntas de sim/não sobre o humor na última semana. Pontuar 1 quando a resposta indica depressão. Referência: 0–4=normal; 5–10=depressão leve; 11–15=depressão grave. Em pacientes com comprometimento cognitivo grave, usar NPI pelo cuidador.','gds')
     +sgrid([
       ['gds1','1. Satisfeito(a) com a vida?',1],['gds2','2. Abandonou atividades?',1],['gds3','3. Vida vazia?',1],
       ['gds4','4. Aborrecido com frequência?',1],['gds5','5. Esperançoso?',1],['gds6','6. Pensamentos que incomodam?',1],
@@ -5088,7 +5603,7 @@ function buildSections(){
 
   +sec('🏃','4. Funcionalidade — Barthel e Lawton',
     sub('Índice de Barthel — AVDs Básicas (0–100)')
-    +how('<strong>Como aplicar:</strong> Pontuar a performance REAL (não o potencial). Alimentação: 10=independente, 5=necessita auxílio, 0=dependente. Banho: 5=independente, 0=dependente. Higiene pessoal: 5=independente, 0=dependente. Vestuário: 10=independente, 5=auxílio, 0=dependente. Continência intestinal/vesical: 10=continente, 5=acidente ocasional, 0=incontinente. Transferência: 15=independente, 10=supervisão, 5=grande auxílio, 0=incapaz. Deambulação: 15=independente, 10=auxílio de 1 pessoa, 5=cadeira de rodas independente, 0=dependente. Escadas: 10=independente, 5=auxílio, 0=incapaz.')
+    +how('<strong>Como aplicar:</strong> Pontuar a performance REAL (não o potencial). Alimentação: 10=independente, 5=necessita auxílio, 0=dependente. Banho: 5=independente, 0=dependente. Higiene pessoal: 5=independente, 0=dependente. Vestuário: 10=independente, 5=auxílio, 0=dependente. Continência intestinal/vesical: 10=continente, 5=acidente ocasional, 0=incontinente. Transferência: 15=independente, 10=supervisão, 5=grande auxílio, 0=incapaz. Deambulação: 15=independente, 10=auxílio de 1 pessoa, 5=cadeira de rodas independente, 0=dependente. Escadas: 10=independente, 5=auxílio, 0=incapaz.','barthel')
     +sgrid([
       ['b_ali','Alimentação',10],['b_ban','Banho',5],['b_hig','Higiene pessoal',5],
       ['b_vest','Vestuário',10],['b_int','Cont. intestinal',10],['b_ves','Cont. vesical',10],
@@ -5097,7 +5612,7 @@ function buildSections(){
     +atbar('barthel_ger','Barthel Total',100)
     +fld('Barthel resultado','barthel','ro',null,{id:'barthel_ger_out'})
     +sub('Escala de Lawton — AVDs Instrumentais (0–27)')
-    +how('<strong>Como aplicar:</strong> 9 atividades instrumentais, pontuação 1–3 cada (ou 0–3). Avaliar: usar telefone, transporte, fazer compras, preparar refeições, cuidar da casa, lavar roupas, administrar medicamentos, finanças. Aplicar com cuidador quando paciente não consegue responder. Referência: 9=totalmente independente.')
+    +how('<strong>Como aplicar:</strong> 9 atividades instrumentais, pontuação 1–3 cada (ou 0–3). Avaliar: usar telefone, transporte, fazer compras, preparar refeições, cuidar da casa, lavar roupas, administrar medicamentos, finanças. Aplicar com cuidador quando paciente não consegue responder. Referência: 9=totalmente independente.','lawton')
     +fg3([['Usar telefone (1–3)','lawton_tel','number',null,{min:1,max:3}],
           ['Transporte (1–3)','lawton_trans','number',null,{min:1,max:3}],
           ['Compras (1–3)','lawton_comp','number',null,{min:1,max:3}],
@@ -5110,7 +5625,7 @@ function buildSections(){
 
   +sec('⚖️','5. Equilíbrio e Risco de Quedas',
     sub('Berg Balance Scale (0–56)')
-    +how('<strong>Como aplicar:</strong> 14 tarefas funcionais, 0–4 por item. <em>No idoso:</em> dar tempo suficiente sem apressar — a lentidão pode refletir cautela e não incapacidade. Observar compensações (segurar em móveis, passos extras). Tempo: 15–20 min. Referência: ≥45=baixo risco; 21–44=moderado; ≤20=alto risco.')
+    +how('<strong>Como aplicar:</strong> 14 tarefas funcionais, 0–4 por item. <em>No idoso:</em> dar tempo suficiente sem apressar — a lentidão pode refletir cautela e não incapacidade. Observar compensações (segurar em móveis, passos extras). Tempo: 15–20 min. Referência: ≥45=baixo risco; 21–44=moderado; ≤20=alto risco.','berg')
     +sgrid([
       ['berg1','1. Sentado→De pé',4],['berg2','2. De pé 2 min',4],['berg3','3. Sentado 2 min',4],
       ['berg4','4. De pé→Sentado',4],['berg5','5. Transferências',4],['berg6','6. Olhos fechados',4],
@@ -5120,15 +5635,15 @@ function buildSections(){
     ],'berg',4)
     +atbar('berg','Berg Total',56)
     +sub('TUG — Timed Up and Go')
-    +how('<strong>Como aplicar:</strong> Cadeira padrão. Ao sinal: levantar, caminhar 3m, contornar marca, retornar, sentar. Cronometrar da ordem verbal até sentar completamente. 3 tentativas, média das últimas 2. Registrar uso de dispositivo auxiliar.')
+    +how('<strong>Como aplicar:</strong> Cadeira padrão. Ao sinal: levantar, caminhar 3m, contornar marca, retornar, sentar. Cronometrar da ordem verbal até sentar completamente. 3 tentativas, média das últimas 2. Registrar uso de dispositivo auxiliar.','tug')
     +tugHTML()
     +sub('POMA — Performance Oriented Mobility Assessment (Tinetti)')
-    +how('<strong>Como aplicar:</strong> Parte Equilíbrio (16 pts): equilíbrio sentado, ao levantar, em pé, ao sentar, giro 360°, ao ser empurrado. Parte Marcha (12 pts): iniciação, altura/comprimento de passo, simetria, continuidade, desvio lateral, tronco, distância dos calcanhares. Referência: <19=alto risco; 19–24=moderado; >24=baixo risco.')
+    +how('<strong>Como aplicar:</strong> Parte Equilíbrio (16 pts): equilíbrio sentado, ao levantar, em pé, ao sentar, giro 360°, ao ser empurrado. Parte Marcha (12 pts): iniciação, altura/comprimento de passo, simetria, continuidade, desvio lateral, tronco, distância dos calcanhares. Referência: <19=alto risco; 19–24=moderado; >24=baixo risco.','poma')
     +fg3([['POMA Equilíbrio (0–16)','poma_eq','number',null,{min:0,max:16}],
           ['POMA Marcha (0–12)','poma_marcha','number',null,{min:0,max:12}],
           ['POMA Total (0–28)','poma_total','ro',null,{id:'poma_ger_out'}]])
     +sub('FES-I Brasil — Medo de Cair (16–64)')
-    +how('<strong>Como aplicar:</strong> 16 atividades cotidianas. Pergunta: "Quão preocupado(a) com a possibilidade de CAIR ao realizar esta atividade?" 1=nada, 2=um pouco, 3=bastante, 4=muito. Referência: 16–19=baixo; 20–27=moderado; ≥28=alto.')
+    +how('<strong>Como aplicar:</strong> 16 atividades cotidianas. Pergunta: "Quão preocupado(a) com a possibilidade de CAIR ao realizar esta atividade?" 1=nada, 2=um pouco, 3=bastante, 4=muito. Referência: 16–19=baixo; 20–27=moderado; ≥28=alto.','fesi')
     +fg([['FES-I Brasil (16–64)','fesi','number',null,{min:16,max:64}],
          ['Medo de cair','medo_cair','select',['Não','Sim — leve','Sim — moderado','Sim — intenso'],null],
          ['Dispositivo auxiliar','dispositivo','select',['Não usa','Bengala','Andador 2 rodas','Andador 4 rodas','Muleta','Cadeira de rodas'],null]])
@@ -5155,16 +5670,16 @@ function buildSections(){
 
   +sec('🚶','6. Marcha e Capacidade Física',
     sub('TC10M — Velocidade de Marcha')
-    +how('<strong>Como aplicar:</strong> 14m total, cronometrar os 10m centrais (excluir 2m aceleração e 2m desaceleração). Velocidade habitual: 2 tentativas. Fórmula: v = 10 ÷ tempo (s). Referência no idoso: <0,6 m/s = alto risco de eventos adversos; >1,0 m/s = boa mobilidade comunitária.')
+    +how('<strong>Como aplicar:</strong> 14m total, cronometrar os 10m centrais (excluir 2m aceleração e 2m desaceleração). Velocidade habitual: 2 tentativas. Fórmula: v = 10 ÷ tempo (s). Referência no idoso: <0,6 m/s = alto risco de eventos adversos; >1,0 m/s = boa mobilidade comunitária.','tc10m')
     +fg3([['T1 habitual (s)','tc10_h1','number',null,{step:'0.01'}],
           ['T2 habitual (s)','tc10_h2','number',null,{step:'0.01'}],
           ['Velocidade (m/s)','tc10m_vel','ro',null,{id:'tc10_ger'}]])
     +sub('Teste de Sentar e Levantar (30s Chair Stand Test)')
-    +how('<strong>Como aplicar:</strong> Paciente sentado em cadeira sem braços, braços cruzados no peito. Ao sinal: levantar completamente e sentar novamente, repetir o máximo de vezes em 30 segundos. Referência por faixa etária e sexo: ♀60–64=12 repetições; ♀75–79=10 rep; ♂60–64=14 rep; ♂75–79=11 rep.')
+    +how('<strong>Como aplicar:</strong> Paciente sentado em cadeira sem braços, braços cruzados no peito. Ao sinal: levantar completamente e sentar novamente, repetir o máximo de vezes em 30 segundos. Referência por faixa etária e sexo: ♀60–64=12 repetições; ♀75–79=10 rep; ♂60–64=14 rep; ♂75–79=11 rep.','chair30')
     +fg([['Repetições em 30s','chair_stand','number',null,{min:0}],
          ['Distância de alcance (Reach Test) (cm)','reach_test','number',null,{step:'0.1'}]])
     +sub('TC6M — Caminhada 6 Minutos')
-    +how('<strong>Como aplicar:</strong> Corredor 30m. Instruir para caminhar o máximo em 6 min. Monitorar FC e SpO2. Interromper se SpO2 <85%, dor torácica, tontura ou solicitação do paciente.')
+    +how('<strong>Como aplicar:</strong> Corredor 30m. Instruir para caminhar o máximo em 6 min. Monitorar FC e SpO2. Interromper se SpO2 <85%, dor torácica, tontura ou solicitação do paciente.','tc6m')
     +fg([['Distância (m)','tc6m_dist','number',null,null],
          ['FC inicial (bpm)','tc6m_fc_ini','number',null,null],['FC final (bpm)','tc6m_fc_fin','number',null,null],
          ['SpO2 inicial (%)','tc6m_spo2_ini','number',null,null],['SpO2 final (%)','tc6m_spo2_fin','number',null,null],
@@ -5173,18 +5688,18 @@ function buildSections(){
 
   +sec('💪','7. Força, Dor e Sarcopenia',
     sub('Força de Preensão Palmar — Dinamometria')
-    +how('<strong>Como aplicar:</strong> Paciente sentado, cotovelo em 90°, punho em posição neutra. Apertar o dinamômetro com força máxima por 3 segundos. 3 tentativas com intervalo de 1 min. Registrar a maior força. Referência EWGSOP2 — sarcopenia: ♀<16 kgf; ♂<27 kgf.')
+    +how('<strong>Como aplicar:</strong> Paciente sentado, cotovelo em 90°, punho em posição neutra. Apertar o dinamômetro com força máxima por 3 segundos. 3 tentativas com intervalo de 1 min. Registrar a maior força. Referência EWGSOP2 — sarcopenia: ♀<16 kgf; ♂<27 kgf.','dinamometria')
     +fg([['Dinamometria D — Maior medida (kgf)','dina_d','number',null,{step:'0.1'}],
          ['Dinamometria E — Maior medida (kgf)','dina_e','number',null,{step:'0.1'}]])
     +sub('Dor')
-    +how('<strong>Como aplicar:</strong> EVA: linha de 0–10 cm, paciente marca a intensidade. Em pacientes com déficit cognitivo, usar Escala de Faces ou Abbey Pain Scale (comportamental). Registrar localização, qualidade (queimação, pressão, facada) e padrão (contínua, intermitente).')
+    +how('<strong>Como aplicar:</strong> EVA: linha de 0–10 cm, paciente marca a intensidade. Em pacientes com déficit cognitivo, usar Escala de Faces ou Abbey Pain Scale (comportamental). Registrar localização, qualidade (queimação, pressão, facada) e padrão (contínua, intermitente).','dor')
     +fg([['EVA / Dor atual (0–10)','dor_eva','number',null,{min:0,max:10}],
          ['EVA / Dor máxima últimas 24h (0–10)','dor_max','number',null,{min:0,max:10}],
          ['Localização dor','dor_local','text',null,{ph:'Ex: joelho D, lombar...'}],
          ['Qualidade dor','dor_qual','select',['—','Queimação','Pressão/peso','Facada','Formigamento','Câimbra','Difusa'],null],
          ['Padrão','dor_padrao','select',['—','Contínua','Intermitente','Noturna','Ao movimento','Em repouso'],null]])
     +sub('Triagem de Sarcopenia — SARC-F (0–10)')
-    +how('<strong>Como aplicar:</strong> 5 perguntas sobre: (S) força para carregar 4,5kg; (A) auxílio para andar pelo quarto; (R) levantar de cadeira; (C) subir 10 degraus; (F) número de quedas no último ano. Cada item 0–2. ≥4 = sarcopenia provável — confirmar com dinamometria e bioimpedância.')
+    +how('<strong>Como aplicar:</strong> 5 perguntas sobre: (S) força para carregar 4,5kg; (A) auxílio para andar pelo quarto; (R) levantar de cadeira; (C) subir 10 degraus; (F) número de quedas no último ano. Cada item 0–2. ≥4 = sarcopenia provável — confirmar com dinamometria e bioimpedância.','sarcf')
     +sgrid([
       ['sarcf_s','S — Força (0-2)',2],['sarcf_a','A — Auxílio marcha (0-2)',2],['sarcf_r','R — Levantar cadeira (0-2)',2],
       ['sarcf_c','C — Subir escadas (0-2)',2],['sarcf_f','F — Quedas (0-2)',2],
@@ -5411,7 +5926,7 @@ function buildSections(){
         ['Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
   +sec('🗺️','2. Mapa de Dor — Marcação Corporal',
-    how('<strong>Como usar:</strong> Use os botões para selecionar a cor e marque no corpo as regiões de dor. <strong>🔴 Vermelho</strong> = dor intensa; <strong>🔵 Azul</strong> = dor leve/moderada; <strong>🟠 Laranja</strong> = queimação/parestesia. As marcações são salvas automaticamente com a avaliação.')
+    how('<strong>Como usar:</strong> Use os botões para selecionar a cor e marque no corpo as regiões de dor. <strong>🔴 Vermelho</strong> = dor intensa; <strong>🔵 Azul</strong> = dor leve/moderada; <strong>🟠 Laranja</strong> = queimação/parestesia. As marcações são salvas automaticamente com a avaliação.','mapador')
     +'<div class="pain-map-controls">'
     +'<button class="pain-btn active" onclick="setPaintMode(\'red\',this)">🔴 Dor intensa</button>'
     +'<button class="pain-btn" onclick="setPaintMode(\'blue\',this)">🔵 Dor leve</button>'
@@ -5433,7 +5948,7 @@ function buildSections(){
 
   +sec('🎯','3. Critérios Diagnósticos ACR 2016',
     sub('WPI — Widespread Pain Index (0–19)')
-    +how('<strong>Como aplicar:</strong> Perguntar ao paciente se sentiu dor em cada uma das 19 regiões na ÚLTIMA SEMANA. Marcar 1 ponto para cada região com dor. Para diagnóstico de fibromialgia: WPI ≥7 + SS ≥5, OU WPI 4–6 + SS ≥9.')
+    +how('<strong>Como aplicar:</strong> Perguntar ao paciente se sentiu dor em cada uma das 19 regiões na ÚLTIMA SEMANA. Marcar 1 ponto para cada região com dor. Para diagnóstico de fibromialgia: WPI ≥7 + SS ≥5, OU WPI 4–6 + SS ≥9.','wpi')
     +sgrid([
       ['wpi_omd','Ombro/Braço D',1],['wpi_ome','Ombro/Braço E',1],['wpi_amd','Antebraço/Mão D',1],
       ['wpi_ame','Antebraço/Mão E',1],['wpi_quad_d','Quadril D',1],['wpi_quad_e','Quadril E',1],
@@ -5444,7 +5959,7 @@ function buildSections(){
     ],'wpi',1)
     +atbar('wpi','WPI Total',19)
     +sub('SS — Symptom Severity Scale (0–12)')
-    +how('<strong>Como aplicar:</strong> Avaliar 3 sintomas principais na última semana (0=nenhum; 1=leve, ocasional; 2=moderado, frequente; 3=grave, persistente): (1) Fadiga; (2) Sono não reparador; (3) Sintomas cognitivos. Acrescentar 0–3 pontos pela presença de: cefaleia, dor/cólica abdominal, depressão.')
+    +how('<strong>Como aplicar:</strong> Avaliar 3 sintomas principais na última semana (0=nenhum; 1=leve, ocasional; 2=moderado, frequente; 3=grave, persistente): (1) Fadiga; (2) Sono não reparador; (3) Sintomas cognitivos. Acrescentar 0–3 pontos pela presença de: cefaleia, dor/cólica abdominal, depressão.','ss')
     +sgrid([
       ['ss_fadiga','Fadiga (0-3)',3],['ss_sono','Sono não reparador (0-3)',3],['ss_cogn','Sintomas cognitivos (0-3)',3],
       ['ss_extra','Sintomas somáticos extras (0-3)',3],
@@ -5456,13 +5971,13 @@ function buildSections(){
 
   +sec('😴','4. Impacto, Fadiga e Sono',
     sub('FIQ-R — Fibromyalgia Impact Questionnaire Revised (0–100)')
-    +how('<strong>Como aplicar:</strong> 21 questões em 3 domínios. Autoaplicável. Insira os <strong>escores brutos</strong> de cada domínio: Função (9 questões, soma 0–90), Impacto Global (2 questões, 0–20) e Sintomas (10 questões, soma 0–100). <strong>O sistema converte automaticamente</strong> — FIQ-R total = Função÷3 + Impacto Global + Sintomas÷2 (0–100). Referência: &gt;59 = alto impacto.')
+    +how('<strong>Como aplicar:</strong> 21 questões em 3 domínios. Autoaplicável. Insira os <strong>escores brutos</strong> de cada domínio: Função (9 questões, soma 0–90), Impacto Global (2 questões, 0–20) e Sintomas (10 questões, soma 0–100). <strong>O sistema converte automaticamente</strong> — FIQ-R total = Função÷3 + Impacto Global + Sintomas÷2 (0–100). Referência: &gt;59 = alto impacto.','fiqr')
     +fg3([['FIQ-R Função — escore bruto (0–90)','fiqr_funcao','number',null,{min:0,max:90}],
           ['FIQ-R Impacto global — escore bruto (0–20)','fiqr_impacto','number',null,{min:0,max:20}],
           ['FIQ-R Sintomas — escore bruto (0–100)','fiqr_sintomas','number',null,{min:0,max:100}],
           ['FIQ-R Total (0–100)','fiqr_total','ro',null,{id:'fiqr_out'}]])
     +sub('Escala de Fadiga — FSS (9–63)')
-    +how('<strong>Como aplicar:</strong> 9 afirmações sobre fadiga na última semana. Escala de 1 a 7 (1=discordo totalmente; 7=concordo totalmente). Somar todos os itens. Referência: ≥36 = fadiga significativa.')
+    +how('<strong>Como aplicar:</strong> 9 afirmações sobre fadiga na última semana. Escala de 1 a 7 (1=discordo totalmente; 7=concordo totalmente). Somar todos os itens. Referência: ≥36 = fadiga significativa.','fss')
     +fg([['FSS Total (9–63)','fss_total','number',null,{min:9,max:63}],
          ['Qualidade do sono (0–10)','sono_qualidade','number',null,{min:0,max:10}],
          ['Horas de sono por noite','sono_horas','number',null,{step:'0.5'}],
@@ -5481,7 +5996,7 @@ function buildSections(){
     ],'qz_fss',7,[['1','1 · Discordo totalmente'],['2','2'],['3','3'],['4','4 · Neutro'],['5','5'],['6','6'],['7','7 · Concordo totalmente']])
     +qbar('qz_fss','FSS — Total (9–63)')
     +sub('PSQI — Índice de Qualidade do Sono de Pittsburgh (0–21)')
-    +how('<strong>Como aplicar:</strong> avalia o sono no <strong>último mês</strong>. Pontue cada um dos 7 componentes de 0 a 3 (conforme a tabulação do PSQI a partir das respostas do paciente). O escore global (soma, 0–21) é calculado automaticamente. <strong>&gt;5 = qualidade ruim do sono</strong>.')
+    +how('<strong>Como aplicar:</strong> avalia o sono no <strong>último mês</strong>. Pontue cada um dos 7 componentes de 0 a 3 (conforme a tabulação do PSQI a partir das respostas do paciente). O escore global (soma, 0–21) é calculado automaticamente. <strong>&gt;5 = qualidade ruim do sono</strong>.','psqi')
     +ib('Preencha os 7 componentes abaixo — o PSQI global (0–21) é somado e preenchido automaticamente no campo de resultado.')
     +qgrid([
       'Componente 1 — Qualidade subjetiva do sono (0=muito boa → 3=muito ruim)',
@@ -5496,7 +6011,7 @@ function buildSections(){
     +fld('PSQI Global (resultado)','psqi','number',null,{min:0,max:21})
 
     +sub('Catastrofização — PCS (0–52)')
-    +how('<strong>Como aplicar:</strong> 13 itens sobre pensamentos e sentimentos durante a dor. 0=nenhum, 4=sempre. 3 subescalas: Ruminação (4 itens), Ampliação (3 itens), Desamparo (6 itens). Total ≥30 = catastrofização clinicamente significativa.')
+    +how('<strong>Como aplicar:</strong> 13 itens sobre pensamentos e sentimentos durante a dor. 0=nenhum, 4=sempre. 3 subescalas: Ruminação (4 itens), Ampliação (3 itens), Desamparo (6 itens). Total ≥30 = catastrofização clinicamente significativa.','pcs')
     +fg([['PCS — Pain Catastrophizing Scale (0–52)','pcs_total','number',null,{min:0,max:52}],
          ['Ruminação (0–16)','pcs_rumin','number',null,{min:0,max:16}],
          ['Ampliação (0–12)','pcs_ampli','number',null,{min:0,max:12}],
@@ -5522,7 +6037,7 @@ function buildSections(){
 
   +sec('💪','5. Avaliação Física',
     sub('Limiar de Pressão à Dor — Algometria')
-    +how('<strong>Como aplicar:</strong> Algômetro de pressão. Aplicar pressão perpendicular a 0,5 kg/s nos tender points ou em pontos de referência bilateral. Pedir ao paciente para dizer "pare" quando pressão se tornar dolorosa. Registrar valor em kg/cm². Referência normal: >4 kg/cm². Testar pontos simétricos: occipital, cervical baixo, trapézio, supraespinhal, 2ª costela, epicôndilo lateral, glúteo, trocânter maior, joelho.')
+    +how('<strong>Como aplicar:</strong> Algômetro de pressão. Aplicar pressão perpendicular a 0,5 kg/s nos tender points ou em pontos de referência bilateral. Pedir ao paciente para dizer "pare" quando pressão se tornar dolorosa. Registrar valor em kg/cm². Referência normal: >4 kg/cm². Testar pontos simétricos: occipital, cervical baixo, trapézio, supraespinhal, 2ª costela, epicôndilo lateral, glúteo, trocânter maior, joelho.','algometria')
     +fg([['Limiar médio D (kg/cm²)','algom_d','number',null,{step:'0.1'}],
          ['Limiar médio E (kg/cm²)','algom_e','number',null,{step:'0.1'}],
          ['Pontos positivos (0–18)','pontos_posit','number',null,{min:0,max:18}]])
@@ -5531,7 +6046,7 @@ function buildSections(){
          ['Dinamometria E (kgf)','dina_e','number',null,{step:'0.1'}],
          ['Chair Stand 30s (repetições)','chair_stand','number',null,{min:0}]])
     +sub('TC6M — Tolerância ao Esforço')
-    +how('<strong>Como aplicar:</strong> Corredor de 30m. Monitorar dor (EVA), FC e Borg. Em fibromialgia, a distância percorrida frequentemente é limitada pela dor e fadiga — não pela capacidade cardiovascular. Registrar dor pré e pós.')
+    +how('<strong>Como aplicar:</strong> Corredor de 30m. Monitorar dor (EVA), FC e Borg. Em fibromialgia, a distância percorrida frequentemente é limitada pela dor e fadiga — não pela capacidade cardiovascular. Registrar dor pré e pós.','tc6m')
     +fg([['Distância TC6M (m)','tc6m_dist','number',null,null],
          ['EVA antes do TC6M','tc6m_dor_pre','number',null,{min:0,max:10}],
          ['EVA após o TC6M','tc6m_dor_pos','number',null,{min:0,max:10}],
@@ -5689,7 +6204,7 @@ function buildSections(){
         ['Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
   +sec('📐','2. Avaliação Radiográfica — Ângulo de Cobb',
-    how('<strong>Como medir:</strong> Na radiografia em PA: identificar as vértebras limítrofes superior e inferior da curva. Traçar linha paralela ao platô superior da vértebra limite superior e linha paralela ao platô inferior da vértebra limite inferior. O ângulo entre essas linhas (ou suas perpendiculares) é o ângulo de Cobb. Para escoliose múltipla, medir cada curva separadamente.')
+    how('<strong>Como medir:</strong> Na radiografia em PA: identificar as vértebras limítrofes superior e inferior da curva. Traçar linha paralela ao platô superior da vértebra limite superior e linha paralela ao platô inferior da vértebra limite inferior. O ângulo entre essas linhas (ou suas perpendiculares) é o ângulo de Cobb. Para escoliose múltipla, medir cada curva separadamente.','cobb')
     +fg([['Curva principal — Cobb (°)','cobb_principal','number',null,{step:'0.1',ph:'°',min:0,max:90}],
          ['Região curva principal','regiao_principal','select',['—','Cervicotorácica','Torácica','Toracolombar','Lombar','Lombossacra'],null],
          ['Convexidade','convexidade_principal','select',['—','Direita','Esquerda'],null],
@@ -5729,7 +6244,7 @@ function buildSections(){
     +'</div>'
 
   +sec('🔄','3. Avaliação de Cifose Torácica',
-    how('<strong>Como avaliar:</strong> Na radiografia em perfil: ângulo de Cobb entre T4 e T12 (cifose torácica). Normal: 20–45°. Use o inclinômetro clínico ou escoliômetro na posição sagital para avaliação clínica. Verificar flexibilidade (cifose estrutural vs postural).')
+    how('<strong>Como avaliar:</strong> Na radiografia em perfil: ângulo de Cobb entre T4 e T12 (cifose torácica). Normal: 20–45°. Use o inclinômetro clínico ou escoliômetro na posição sagital para avaliação clínica. Verificar flexibilidade (cifose estrutural vs postural).','cifose')
     +fg([['Ângulo de cifose — Rx perfil (°)','cifose_cobb','number',null,{step:'0.1',ph:'Ex: 52°',min:0,max:100}],
          ['Classificação','cifose_class','select',['—','Normal (20–45°)','Hipocifose (<20°)','Hipercifose leve (46–60°)','Hipercifose moderada (61–80°)','Hipercifose grave (>80°)'],null],
          ['Vértebra limite superior','cifose_vlim_sup','text',null,{ph:'Ex: T4'}],
@@ -5747,7 +6262,7 @@ function buildSections(){
          ['Obs. cifose','obs_cifose','textarea',null,{full:true}]]))
 
   +sec('🧍','4. Avaliação Postural e Clínica',
-    how('<strong>Como realizar:</strong> Avaliação postural completa em biped estático. Use fio de prumo para avaliar alinhamento. Marcar referencias ósseas: EIAS, EIPS, ombros, escápulas, joelhos.')
+    how('<strong>Como realizar:</strong> Avaliação postural completa em biped estático. Use fio de prumo para avaliar alinhamento. Marcar referencias ósseas: EIAS, EIPS, ombros, escápulas, joelhos.','postural')
     +fg([['Desnivelamento de ombros','desniv_ombros','select',['Simétrico','Ombro D elevado','Ombro E elevado'],null],
          ['Desnivelamento de pelve','desniv_pelve','select',['Simétrico','EIAS D elevada','EIAS E elevada'],null],
          ['Triângulo de Tales','triangulo_tales','select',['Simétrico','Maior à direita','Maior à esquerda'],null],
@@ -5756,7 +6271,7 @@ function buildSections(){
          ['Cifose torácica','cifose','select',['Normal (20–45°)','Hipocifose','Hipercifose leve','Hipercifose moderada','Hipercifose grave'],null],
          ['Lordose lombar','lordose','select',['Normal (30–60°)','Hipolordose','Hiperlordose leve','Hiperlordose moderada','Hiperlordose grave'],null]])
     +sub('Teste de Adams')
-    +how('<strong>Como realizar:</strong> Paciente em pé, joelhos estendidos, inclinar o tronco para frente com braços pendentes e joelhos unidos. Observar de trás e de lado. Medir a altura da gibosidade com o escoliômetro (>7° = significativo).')
+    +how('<strong>Como realizar:</strong> Paciente em pé, joelhos estendidos, inclinar o tronco para frente com braços pendentes e joelhos unidos. Observar de trás e de lado. Medir a altura da gibosidade com o escoliômetro (>7° = significativo).','adams')
     +fg([['Escoliômetro — Ângulo de rotação de tronco (°)','escoliometro','number',null,{step:'0.1',ph:'>7° = significativo',min:0,max:30}],
          ['Resultado Adams','adams','select',['Negativo','Positivo — gibosidade torácica D','Positivo — gibosidade torácica E','Positivo — gibosidade lombar D','Positivo — gibosidade lombar E'],null]])
     +sub('Medidas Antropométricas')
@@ -5767,7 +6282,7 @@ function buildSections(){
          ['Discrepância de MMII (cm)','disc_mmii','ro',null,{id:'disc_mmii_out'}]]))
 
   +sec('💪','5. Avaliação Muscular e Funcional',
-    how('<strong>Como avaliar:</strong> Avaliar força dos músculos paravertebrais, abdominais e estabilizadores do core. Testar flexibilidade dos isquiotibiais (teste de afastamento dedo-chão, ângulo poplíteo) e flexibilidade da coluna.')
+    how('<strong>Como avaliar:</strong> Avaliar força dos músculos paravertebrais, abdominais e estabilizadores do core. Testar flexibilidade dos isquiotibiais (teste de afastamento dedo-chão, ângulo poplíteo) e flexibilidade da coluna.','muscular_escoliose')
     +fg([['Força paravertebrais (MRC)','forca_paraver','select',['—','0','1','2','3','4','5'],null],
          ['Força abdominais (MRC)','forca_abdom','select',['—','0','1','2','3','4','5'],null],
          ['Teste Biering-Sorensen (s)','biering','number',null,{step:'1',ph:'Resist. lombar isométrica'}],
@@ -5979,7 +6494,7 @@ function regiaoBlock(n){
     '</div>'+
     '<div id="tr_adm'+sfx+'" style="display:none">'+
     sub('Amplitude de Movimento (°)')+
-    how('<strong>Medição:</strong> Use goniômetro. Registre ADM ativa e passiva.')+
+    how('<strong>Medição:</strong> Use goniômetro. Registre ADM ativa e passiva.','adm')+
     '<div class="sr sr4" style="font-size:10px;font-weight:700;margin-bottom:4px"><span>Movimento</span><span class="sh">Ativo(°)</span><span class="sh">Passivo(°)</span><span class="sh">Ref.(°)</span></div>'+
     '<div class="sr sr4" style="margin-bottom:4px"><span class="slbl">Flexão</span><input class="si" type="number" data-key="adm'+sfx+'_flex_a" placeholder="0"><input class="si" type="number" data-key="adm'+sfx+'_flex_p" placeholder="0"><input class="si ro" readonly placeholder="—"></div>'+
     '<div class="sr sr4" style="margin-bottom:4px"><span class="slbl">Extensão</span><input class="si" type="number" data-key="adm'+sfx+'_ext_a" placeholder="0"><input class="si" type="number" data-key="adm'+sfx+'_ext_p" placeholder="0"><input class="si ro" readonly placeholder="—"></div>'+
@@ -6066,7 +6581,7 @@ function buildSections(){
     sub('Escalas validadas')+
     fg([['DASH (0–100)','dash','number',null,{min:0,max:100,ph:'Membro superior'}],['LEFS (0–80)','lefs','number',null,{min:0,max:80,ph:'Membro inferior'}],['Lysholm (0–100)','lysholm','number',null,{min:0,max:100,ph:'Joelho'}],['AOFAS (0–100)','aofas','number',null,{min:0,max:100,ph:'Tornozelo/pé'}],['ASES (0–100)','ases','number',null,{min:0,max:100,ph:'Ombro'}],['Oxford Hip (12–60)','oxford_hip','number',null,{min:12,max:60,ph:'Quadril'}]])+
     sub('TUG — Timed Up and Go')+
-    how('<strong>Como aplicar:</strong> Levantar da cadeira, caminhar 3m, retornar e sentar. &gt;12s = risco aumentado de quedas.')+
+    how('<strong>Como aplicar:</strong> Levantar da cadeira, caminhar 3m, retornar e sentar. &gt;12s = risco aumentado de quedas.','tug')+
     '<div class="fg3">'+fld('T1 (s)','tug1','number',null,{step:'0.1'})+fld('T2 (s)','tug2','number',null,{step:'0.1'})+fld('T3 (s)','tug3','number',null,{step:'0.1'})+'</div>'+
     '<div class="tbar"><span>Média TUG</span><span id="tug_d">—</span></div>'+
     fld('TUG Média (s)','tug_media','ro',null,{id:'tug_i'}))
@@ -6149,7 +6664,7 @@ function bergHTML(){
     'Colocar pé alternado no degrau','Em pé com um pé à frente',
     'Em pé sobre um pé'
   ];
-  var h=how('<strong>Como aplicar:</strong> 14 tarefas funcionais de equilíbrio. <em>Materiais:</em> cadeira com braços, cadeira sem braços, cronômetro, régua, degrau/banco, objeto no chão. Cada item pontua 0 (incapaz) a 4 (independente e seguro). Demonstre cada tarefa, permita 1 tentativa de treino. <em>Tempo:</em> 15–20 min. <em>Interpretação:</em> ≥45 = baixo risco de queda; 36–44 = risco moderado; &lt;36 = alto risco.')+
+  var h=how('<strong>Como aplicar:</strong> 14 tarefas funcionais de equilíbrio. <em>Materiais:</em> cadeira com braços, cadeira sem braços, cronômetro, régua, degrau/banco, objeto no chão. Cada item pontua 0 (incapaz) a 4 (independente e seguro). Demonstre cada tarefa, permita 1 tentativa de treino. <em>Tempo:</em> 15–20 min. <em>Interpretação:</em> ≥45 = baixo risco de queda; 36–44 = risco moderado; &lt;36 = alto risco.','berg')+
         '<div class="fg">';
   items.forEach(function(item,i){
     h+='<div class="ff"><label>'+(i+1)+'. '+item+' (0–4)</label>'
@@ -6163,7 +6678,7 @@ function bergHTML(){
 
 // ── TUG ──
 function tugHTML(){
-  return how('<strong>Como aplicar:</strong> Paciente sentado em cadeira com braços (assento ~46cm), costas apoiadas. Ao comando "vá", levanta-se, caminha 3 metros em ritmo confortável e seguro (pode usar calçado e dispositivo habituais), cruza uma marca no chão, retorna e senta. Cronometrar do "vá" até sentar. Registrar a média de 2–3 tentativas. <em>TUG Cognitivo:</em> repetir contando de trás para frente; <em>TUG Manual:</em> repetir segurando um copo com água. <em>Interpretação (idoso comunitário):</em> &lt;12s = normal; ≥12–13,5s = risco aumentado de queda; &gt;30s = dependência.')+
+  return how('<strong>Como aplicar:</strong> Paciente sentado em cadeira com braços (assento ~46cm), costas apoiadas. Ao comando "vá", levanta-se, caminha 3 metros em ritmo confortável e seguro (pode usar calçado e dispositivo habituais), cruza uma marca no chão, retorna e senta. Cronometrar do "vá" até sentar. Registrar a média de 2–3 tentativas. <em>TUG Cognitivo:</em> repetir contando de trás para frente; <em>TUG Manual:</em> repetir segurando um copo com água. <em>Interpretação (idoso comunitário):</em> &lt;12s = normal; ≥12–13,5s = risco aumentado de queda; &gt;30s = dependência.','tug')+
   '<div class="fg">'
   +'<div class="ff"><label>TUG — Tentativa 1 (s)</label><input type="number" data-key="tug_1" min="0" step="0.1" placeholder="0.0"></div>'
   +'<div class="ff"><label>TUG — Tentativa 2 (s)</label><input type="number" data-key="tug_2" min="0" step="0.1" placeholder="0.0"></div>'
@@ -6176,7 +6691,7 @@ function tugHTML(){
 
 // ── DASH (Disabilities of Arm Shoulder Hand) ──
 function dashHTML(){
-  return how('<strong>Como aplicar:</strong> Questionário autorrespondido de 30 itens sobre dificuldade em atividades do membro superior na última semana, cada um de 1 (sem dificuldade) a 5 (incapaz). É necessário responder ≥27 dos 30 itens. <em>Cálculo:</em> Score = [(soma das respostas ÷ nº respondidos) − 1] × 25. Módulos opcionais Trabalho e Esporte/Música (4 itens cada). <em>Interpretação:</em> 0 = sem incapacidade; 100 = incapacidade total. MCID ≈ 10–15 pontos.')+
+  return how('<strong>Como aplicar:</strong> Questionário autorrespondido de 30 itens sobre dificuldade em atividades do membro superior na última semana, cada um de 1 (sem dificuldade) a 5 (incapaz). É necessário responder ≥27 dos 30 itens. <em>Cálculo:</em> Score = [(soma das respostas ÷ nº respondidos) − 1] × 25. Módulos opcionais Trabalho e Esporte/Música (4 itens cada). <em>Interpretação:</em> 0 = sem incapacidade; 100 = incapacidade total. MCID ≈ 10–15 pontos.','dash')+
   '<div class="fg">'
   +'<div class="ff"><label>DASH — Soma itens (30–150)</label><input type="number" data-key="dash_soma" min="30" max="150" placeholder="30" oninput="calcDASH()"></div>'
   +'<div class="ff"><label>DASH Score (0–100)</label><input data-key="dash_score" readonly class="ro" placeholder="Calculado..."></div>'
@@ -6189,7 +6704,7 @@ function dashHTML(){
 
 // ── WOMAC ──
 function womacHTML(){
-  return how('<strong>Como aplicar:</strong> Questionário autorrespondido para osteoartrite de joelho/quadril, 24 itens em 3 subescalas avaliando as últimas 48h. <em>Dor</em> (5 itens, 0–20), <em>Rigidez</em> (2 itens, 0–8) e <em>Função física</em> (17 itens, 0–68), cada item de 0 (nenhuma) a 4 (extrema) na versão Likert. Some cada subescala. <em>Interpretação:</em> Total 0–96; quanto maior, pior. Pode-se normalizar para 0–100. MCID ≈ 12% da escala.')+
+  return how('<strong>Como aplicar:</strong> Questionário autorrespondido para osteoartrite de joelho/quadril, 24 itens em 3 subescalas avaliando as últimas 48h. <em>Dor</em> (5 itens, 0–20), <em>Rigidez</em> (2 itens, 0–8) e <em>Função física</em> (17 itens, 0–68), cada item de 0 (nenhuma) a 4 (extrema) na versão Likert. Some cada subescala. <em>Interpretação:</em> Total 0–96; quanto maior, pior. Pode-se normalizar para 0–100. MCID ≈ 12% da escala.','womac')+
   '<div class="fg">'
   +'<div class="ff"><label>WOMAC Dor (0–20)</label><input type="number" data-key="womac_dor" min="0" max="20" placeholder="0" oninput="calcWOMAC()"></div>'
   +'<div class="ff"><label>WOMAC Rigidez (0–8)</label><input type="number" data-key="womac_rig" min="0" max="8" placeholder="0" oninput="calcWOMAC()"></div>'
@@ -7507,8 +8022,7 @@ function sendFichaPreConsulta(pid){
   if(!phone){toast('Paciente sem telefone cadastrado','err');return;}
   var clean=phone.replace(/\D/g,'');
   if(!clean.startsWith('55'))clean='55'+clean;
-  // URL do formulário — ajuste para o domínio real após o deploy
-  var formUrl=window.location.origin+(window.location.pathname.replace('index.html',''))+'formulario.html';
+  var formUrl=pcLinkFicha(p.name);
   var nome=p.name.split(' ')[0]; // primeiro nome
   var msg='Olá, *'+nome+'*! 😊\n\n'
     +'Tudo bem? Aqui é da *Bianca Viniski Fisioterapia*.\n\n'
@@ -8716,6 +9230,55 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
    ══════════════════════════════════════════════════════════ */
 var PC_TEL_CLINICA='81996150609';
 
+/* Monta o link público da ficha que o paciente vai preencher.
+   Fica ao lado do index.html no mesmo site (GitHub Pages). */
+function pcLinkFicha(nomePaciente){
+  var base=window.location.origin+window.location.pathname.replace(/[^\/]*$/,'');
+  var url=base+'precadastro.html';
+  if(nomePaciente) url+='?nome='+encodeURIComponent(nomePaciente);
+  return url;
+}
+
+/* Texto do convite enviado ao paciente */
+function pcMsgConvite(nomePaciente){
+  var pn=(nomePaciente||'').trim().split(' ')[0];
+  return 'Olá'+(pn?', *'+pn+'*':'')+'! 😊\n\n'
+    +'Aqui é da *Bianca Viniski Fisioterapia*.\n\n'
+    +'Antes da sua consulta, preparei uma *ficha de pré-cadastro* para você preencher com calma em casa. '
+    +'Ela me ajuda a chegar já sabendo do seu caso, e assim aproveitamos melhor o tempo do atendimento.\n\n'
+    +'📋 *É só tocar no link e preencher:*\n'
+    +pcLinkFicha(nomePaciente)+'\n\n'
+    +'⏱️ Leva cerca de 10 minutos e *salva sozinho* — dá para parar e continuar depois.\n'
+    +'💛 Se o paciente tiver dificuldade de memória, quem preenche é o familiar ou cuidador.\n'
+    +'🔒 Suas informações são sigilosas (LGPD).\n\n'
+    +'Ao terminar, o próprio site abre o WhatsApp para me enviar as respostas.\n\n'
+    +'Qualquer dúvida, é só me chamar por aqui!\n'
+    +'📞 *(81) 99615-0609*';
+}
+
+/* Envia o convite para um número digitado na hora (sem precisar de cadastro) */
+function pcEnviarConvite(){
+  var tel=(document.getElementById('pc_dest')||{}).value||'';
+  var clean=tel.replace(/\D/g,'');
+  if(!clean){toast('Informe o WhatsApp do paciente no campo ao lado','err');
+    var el=document.getElementById('pc_dest');if(el)el.focus();return;}
+  if(!clean.startsWith('55'))clean='55'+clean;
+  var nome=(document.getElementById('pc_nome')||{}).value||'';
+  var url='https://wa.me/'+clean+'?text='+encodeURIComponent(pcMsgConvite(nome));
+  var w=window.open(url,'_blank');
+  if(!w)window.location.href=url;
+  else toast('Convite pronto no WhatsApp','ok');
+}
+
+/* Copia só o link, para colar onde quiser */
+function pcCopiarLink(){
+  var nome=(document.getElementById('pc_nome')||{}).value||'';
+  var url=pcLinkFicha(nome);
+  function ok(){toast('Link copiado','ok');}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,function(){prompt('Copie o link:',url);});
+  else prompt('Copie o link:',url);
+}
+
 var PC_FORM=[
 {icon:'👤',title:'Dados do Paciente',fields:[
   {id:'nome',lb:'Nome completo',t:'text',rq:1,full:1,ph:'Nome como no documento'},
@@ -8837,12 +9400,14 @@ function showPreCadastro(){
   var h='<div class="pc-scroll"><div class="pc-wrap">'
    +'<div class="pc-bar">'
    +'<button class="pc-btn" onclick="showWelcome()">← Voltar</button>'
-   +'<button class="pc-btn pc-btn-wa" onclick="pcEnviarWhats()">📲 Enviar por WhatsApp</button>'
+   +'<button class="pc-btn pc-btn-wa" onclick="pcEnviarConvite()">📤 Enviar ficha ao paciente</button>'
+   +'<button class="pc-btn" onclick="pcCopiarLink()">🔗 Copiar link</button>'
+   +'<button class="pc-btn pc-btn-wa" style="background:#128C7E;border-color:#0d6b60" onclick="pcEnviarWhats()">📲 Enviar respostas</button>'
    +'<button class="pc-btn" onclick="pcCopiar()">📋 Copiar texto</button>'
    +'<button class="pc-btn" onclick="pcImprimir()">🖨️ Imprimir</button>'
    +'<button class="pc-btn pc-btn-or" onclick="pcCriarPaciente()">➕ Cadastrar no sistema</button>'
    +'<button class="pc-btn" onclick="pcLimpar()">🧹 Limpar</button>'
-   +'<div class="pc-dest"><label>Enviar p/</label><input type="tel" id="pc_dest" value="(81) 99615-0609" placeholder="(00) 00000-0000"></div>'
+   +'<div class="pc-dest"><label>WhatsApp</label><input type="tel" id="pc_dest" placeholder="(81) 90000-0000"></div>'
    +'</div>'
    +'<div class="pc-cover">'
    +'<div class="pc-eyebrow">Bianca Viniski Fisioterapia</div>'
@@ -8850,6 +9415,9 @@ function showPreCadastro(){
    +'<p class="pc-sub">Preencha com calma — estas informações ajudam a fisioterapeuta a preparar o melhor atendimento. Não é necessário cadastro prévio no sistema.</p>'
    +'<div class="pc-badge">📋 A ser preenchida pelo familiar ou cuidador responsável</div>'
    +'</div>'
+   +'<div class="pc-notice" style="background:#EAF6EC;border-color:#2E7D32"><span style="font-size:18px">📤</span><div><b>Duas formas de usar esta ficha</b>'
+   +'<strong>1) O paciente preenche em casa:</strong> digite o WhatsApp dele no campo acima e toque em <em>Enviar ficha ao paciente</em>. Ele recebe um link, preenche com calma antes da consulta e o próprio site devolve as respostas para o seu WhatsApp.<br>'
+   +'<strong>2) Você preenche aqui:</strong> preencha os campos abaixo (por telefone, por exemplo) e use <em>Enviar respostas</em> ou <em>Cadastrar no sistema</em>.</div></div>'
    +'<div class="pc-notice"><span style="font-size:18px">💛</span><div><b>Atenção — responsável pelo preenchimento</b>Como o(a) paciente pode ter dificuldade para responder por si mesmo(a), pedimos que o familiar ou cuidador principal preencha esta ficha. Não é preciso ter certeza de tudo: escreva o que sabe e deixe em branco o que não souber.</div></div>';
 
   PC_FORM.forEach(function(sec,idx){
@@ -9311,6 +9879,7 @@ function openFormInteg(pid,grp){
     +'<div class="integ-bar">'+chips
     +'<span class="integ-info">'+(repetidos?repetidos+' testes em comum unificados — preencha uma vez só':'Nenhum teste repetido entre estas patologias')+'</span>'
     +'</div>'
+    +'<div class="how-bulk"><span style="font-size:11px;color:var(--g4);align-self:center;margin-right:2px">Explicações dos testes:</span><button type="button" onclick="howAll(true)">? Abrir todas</button><button type="button" onclick="howAll(false)">Recolher todas</button></div>'
     +antropometriaSection()+corpo
     +'<div style="display:flex;gap:9px;margin-top:16px;margin-bottom:32px">'
     +'<button class="btn btn-del" onclick="selPatient('+pid+')" style="flex:1">← Voltar</button>'

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="theme-color" content="#E8844A">
+<meta name="description" content="Ficha de pré-cadastro — Bianca Viniski Fisioterapia. Preencha antes da sua consulta.">
+<meta property="og:title" content="Ficha de Pré-Cadastro — Bianca Viniski Fisioterapia">
+<meta property="og:description" content="Preencha esta ficha antes da consulta. Leva cerca de 10 minutos e pode ser feita com calma.">
+<meta property="og:type" content="website">
+<title>Ficha de Pré-Cadastro — Bianca Viniski Fisioterapia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --or:#E8844A; --or2:#C86A32; --or-l:#F5A97A; --or-p:#FDF0E8;
+  --g0:#FAF8F5; --g1:#F2EDE6; --g2:#E4DCD1; --g4:#8A8578; --g6:#5A5648; --g8:#2B2B24;
+  --w:#fff; --r:14px; --sh:0 2px 10px rgba(43,43,36,.07); --ok:#2E7D32;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--g0);color:var(--g8);line-height:1.55;padding-bottom:96px}
+.wrap{max-width:680px;margin:0 auto}
+
+/* ── Capa ── */
+.cover{background:linear-gradient(165deg,#fff 55%,var(--or-p) 100%);border-bottom:3px solid var(--or);padding:30px 20px 24px;text-align:center}
+.eyebrow{font-size:9px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:var(--or)}
+h1{font-family:'Cormorant Garamond',serif;font-size:31px;font-weight:700;line-height:1.12;margin-top:5px}
+h1 em{font-style:italic;color:var(--or)}
+.tagline{font-size:11px;color:var(--g4);font-style:italic;margin-top:3px}
+.lead{font-size:13.5px;color:var(--g6);max-width:460px;margin:12px auto 0;line-height:1.6}
+.meta{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.meta span{display:inline-flex;align-items:center;gap:5px;background:var(--w);border:1px solid var(--g2);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:var(--g6)}
+
+/* ── Aviso ── */
+.notice{margin:16px 14px 0;background:#FFF8E7;border:1.5px solid #F5C842;border-radius:var(--r);padding:14px 16px;display:flex;gap:11px;font-size:12.5px;color:#6B5300;line-height:1.6}
+.notice b{display:block;margin-bottom:3px;font-size:13px}
+
+/* ── Progresso ── */
+.prog-wrap{position:sticky;top:0;z-index:50;background:rgba(250,248,245,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--g2);padding:9px 14px}
+.prog-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;color:var(--g6);margin-bottom:5px}
+.prog-top .pct{color:var(--or);font-weight:700}
+.prog-bar{height:5px;background:var(--g2);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--or-l),var(--or));width:0;transition:width .35s ease;border-radius:3px}
+
+/* ── Seções ── */
+.sec{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);margin:14px;overflow:hidden}
+.sec-h{background:linear-gradient(90deg,var(--or-p),#fff);border-bottom:1.5px solid #F0E8DF;padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.sec-h .ic{font-size:19px;flex-shrink:0}
+.sec-h .tt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:var(--or2);line-height:1.15}
+.sec-h .st{font-size:10px;color:var(--g4);font-family:'DM Sans';display:block;font-weight:500;margin-top:1px}
+.sec-h .chev{margin-left:auto;font-size:13px;color:var(--or);transition:transform .25s;flex-shrink:0}
+.sec.closed .chev{transform:rotate(-90deg)}
+.sec-b{padding:16px}
+.sec.closed .sec-b{display:none}
+
+/* ── Campos ── */
+.f{margin-bottom:15px}
+.f:last-child{margin-bottom:0}
+.f label.lb{display:block;font-size:12.5px;font-weight:600;color:var(--g8);margin-bottom:5px;line-height:1.4}
+.f label.lb .rq{color:var(--or);margin-left:2px}
+.f input,.f select,.f textarea{width:100%;border:1.5px solid var(--g2);border-radius:10px;padding:12px 13px;font-family:'DM Sans';font-size:16px;color:var(--g8);background:#f9f7f4;outline:none;transition:border-color .15s,background .15s}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--or);background:var(--w);box-shadow:0 0 0 3px rgba(232,132,74,.12)}
+.f textarea{resize:vertical;min-height:88px;line-height:1.55}
+.f .hint{display:block;font-size:11.5px;color:var(--g4);margin-top:5px;line-height:1.5}
+.sub-t{font-size:10.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--or);display:flex;align-items:center;gap:8px;margin:20px 0 12px}
+.sub-t:first-child{margin-top:0}
+.sub-t::after{content:'';flex:1;height:1px;background:var(--or-l);opacity:.4}
+.note{font-size:12.5px;color:var(--g6);line-height:1.65;background:var(--g1);border-radius:10px;padding:12px 14px;margin-bottom:15px}
+
+/* ── Múltipla escolha ── */
+.chips{display:flex;flex-direction:column;gap:7px}
+.chip{display:flex;align-items:center;gap:10px;background:#f9f7f4;border:1.5px solid var(--g2);border-radius:10px;padding:12px 13px;cursor:pointer;font-size:14px;color:var(--g8);user-select:none;transition:all .15s;line-height:1.35}
+.chip input{width:19px;height:19px;margin:0;accent-color:var(--or);flex-shrink:0}
+.chip.on{background:var(--or-p);border-color:var(--or-l);color:var(--or2);font-weight:600}
+
+/* ── Escala 0-10 ── */
+.scale{margin-top:8px}
+.scale-ops{display:flex;gap:4px;justify-content:space-between}
+.scale-ops label{flex:1}
+.scale-ops input{position:absolute;opacity:0;pointer-events:none}
+.scale-ops span{display:flex;align-items:center;justify-content:center;height:38px;border:1.5px solid var(--g2);border-radius:8px;background:#f9f7f4;font-size:13px;font-weight:600;color:var(--g6);cursor:pointer;transition:all .15s}
+.scale-ops input:checked+span{background:var(--or);border-color:var(--or2);color:#fff}
+.scale-lb{display:flex;justify-content:space-between;font-size:10.5px;color:var(--g4);margin-top:5px}
+
+/* ── Rodapé fixo ── */
+.bar{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1.5px solid var(--g2);padding:11px 14px calc(11px + env(safe-area-inset-bottom));box-shadow:0 -3px 16px rgba(43,43,36,.09)}
+.bar-in{max-width:680px;margin:0 auto;display:flex;gap:9px;align-items:center}
+.btn{border:none;border-radius:11px;padding:14px 16px;font-family:'DM Sans';font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
+.btn:active{opacity:.75}
+.btn-wa{background:#25D366;color:#fff;flex:1;box-shadow:0 3px 12px rgba(37,211,102,.32)}
+.btn-sec{background:var(--g1);color:var(--g6);border:1.5px solid var(--g2);padding:14px 15px;font-size:13px}
+.saved{font-size:10.5px;color:var(--ok);text-align:center;margin-top:6px;height:13px;opacity:0;transition:opacity .3s}
+.saved.on{opacity:1}
+
+/* ── Rodapé ── */
+.foot{margin:22px 14px 0;background:var(--g8);color:#fff;border-radius:var(--r);padding:20px}
+.foot b{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--or-l);display:block;margin-bottom:4px}
+.foot p{font-size:12px;opacity:.85;line-height:1.6}
+.foot .lgpd{font-size:10.5px;opacity:.55;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.15);line-height:1.55}
+
+/* ── Tela de sucesso ── */
+.done{position:fixed;inset:0;z-index:200;background:var(--g0);display:none;align-items:center;justify-content:center;padding:28px;text-align:center}
+.done.on{display:flex}
+.done-in{max-width:380px}
+.done .ck{width:74px;height:74px;border-radius:50%;background:#25D366;color:#fff;font-size:37px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.done h2{font-family:'Cormorant Garamond',serif;font-size:27px;margin-bottom:10px}
+.done p{font-size:14px;color:var(--g6);line-height:1.65;margin-bottom:9px}
+.done .btn{margin-top:20px;width:100%;background:var(--or);color:#fff}
+
+@media(min-width:700px){
+  .sec,.notice,.foot{margin-left:0;margin-right:0}
+  .wrap{padding:0 14px}
+  .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chips.one{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="cover">
+    <div class="eyebrow">Bianca Viniski Fisioterapia</div>
+    <h1>Ficha de <em>Pré-Cadastro</em></h1>
+    <div class="tagline">você de volta em movimento</div>
+    <p class="lead">Estas informações ajudam a preparar o melhor atendimento possível. Preencha com calma, antes da consulta.</p>
+    <div class="meta">
+      <span>⏱️ Cerca de 10 minutos</span>
+      <span>💾 Salva sozinho</span>
+      <span>🔒 Sigiloso</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <span style="font-size:21px;line-height:1">💛</span>
+    <div>
+      <b>Quem deve preencher</b>
+      Se o paciente tiver dificuldade de memória ou de se expressar, quem deve preencher é o <strong>familiar ou cuidador principal</strong>.
+      Não é preciso ter certeza de tudo: escreva o que souber e <strong>deixe em branco o que não souber</strong>. Nada aqui é obrigatório além do nome.
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-top"><span id="progTxt">Vamos começar</span><span class="pct" id="progPct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+
+  <main id="form"></main>
+
+  <footer class="foot">
+    <b>Bianca Viniski Fisioterapia</b>
+    <p>Reabilitação Neurofuncional e Gerontológica<br>
+    📱 (81) 99615-0609 &nbsp;·&nbsp; ✉️ biancaviniski@hotmail.com<br>
+    CREFITO 409973-F</p>
+    <div class="lgpd">Seus dados são usados exclusivamente para o seu atendimento fisioterapêutico, guardados com sigilo profissional e não compartilhados com terceiros sem a sua autorização, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</div>
+  </footer>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <button class="btn btn-sec" onclick="limpar()" title="Apagar tudo">🧹</button>
+    <button class="btn btn-wa" onclick="enviar()">📲 Enviar para a fisioterapeuta</button>
+  </div>
+  <div class="saved" id="savedMsg">Rascunho salvo automaticamente</div>
+</div>
+
+<div class="done" id="doneScreen">
+  <div class="done-in">
+    <div class="ck">✓</div>
+    <h2>Ficha enviada!</h2>
+    <p>O WhatsApp foi aberto com as suas respostas. <strong>Confira se a mensagem foi realmente enviada</strong> — às vezes ela fica escrita no campo de texto esperando você tocar em enviar.</p>
+    <p style="font-size:12.5px;color:var(--g4)">Se algo não funcionou, toque no botão abaixo para copiar o texto e colar manualmente na conversa.</p>
+    <button class="btn" onclick="copiar()">📋 Copiar minhas respostas</button>
+    <button class="btn btn-sec" style="margin-top:9px;width:100%" onclick="fecharDone()">← Voltar e revisar</button>
+  </div>
+</div>
+
+<script>
+var WHATS_FISIO='5581996150609';
+var PC_FORM=[
+{icon:'👤',title:'Dados do Paciente',fields:[
+  {id:'nome',lb:'Nome completo',t:'text',rq:1,full:1,ph:'Nome como no documento'},
+  {id:'nasc',lb:'Data de nascimento',t:'date',rq:1},
+  {id:'sexo',lb:'Sexo biológico',t:'select',rq:1,op:['Masculino','Feminino']},
+  {id:'cpf',lb:'CPF',t:'text',ph:'000.000.000-00'},
+  {id:'convenio',lb:'Convênio / plano de saúde',t:'text',ph:'Ex: Unimed, particular...'},
+  {id:'endereco',lb:'Endereço completo',t:'text',rq:1,full:1,ph:'Rua, número, complemento, bairro, cidade'}
+]},
+{icon:'🤝',title:'Responsável e Cuidadores',fields:[
+  {t:'sub',lb:'Responsável legal / familiar principal'},
+  {id:'resp_nome',lb:'Nome do responsável',t:'text',rq:1,ph:'Nome completo'},
+  {id:'resp_par',lb:'Parentesco',t:'select',rq:1,op:['Cônjuge / companheiro(a)','Filho(a)','Neto(a)','Irmão / Irmã','Sobrinho(a)','Cuidador profissional','Outro']},
+  {id:'resp_tel',lb:'Telefone / WhatsApp',t:'tel',rq:1,ph:'(81) 9 0000-0000'},
+  {id:'resp_email',lb:'E-mail',t:'email',ph:'seuemail@exemplo.com'},
+  {id:'acompanhante',lb:'Quem acompanhará nas sessões',t:'text',full:1,rq:1,ph:'Nome e parentesco de quem virá às consultas'},
+  {t:'sub',lb:'Equipe de cuidado'},
+  {id:'cuid_fixo',lb:'Há cuidador profissional fixo?',t:'select',op:['Sim — tempo integral (24h)','Sim — período parcial','Não — cuidado exclusivamente familiar']},
+  {id:'turno',lb:'Turno de maior dificuldade',t:'select',op:['Manhã','Tarde','Noite / madrugada','Sem diferença entre turnos']},
+  {id:'equipe',lb:'Outras pessoas da equipe de cuidado',t:'textarea',full:1,ph:'Ex: filha cuida pela manhã, cuidadora noturna à noite, neto leva ao médico...'}
+]},
+{icon:'🧠',title:'Diagnóstico e Histórico de Saúde',fields:[
+  {t:'sub',lb:'Diagnóstico principal'},
+  {id:'diag',lb:'Diagnóstico médico confirmado',t:'checks',full:1,rq:1,op:['Alzheimer','Demência vascular','Demência com Corpos de Lewy','Demência frontotemporal','Doença de Parkinson com demência','AVC / sequela neurológica','Outro / ainda em investigação']},
+  {id:'diag_outro',lb:'Outro diagnóstico (se marcou "Outro")',t:'text',ph:'Descreva o diagnóstico'},
+  {id:'diag_tempo',lb:'Há quanto tempo tem o diagnóstico?',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
+  {id:'medico',lb:'Neurologista / médico responsável',t:'text',ph:'Nome do médico'},
+  {id:'hospital',lb:'Hospital / clínica de referência',t:'text',ph:'Ex: Hospital das Clínicas, clínica particular...'},
+  {t:'sub',lb:'Histórico relevante'},
+  {id:'comorb',lb:'Doenças associadas',t:'checks',full:1,op:['Hipertensão arterial','Diabetes','Insuficiência cardíaca','Fibrilação atrial','Osteoporose','Doença de Parkinson','Epilepsia / convulsões','Depressão / ansiedade','Insuficiência renal']},
+  {id:'cirurgias',lb:'Cirurgias ou internações recentes (últimos 2 anos)',t:'textarea',full:1,ph:'Ex: fratura de fêmur com cirurgia em 2023, pneumonia com internação...'},
+  {id:'alergias',lb:'Alergias conhecidas',t:'text',full:1,ph:"Medicamentos, alimentos, látex — ou 'Nenhuma conhecida'"}
+]},
+{icon:'💊',title:'Medicamentos em Uso',fields:[
+  {t:'note',lb:'Liste os remédios usados regularmente. Se tiver a lista da farmácia ou a receita, pode trazer no dia da consulta.'},
+  {id:'medicamentos',lb:'Medicamentos e horários',t:'textarea',full:1,rows:5,ph:'Ex:\nDonepezila 10mg — 1x à noite\nMemantina 10mg — 2x ao dia\nLosartana 50mg — manhã'},
+  {id:'med_comp',lb:'Usa medicação para agitação, sono ou comportamento?',t:'select',full:1,op:['Sim — e estão controlando bem','Sim — mas ainda há episódios frequentes','Não usa este tipo de medicamento','Não sei informar']}
+]},
+{icon:'🚶',title:'Mobilidade e Funcionamento Atual',fields:[
+  {t:'sub',lb:'Locomoção'},
+  {id:'locomocao',lb:'Como o paciente se locomove?',t:'select',rq:1,op:['Caminha de forma independente','Caminha com apoio de pessoa','Usa andador','Usa bengala ou muleta','Usa cadeira de rodas parcialmente','Usa cadeira de rodas o tempo todo','Acamado — não deambula']},
+  {id:'quedas',lb:'Quedas nos últimos 6 meses',t:'select',rq:1,op:['Nenhuma','1 queda','2 a 3 quedas','4 ou mais quedas']},
+  {id:'queda_lesao',lb:'Última queda resultou em lesão?',t:'select',op:['Não houve queda','Sim — fratura','Sim — hematoma ou escoriação','Não — sem lesão']},
+  {id:'disp',lb:'Dispositivos de auxílio no domicílio',t:'checks',op:['Grades na cama','Barra no banheiro','Cadeira de banho','Nenhum']},
+  {t:'sub',lb:'Atividades de vida diária'},
+  {id:'avd_alim',lb:'Alimentação',t:'select',op:['Come sozinho sem ajuda','Precisa de supervisão','Precisa de ajuda parcial','Totalmente dependente','Uso de sonda / gastrostomia']},
+  {id:'avd_hig',lb:'Higiene pessoal / banho',t:'select',op:['Independente','Supervisão','Ajuda parcial','Totalmente dependente']},
+  {id:'avd_urin',lb:'Continência urinária',t:'select',op:['Continente','Incontinência ocasional','Incontinência frequente','Usa fralda o tempo todo','Usa sonda vesical']},
+  {id:'avd_int',lb:'Continência intestinal',t:'select',op:['Normal','Constipação frequente','Incontinência fecal']},
+  {id:'avd_transf',lb:'Transferências (cama / cadeira)',t:'select',op:['Independente','Ajuda de 1 pessoa','Ajuda de 2 pessoas','Equipamento de transferência']},
+  {id:'avd_sono',lb:'Sono',t:'select',op:['Dorme bem à noite','Inversão do ciclo sono-vigília','Insônia frequente','Agitação noturna']},
+  {t:'sub',lb:'Comunicação e cognição'},
+  {id:'comunic',lb:'Como o paciente se comunica?',t:'select',rq:1,op:['Fala com clareza e coerência','Fala, mas com dificuldade de encontrar palavras','Fala frases curtas ou palavras isoladas','Comunicação não verbal (gestos, expressão)','Praticamente sem comunicação verbal']},
+  {id:'reconhece',lb:'Reconhece familiares próximos?',t:'select',rq:1,op:['Sim — reconhece a maioria','Às vezes — confunde nomes','Raramente','Não reconhece']},
+  {id:'desorient',lb:'Apresenta desorientação?',t:'select',rq:1,op:['Raramente','Às vezes — principalmente à noite','Frequentemente','Praticamente o tempo todo']},
+  {id:'comport',lb:'Comportamentos alterados presentes',t:'checks',full:1,op:['Agitação / irritabilidade','Agressividade verbal','Agressividade física','Alucinações','Delírios (crenças falsas)','Deambulação sem propósito','Apatia / isolamento','Nenhum']},
+  {t:'sub',lb:'Dor e conforto'},
+  {id:'dor',lb:'O paciente demonstra ou relata dor?',t:'select',rq:1,op:['Não aparenta sentir dor','Sim — relata verbalmente','Sim — demonstra por expressão / comportamento','Difícil avaliar']},
+  {id:'dor_local',lb:'Onde parece localizar-se a dor?',t:'text',ph:'Ex: costas, joelho direito, ombro...'}
+]},
+{icon:'🏠',title:'Rotina e Ambiente de Vida',fields:[
+  {id:'moradia',lb:'Onde o paciente mora?',t:'select',rq:1,op:['Residência familiar (casa/apartamento)','ILPI / lar de idosos','Casa de repouso particular']},
+  {id:'escadas',lb:'O domicílio tem escadas?',t:'select',rq:1,op:['Não','Sim — e o paciente acessa','Sim — mas o paciente não sobe']},
+  {id:'atividades',lb:'Atividades que ainda realiza / aprecia',t:'textarea',full:1,ph:'Ex: ouve música, assiste TV, caminha no quintal, participa das refeições em família...',hint:'Essas informações ajudam a adaptar os exercícios às motivações do paciente.'},
+  {id:'fisio_antes',lb:'Já fez fisioterapia antes?',t:'select',op:['Sim — e teve boa resposta','Sim — mas sem resultado notável','Não']},
+  {id:'objetivos',lb:'Principais objetivos com a fisioterapia',t:'checks',full:1,rq:1,op:['Manter / melhorar equilíbrio','Prevenir quedas','Facilitar transferências','Manter a marcha','Controle de dor','Manter funcionalidade geral','Orientar o cuidador']}
+]},
+{icon:'💬',title:'Informações Complementares',fields:[
+  {id:'familia',lb:'Como a família está lidando com a situação?',t:'select',full:1,op:['Bem — nos adaptamos','Com dificuldade — mas seguimos','Com muita sobrecarga — precisamos de suporte','Prefiro não responder']},
+  {id:'importante',lb:'Algo importante que a fisioterapeuta deve saber?',t:'textarea',full:1,ph:'Ex: tem medo de cair, fica agitado com estranhos, prefere música durante as atividades, horário de medicação que não pode atrasar...'},
+  {id:'duvidas',lb:'Dúvidas ou expectativas para o primeiro atendimento',t:'textarea',full:1,ph:'Escreva aqui qualquer dúvida ou o que espera da fisioterapia'},
+  {t:'sub',lb:'Carga do cuidador'},
+  {id:'cansaco',lb:'De 0 a 10, o nível de cansaço de quem cuida',t:'scale',full:1,l:'Sem cansaço',r:'Esgotamento total',hint:'Confidencial — ajuda a oferecer orientações também para quem cuida.'}
+]},
+{icon:'✍️',title:'Declaração e Autorização',fields:[
+  {t:'note',lb:'As informações fornecidas são declaradas verdadeiras pelo responsável, que está autorizado a representar o(a) paciente. Os dados serão usados exclusivamente para fins de atendimento fisioterapêutico, conforme a Lei nº 13.709/2018 (LGPD), armazenados com sigilo e não compartilhados com terceiros sem consentimento.'},
+  {id:'consent',lb:'Consentimento',t:'checks',full:1,rq:1,op:['Li e concordo com o uso dos dados para fins de atendimento fisioterapêutico (LGPD)']},
+  {id:'data_pre',lb:'Data de preenchimento',t:'date'},
+  {id:'quem_preencheu',lb:'Nome de quem preencheu',t:'text',ph:'Nome legível do responsável'}
+]}
+];
+
+
+/* ═══ Renderização ═══ */
+function esc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function campo(f){
+  if(f.t==='sub') return '<div class="sub-t">'+esc(f.lb)+'</div>';
+  if(f.t==='note') return '<div class="note">'+esc(f.lb)+'</div>';
+  var s='<div class="f"><label class="lb" for="f_'+f.id+'">'+esc(f.lb)+(f.rq?'<span class="rq">*</span>':'')+'</label>';
+  if(f.t==='select'){
+    s+='<select id="f_'+f.id+'"><option value="">Selecione</option>';
+    f.op.forEach(function(o){s+='<option>'+esc(o)+'</option>';});
+    s+='</select>';
+  } else if(f.t==='textarea'){
+    s+='<textarea id="f_'+f.id+'" placeholder="'+esc(f.ph||'')+'"></textarea>';
+  } else if(f.t==='checks'){
+    s+='<div class="chips'+(f.op.length<=3?' one':'')+'">';
+    f.op.forEach(function(o,i){
+      s+='<label class="chip" id="c_'+f.id+'_'+i+'"><input type="checkbox" id="f_'+f.id+'_'+i+'" value="'+esc(o)+'"><span>'+esc(o)+'</span></label>';
+    });
+    s+='</div>';
+  } else if(f.t==='scale'){
+    s+='<div class="scale"><div class="scale-ops">';
+    for(var n=0;n<=10;n++) s+='<label><input type="radio" name="f_'+f.id+'" value="'+n+'"><span>'+n+'</span></label>';
+    s+='</div><div class="scale-lb"><span>'+esc(f.l||'0')+'</span><span>'+esc(f.r||'10')+'</span></div></div>';
+  } else {
+    var tipo=f.t==='tel'?'tel':(f.t==='email'?'email':(f.t==='date'?'date':(f.t==='number'?'number':'text')));
+    var im=f.t==='tel'?' inputmode="tel"':'';
+    s+='<input type="'+tipo+'" id="f_'+f.id+'"'+im+' placeholder="'+esc(f.ph||'')+'">';
+  }
+  if(f.hint) s+='<span class="hint">'+esc(f.hint)+'</span>';
+  return s+'</div>';
+}
+
+function montar(){
+  var h='';
+  PC_FORM.forEach(function(sec,i){
+    var n=0;
+    sec.fields.forEach(function(f){ if(f.t!=='sub'&&f.t!=='note') n++; });
+    h+='<section class="sec'+(i===0?'':' closed')+'" id="sec'+i+'">'
+      +'<div class="sec-h" onclick="toggleSec('+i+')">'
+      +'<span class="ic">'+sec.icon+'</span>'
+      +'<div><span class="tt">'+esc(sec.title)+'</span>'
+      +'<span class="st">Parte '+(i+1)+' de '+PC_FORM.length+' · '+n+' perguntas</span></div>'
+      +'<span class="chev">▾</span></div>'
+      +'<div class="sec-b">';
+    sec.fields.forEach(function(f){ h+=campo(f); });
+    h+='</div></section>';
+  });
+  document.getElementById('form').innerHTML=h;
+
+  var dp=document.getElementById('f_data_pre');
+  if(dp) dp.value=new Date().toISOString().slice(0,10);
+
+  // nome vindo do link (?nome=Maria)
+  try{
+    var q=new URLSearchParams(location.search);
+    var nm=q.get('nome')||q.get('n');
+    if(nm && document.getElementById('f_nome')) document.getElementById('f_nome').value=nm;
+  }catch(e){}
+
+  document.addEventListener('input',aoMudar);
+  document.addEventListener('change',aoMudar);
+  restaurar();
+  progresso();
+}
+function toggleSec(i){ document.getElementById('sec'+i).classList.toggle('closed'); }
+
+function aoMudar(e){
+  var t=e.target;
+  if(t && t.type==='checkbox'){
+    var lb=t.closest('.chip'); if(lb) lb.classList.toggle('on',t.checked);
+  }
+  salvar(); progresso();
+}
+
+/* ═══ Progresso ═══ */
+function progresso(){
+  var tot=0, ok=0;
+  PC_FORM.forEach(function(sec){
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      tot++;
+      if(valor(f)) ok++;
+    });
+  });
+  var pct=tot?Math.round(ok/tot*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  var t=document.getElementById('progTxt');
+  t.textContent = pct===0?'Vamos começar' : pct<35?'Bom começo, continue' : pct<70?'Você já está na metade' : pct<100?'Quase lá!' : 'Tudo preenchido — pode enviar';
+}
+
+/* ═══ Leitura ═══ */
+function valor(f){
+  if(f.t==='checks'){
+    var a=[];
+    f.op.forEach(function(o,i){var el=document.getElementById('f_'+f.id+'_'+i); if(el&&el.checked)a.push(o);});
+    return a.join(', ');
+  }
+  if(f.t==='scale'){
+    var r=document.querySelector('input[name="f_'+f.id+'"]:checked');
+    return r?r.value+' de 10':'';
+  }
+  var el=document.getElementById('f_'+f.id);
+  if(!el) return '';
+  var v=(''+el.value).trim();
+  if(f.t==='date'&&v&&v.indexOf('-')>0){ var p=v.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+  return v;
+}
+
+function coletar(){
+  var out=[];
+  PC_FORM.forEach(function(sec){
+    var it=[];
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      var v=valor(f);
+      if(v) it.push({lb:f.lb, v:v, multi:(f.t==='textarea'||v.length>55)});
+    });
+    if(it.length) out.push({icon:sec.icon, title:sec.title, items:it});
+  });
+  return out;
+}
+
+function mensagem(){
+  var nome=(document.getElementById('f_nome')||{}).value||'';
+  var m='*FICHA DE PRÉ-CADASTRO*\n_Bianca Viniski Fisioterapia_\n';
+  m+='━━━━━━━━━━━━━━━━\n👤 *Paciente:* '+(nome.trim()||'(não informado)')+'\n';
+  coletar().forEach(function(s){
+    m+='\n*'+s.icon+' '+s.title.toUpperCase()+'*\n';
+    s.items.forEach(function(i){
+      if(i.lb==='Nome completo') return;
+      m += i.multi ? '• *'+i.lb+':*\n'+i.v+'\n' : '• *'+i.lb+':* '+i.v+'\n';
+    });
+  });
+  m+='\n━━━━━━━━━━━━━━━━\nPreenchida em '+new Date().toLocaleDateString('pt-BR')+' pelo próprio paciente/família.';
+  return m;
+}
+
+/* ═══ Envio ═══ */
+function enviar(){
+  var nome=(document.getElementById('f_nome')||{}).value||'';
+  if(!nome.trim()){
+    alert('Por favor, preencha ao menos o nome do paciente antes de enviar.');
+    var s=document.getElementById('sec0'); if(s) s.classList.remove('closed');
+    var el=document.getElementById('f_nome');
+    if(el){ if(el.scrollIntoView) el.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(function(){try{el.focus();}catch(e){}},400); }
+    return;
+  }
+  var m=mensagem();
+  if(m.length>4000){
+    copiar(true);
+    window.open('https://wa.me/'+WHATS_FISIO,'_blank');
+    alert('Suas respostas foram copiadas. O WhatsApp vai abrir — toque no campo de mensagem e cole (segure o dedo e escolha "Colar").');
+    abrirDone(); return;
+  }
+  var url='https://wa.me/'+WHATS_FISIO+'?text='+encodeURIComponent(m);
+  var w=window.open(url,'_blank');
+  if(!w) location.href=url;
+  setTimeout(abrirDone,700);
+}
+function abrirDone(){ document.getElementById('doneScreen').classList.add('on'); window.scrollTo(0,0); }
+function fecharDone(){ document.getElementById('doneScreen').classList.remove('on'); }
+
+function copiar(silencioso){
+  var m=mensagem();
+  function ok(){ if(!silencioso) alert('Respostas copiadas! Agora é só colar na conversa do WhatsApp.'); }
+  function fb(){
+    var ta=document.createElement('textarea');
+    ta.value=m; ta.style.cssText='position:fixed;top:-9999px;left:-9999px';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); ok(); }catch(e){ if(!silencioso) alert('Não foi possível copiar automaticamente neste aparelho.'); }
+    ta.remove();
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(m).then(ok, fb);
+  else fb();
+}
+
+/* ═══ Rascunho no aparelho do paciente ═══ */
+var CHAVE='bv_precadastro_v1', tSave=null;
+function salvar(){
+  if(tSave) clearTimeout(tSave);
+  tSave=setTimeout(function(){
+    var d={};
+    PC_FORM.forEach(function(sec){
+      sec.fields.forEach(function(f){
+        if(f.t==='sub'||f.t==='note')return;
+        if(f.t==='checks'){
+          f.op.forEach(function(o,i){var el=document.getElementById('f_'+f.id+'_'+i); if(el) d[f.id+'_'+i]=el.checked;});
+        } else if(f.t==='scale'){
+          var r=document.querySelector('input[name="f_'+f.id+'"]:checked'); d[f.id]=r?r.value:'';
+        } else {
+          var el=document.getElementById('f_'+f.id); if(el) d[f.id]=el.value;
+        }
+      });
+    });
+    try{ localStorage.setItem(CHAVE, JSON.stringify(d)); flashSalvo(); }catch(e){}
+  },500);
+}
+function flashSalvo(){
+  var s=document.getElementById('savedMsg');
+  s.classList.add('on'); setTimeout(function(){ s.classList.remove('on'); },1600);
+}
+function restaurar(){
+  var raw; try{ raw=localStorage.getItem(CHAVE); }catch(e){ return; }
+  if(!raw) return;
+  var d; try{ d=JSON.parse(raw); }catch(e){ return; }
+  PC_FORM.forEach(function(sec){
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      if(f.t==='checks'){
+        f.op.forEach(function(o,i){
+          var el=document.getElementById('f_'+f.id+'_'+i);
+          if(el && d[f.id+'_'+i]){ el.checked=true; var c=document.getElementById('c_'+f.id+'_'+i); if(c)c.classList.add('on'); }
+        });
+      } else if(f.t==='scale'){
+        if(d[f.id]){ var r=document.querySelector('input[name="f_'+f.id+'"][value="'+d[f.id]+'"]'); if(r) r.checked=true; }
+      } else {
+        var el=document.getElementById('f_'+f.id);
+        if(el && d[f.id]) el.value=d[f.id];
+      }
+    });
+  });
+}
+function limpar(){
+  if(!confirm('Apagar tudo o que você já preencheu e começar de novo?')) return;
+  try{ localStorage.removeItem(CHAVE); }catch(e){}
+  location.reload();
+}
+
+/* avisa se sair com coisas preenchidas */
+window.addEventListener('beforeunload', function(e){
+  var algo=false;
+  PC_FORM.forEach(function(s){ s.fields.forEach(function(f){ if(f.t!=='sub'&&f.t!=='note'&&valor(f)) algo=true; }); });
+  if(algo && !document.getElementById('doneScreen').classList.contains('on')){ e.preventDefault(); e.returnValue=''; }
+});
+
+montar();
+</script>
+</body>
+</html>
