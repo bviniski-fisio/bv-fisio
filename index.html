@@ -12277,6 +12277,37 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
+var APP_VERSAO='2026-08-16c';   // muda a cada atualização — confere se o arquivo novo carregou
+
+/* Teste completo: diz exatamente onde está travando. */
+function precadDiagnostico(){
+  var box=document.getElementById('precadCorpo');
+  if(box)box.innerHTML='<div class="ib">Testando…</div>';
+  var linhas=[];
+  function fim(){
+    if(box)box.innerHTML='<div class="ib" style="background:#FFF8E7;border-color:#F5C842;color:#6B5300">'
+      +'<b>Diagnóstico — versão '+APP_VERSAO+'</b><br><br>'+linhas.join('<br>')+'</div>';
+  }
+  linhas.push('Arquivo carregado: <code>'+APP_VERSAO+'</code>');
+  linhas.push('Função de leitura existe: '+(typeof window._fbListarPrecad==='function'?'✅ sim':'❌ não — arquivo antigo em cache'));
+  if(typeof window._fbAuthReady==='undefined'){ linhas.push('Firebase: ❌ não carregou'); return fim(); }
+  window._fbAuthReady.then(function(u){
+    linhas.push('Login: '+(u?('✅ '+(u.email||'(sem e-mail)')):'❌ não autenticado'));
+    if(typeof window._fbListarPrecad!=='function'){ return fim(); }
+    window._fbListarPrecad().then(function(l){
+      if(l===null){
+        var er=window._precadErro||{};
+        linhas.push('Leitura de precadastros: ❌ <code>'+esc(er.code||'erro')+'</code>');
+        if(er.code==='permission-denied')
+          linhas.push('<br>→ As regras do Firestore não estão liberando esta coleção para <code>'+esc(er.email||'')+'</code>.');
+      } else {
+        linhas.push('Leitura de precadastros: ✅ ok ('+l.length+' ficha(s))');
+      }
+      fim();
+    }).catch(function(e){ linhas.push('Leitura: ❌ '+e); fim(); });
+  }).catch(function(e){ linhas.push('Login: ❌ '+e); fim(); });
+}
+
 var PRECAD_LISTA=[];      // fichas carregadas da nuvem
 var PRECAD_COUNT=0;       // quantas aguardando (para o aviso)
 
@@ -12314,7 +12345,10 @@ function showPrecadastros(){
   document.getElementById('mainArea').innerHTML=
     '<div class="pc-scroll"><div class="pc-wrap">'
     +'<div class="pc-bar"><button class="pc-btn" onclick="showWelcome()">← Voltar</button>'
-    +'<button class="pc-btn" onclick="showPrecadastros()">🔄 Atualizar</button></div>'
+    +'<button class="pc-btn" onclick="showPrecadastros()">🔄 Atualizar</button>'
+    +'<button class="pc-btn" onclick="precadDiagnostico()">🩺 Diagnóstico</button>'
+    +'<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--g4);'
+    +'background:var(--g1);border-radius:10px;padding:3px 9px">versão '+APP_VERSAO+'</span></div>'
     +'<div class="pc-cover"><div class="pc-eyebrow">Recebidas pela ficha online</div>'
     +'<div class="pc-title">Fichas de <em>Pré-Cadastro</em></div>'
     +'<p class="pc-sub">Fichas que os pacientes preencheram pelo link. Confira e cadastre com um toque.</p></div>'
