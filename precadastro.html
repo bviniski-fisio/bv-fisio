@@ -132,25 +132,39 @@ h1 em{font-style:italic;color:var(--or)}
     appId: "1:608630555301:web:324a578485136e6607034c"
   };
 
-  let _db=null, _pronto=false;
+  let _db=null, _pronto=false, _erroAuth='';
   try {
     const app = initializeApp(firebaseConfig);
     _db = getFirestore(app);
     // Login anônimo: identifica o envio sem pedir nada ao paciente
     signInAnonymously(getAuth(app)).then(function(){ _pronto=true; })
-      .catch(function(e){ console.warn('envio online indisponível', e); });
+      .catch(function(e){ _erroAuth = (e && e.code) ? e.code : String(e);
+                          console.warn('envio online indisponível', e); });
   } catch(e) { console.warn('Firebase indisponível', e); }
 
   /* Envia a ficha para a clínica. Devolve true se gravou. */
+  window._motivoFalha = '';
   window.enviarParaClinica = async function(payload) {
-    if (!_db) return false;
+    if (!_db) { window._motivoFalha='Firebase não carregou (sem internet?)'; return false; }
     try {
       // espera o login anônimo por no máximo 6 segundos
       for (let i=0; i<60 && !_pronto; i++) await new Promise(r=>setTimeout(r,100));
-      if (!_pronto) return false;
+      if (!_pronto) {
+        window._motivoFalha = _erroAuth
+          ? ('Login anônimo recusado: ' + _erroAuth + ' — ative "Anônimo" em Authentication › Sign-in method')
+          : 'Login anônimo não respondeu a tempo';
+        return false;
+      }
       await addDoc(collection(_db, 'precadastros'), payload);
       return true;
-    } catch(e) { console.warn('falha ao enviar', e); return false; }
+    } catch(e) {
+      var cod = (e && e.code) ? e.code : '';
+      window._motivoFalha = (cod==='permission-denied')
+        ? 'Permissão negada pelo Firestore — publique as regras da coleção precadastros'
+        : ('Erro ao gravar: ' + (cod || (e && e.message) || e));
+      console.warn('falha ao enviar', e);
+      return false;
+    }
   };
 </script>
 </head>
@@ -823,12 +837,36 @@ function enviar(){
 
   envio.then(function(ok){
     if(btn){btn.innerHTML=txtOrig;btn.disabled=false;}
-    if(ok){ abrirDone(true); return; }
+    if(ok){ avisarClinica(nome.trim(),conds); abrirDone(true); return; }
     enviarPorWhats();   // sem internet ou serviço fora: cai no WhatsApp
   }).catch(function(){
     if(btn){btn.innerHTML=txtOrig;btn.disabled=false;}
     enviarPorWhats();
   });
+}
+
+/* A ficha já foi para o sistema. Aqui vai só um recado curto avisando
+   que ela chegou — nada de despejar todas as respostas na conversa. */
+function avisarClinica(nome,conds){
+  var pn=(nome||'').split(' ')[0];
+  var lista='';
+  try{
+    lista=(conds||[]).map(function(c){
+      var m=(typeof pcMetaCond==='function')?pcMetaCond(c):null;
+      if(m&&m.label)return m.label;
+      // sem rótulo próprio: usa o título do bloco da ficha
+      if(PC_ESPEC[c]&&PC_ESPEC[c][0]&&PC_ESPEC[c][0].title)return PC_ESPEC[c][0].title;
+      return '';
+    }).filter(Boolean).join(', ');
+  }catch(e){}
+  var m='Olá! Sou *'+(nome||'—')+'*.\n\n'
+    +'Acabei de preencher a *ficha de pré-cadastro* pelo link que você me enviou.'
+    +(lista?'\n\n📋 Ficha: '+lista:'')
+    +'\n\n✅ As respostas já foram enviadas direto para o seu sistema — '
+    +'é só abrir em *Fichas Recebidas*.\n\nAté a consulta!';
+  var url='https://wa.me/'+WHATS_FISIO+'?text='+encodeURIComponent(m);
+  var w=window.open(url,'_blank');
+  if(!w) location.href=url;
 }
 
 /* Caminho reserva: manda por WhatsApp, como antes */
@@ -849,8 +887,10 @@ function abrirDone(direto){
   var t=document.getElementById('doneTexto');
   if(t){
     t.innerHTML = direto
-      ? '<p>Suas respostas foram enviadas para a fisioterapeuta. <strong>Não é preciso fazer mais nada.</strong></p>'
-        +'<p style="font-size:12.5px;color:var(--g4)">Ela já vai encontrar a sua ficha preenchida no sistema quando abrir.</p>'
+      ? '<p>Suas respostas foram enviadas direto para o sistema da fisioterapeuta.</p>'
+        +'<p>O WhatsApp abriu com um <strong>recado curto</strong> avisando que a ficha chegou. '
+        +'Toque em enviar nessa mensagem — <strong>ela não contém as suas respostas</strong>, só o aviso.</p>'
+        +'<p style="font-size:12.5px;color:var(--g4)">Suas informações ficam guardadas com sigilo no sistema, não na conversa.</p>'
       : '<p>O WhatsApp foi aberto com as suas respostas. <strong>Confira se a mensagem foi realmente enviada</strong> — às vezes ela fica escrita no campo de texto esperando você tocar em enviar.</p>'
         +'<p style="font-size:12.5px;color:var(--g4)">Se algo não funcionou, toque no botão abaixo para copiar o texto e colar manualmente na conversa.</p>';
   }
@@ -935,6 +975,33 @@ window.addEventListener('beforeunload', function(e){
 });
 
 montar();
+
+/* Diagnóstico: abra o link com &diag=1 no fim para ver se o envio
+   automático está funcionando, sem precisar preencher a ficha toda. */
+(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    if(q.get('diag')!=='1')return;
+    var box=document.createElement('div');
+    box.style.cssText='margin:14px;padding:14px;border-radius:12px;border:2px solid #F5C842;'
+      +'background:#FFF8E7;font-size:13px;line-height:1.6;color:#6B5300';
+    box.innerHTML='<b>Teste de conexão</b><br>Verificando…';
+    document.querySelector('.wrap').insertBefore(box,document.getElementById('form'));
+    setTimeout(function(){
+      var teste={nome:'TESTE DE CONEXAO',conds:'',criadoEm:new Date().toISOString(),
+                 dados:JSON.stringify({teste:'ok'})};
+      (window.enviarParaClinica?window.enviarParaClinica(teste):Promise.resolve(false))
+      .then(function(ok){
+        box.innerHTML = ok
+          ? '<b style="color:#2E7D32">✅ Funcionando</b><br>A gravação automática está ativa. '
+            +'Uma ficha chamada <b>TESTE DE CONEXAO</b> apareceu no seu sistema — pode descartar.'
+          : '<b style="color:#C0392B">❌ Não está gravando</b><br>'
+            +'Motivo: <b>'+(window._motivoFalha||'desconhecido')+'</b><br><br>'
+            +'Enquanto isso, as fichas continuam chegando pelo WhatsApp normalmente.';
+      });
+    },1200);
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
