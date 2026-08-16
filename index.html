@@ -767,7 +767,16 @@
       });
       out.sort(function(a,b){ return (b.criadoEm||'') < (a.criadoEm||'') ? -1 : 1; });
       return out;
-    } catch(e) { console.warn('[FB] erro ao listar pré-cadastros', e); return null; }
+    } catch(e) {
+      var cod = (e && e.code) ? e.code : '';
+      var u = null; try { u = await window._fbAuthReady; } catch(_) {}
+      window._precadErro = {
+        code: cod || (e && e.message) || String(e),
+        email: (u && u.email) || '(sem e-mail no login)'
+      };
+      console.warn('[FB] erro ao listar pré-cadastros', e);
+      return null;
+    }
   };
 
   window._fbApagarPrecad = async function(id) {
@@ -12323,7 +12332,24 @@ function showPrecadastros(){
     var box=document.getElementById('precadCorpo');
     if(!box)return;
     if(lista===null){
-      box.innerHTML='<div class="ib" style="background:#FDECEA;border-color:#C0392B44">Não consegui ler as fichas agora. Verifique a conexão e toque em Atualizar.</div>';
+      var er=window._precadErro||{};
+      var dica='';
+      if(er.code==='permission-denied'){
+        dica='<b>Causa:</b> o Firestore recusou a leitura.<br>'
+          +'Isso acontece quando as regras ainda não têm o bloco <code>precadastros</code>, '
+          +'ou quando o e-mail autorizado nelas é diferente do e-mail com que você entrou.<br><br>'
+          +'<b>Você entrou como:</b> <code>'+esc(er.email||'—')+'</code><br>'
+          +'Confira se esse e-mail está exatamente na lista das regras, e se a palavra '
+          +'<code>precadastros</code> aparece nelas.';
+      } else if(/unavailable|offline|network/i.test(er.code||'')){
+        dica='<b>Causa:</b> sem conexão com a nuvem no momento. Toque em Atualizar quando a internet voltar.';
+      } else if(er.code){
+        dica='<b>Causa:</b> <code>'+esc(er.code)+'</code>';
+      } else {
+        dica='Verifique a conexão e toque em Atualizar.';
+      }
+      box.innerHTML='<div class="ib" style="background:#FDECEA;border-color:#C0392B44">'
+        +'<b>Não consegui ler as fichas.</b><br><br>'+dica+'</div>';
       return;
     }
     if(!PRECAD_LISTA.length){
