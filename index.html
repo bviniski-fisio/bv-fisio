@@ -623,6 +623,16 @@
   window._fbAuthReady = new Promise(function(resolve){ _authResolve = resolve; });
 
   onAuthStateChanged(fbAuth, function(user) {
+    /* Sessão anônima não serve para o sistema: as regras exigem e-mail.
+       Isso podia acontecer se a página do pré-cadastro fosse aberta neste
+       mesmo navegador. Se detectar, encerra e pede o login de verdade. */
+    if (user && (user.isAnonymous || !user.email)) {
+      console.warn('[FB] sessão anônima detectada — exigindo login com e-mail');
+      try { signOut(fbAuth); } catch(e) {}
+      if (window._showLoginGate) window._showLoginGate('login');
+      else window._gatePending = true;
+      return;
+    }
     if (user) {
       if (!_authSettled) { _authSettled = true; _authResolve(user); }
       if (window._hideLoginGate) window._hideLoginGate();
@@ -12277,7 +12287,7 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-16c';   // muda a cada atualização — confere se o arquivo novo carregou
+var APP_VERSAO='2026-08-16d';   // muda a cada atualização — confere se o arquivo novo carregou
 
 /* Teste completo: diz exatamente onde está travando. */
 function precadDiagnostico(){

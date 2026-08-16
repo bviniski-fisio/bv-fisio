@@ -121,7 +121,7 @@ h1 em{font-style:italic;color:var(--or)}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { initializeAuth, inMemoryPersistence, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCAZuiz5aluuTTtDwwx_QhLajqeyKI0jP0", // pragma: allowlist secret
@@ -134,10 +134,17 @@ h1 em{font-style:italic;color:var(--or)}
 
   let _db=null, _pronto=false, _erroAuth='';
   try {
-    const app = initializeApp(firebaseConfig);
+    /* IMPORTANTE — sessão isolada.
+       Esta página fica no mesmo endereço do sistema da clínica. Se usássemos
+       o app padrão do Firebase, o login anônimo daqui SUBSTITUIRIA o login
+       da fisioterapeuta no navegador dela, derrubando a sincronização.
+       Por isso: instância própria ('precad') + persistência apenas em
+       memória, que não grava nada no navegador e some ao fechar a aba. */
+    const app = initializeApp(firebaseConfig, 'precad');
     _db = getFirestore(app);
+    const auth = initializeAuth(app, { persistence: inMemoryPersistence });
     // Login anônimo: identifica o envio sem pedir nada ao paciente
-    signInAnonymously(getAuth(app)).then(function(){ _pronto=true; })
+    signInAnonymously(auth).then(function(){ _pronto=true; })
       .catch(function(e){ _erroAuth = (e && e.code) ? e.code : String(e);
                           console.warn('envio online indisponível', e); });
   } catch(e) { console.warn('Firebase indisponível', e); }
