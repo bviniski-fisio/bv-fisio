@@ -636,6 +636,7 @@
     if (user) {
       if (!_authSettled) { _authSettled = true; _authResolve(user); }
       if (window._hideLoginGate) window._hideLoginGate();
+      if (window.contaAtualizar) setTimeout(window.contaAtualizar, 60);
     } else {
       if (window._showLoginGate) window._showLoginGate('login');
       else window._gatePending = true;
@@ -1019,7 +1020,7 @@
     }); // waits for DB to be ready
   });
 </script>
-</head><body><header class="master-header"><div class="mh-brand" onclick="showWelcome()" style="cursor:pointer" title="Voltar ao início"><img src="" id="mhLogo" alt="Logo" style="height:44px;width:auto;object-fit:contain;"><div><div class="mh-title">BIANCA VINISKI</div><div class="mh-sub">Sistema Integrado de Avaliação</div></div></div><div class="hdr-actions"><div id="syncStatus" role="status" aria-live="polite" aria-label="Status de sincronização" title="Status de sincronização" style="display:flex;align-items:center;gap:5px;margin-right:4px;padding:3px 8px;border-radius:12px;background:rgba(0,0,0,.05)"><span id="syncDot" style="width:9px;height:9px;border-radius:50%;background:#c8c8c0;display:inline-block;flex-shrink:0;transition:background .3s"></span><span id="syncTxt" class="sync-txt" style="font-size:9.5px;font-weight:700;color:var(--g4);letter-spacing:.3px;white-space:nowrap"></span></div>
+</head><body><header class="master-header"><div class="mh-brand" onclick="showWelcome()" style="cursor:pointer" title="Voltar ao início"><img src="" id="mhLogo" alt="Logo" style="height:44px;width:auto;object-fit:contain;"><div><div class="mh-title">BIANCA VINISKI</div><div class="mh-sub">Sistema Integrado de Avaliação</div></div></div><div class="hdr-actions"><div id="syncStatus" role="status" aria-live="polite" aria-label="Status de sincronização" title="Status de sincronização" style="display:flex;align-items:center;gap:5px;margin-right:4px;padding:3px 8px;border-radius:12px;background:rgba(0,0,0,.05)"><span id="syncDot" style="width:9px;height:9px;border-radius:50%;background:#c8c8c0;display:inline-block;flex-shrink:0;transition:background .3s"></span><span id="syncTxt" class="sync-txt" style="font-size:9.5px;font-weight:700;color:var(--g4);letter-spacing:.3px;white-space:nowrap"></span></div><button id="contaBtn" onclick="abrirConta()" title="Conta conectada" style="display:none;align-items:center;gap:6px;margin-right:4px;padding:3px 9px;border-radius:12px;background:rgba(0,0,0,.05);border:none;cursor:pointer;font-family:'DM Sans'"><span id="contaIni" style="width:19px;height:19px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0"></span><span id="contaTxt" style="font-size:9.5px;font-weight:700;color:var(--g6);letter-spacing:.3px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis"></span></button>
 <button class="hdr-btn hdr-btn-blue" onclick="showDashboard()" title="Dashboard" aria-label="Dashboard">📊<span class="hdr-lbl"> Dashboard</span></button>
 <button class="hdr-btn" onclick="showAvisos()" title="Avisos" aria-label="Avisos" id="btnAvisos">🔔<span class="hdr-lbl"> Avisos</span></button>
 <button class="hdr-btn" id="btnTema" onclick="toggleTema()" title="Tema" aria-label="Tema">🌙<span class="hdr-lbl"> Tema</span></button>
@@ -1746,6 +1747,7 @@ function renderPatientProfile(p){
       +(p.phone?'<button class="btn" style="background:#25D366;color:#fff;padding:10px 16px" onclick="sendWhatsAppToPatient('+p.id+')">💬 WhatsApp</button>':'')
       +(p.phone?'<button class="btn" style="background:#128C7E;color:#fff;padding:10px 16px" onclick="sendFichaPreConsulta('+p.id+')">📋 Ficha Pré-Consulta</button>':'')
       +'<button class="btn" style="background:#E8844A;color:#fff;padding:10px 16px" onclick="openCartilha('+p.id+')">🏠 Cartilha Domiciliar</button>'
+      +(p.preCadastro?'<button class="btn" style="background:#6B5B95;color:#fff;padding:10px 16px" onclick="verPreCadastro('+p.id+')">📄 Ficha do Paciente</button>':'')
       +'</div>';
   }
   html+='</div>';
@@ -6537,7 +6539,7 @@ function buildSections(){
     fg([['Data','date','date',null,null],
         ['Queixa principal','queixa','textarea',null,{full:true,ph:'Descreva a queixa principal...'}],
         ['Motivo do encaminhamento','motivo','text',null,{ph:'Ex: prevenção de quedas, reabilitação...'}],
-        ['Cuidador / responsável','cuidador','text',null,{ph:'Nome e parentesco'}],
+        ['Cuidador / responsável','cuidador','text',null,{ph:'Nome e grau de parentesco'}],
         ['Grau de dependência','dependencia','select',['Independente','Dependência leve','Dependência moderada','Dependência grave','Dependência total'],null],
         ['Observações','obs_gerais','textarea',null,{full:true}]]),true)
 
@@ -10957,115 +10959,116 @@ function pcCopiarLink(){
 
 var PC_BASE_INI=[
 {icon:'👤',title:'Identificação',fields:[
-  {id:'nome',lb:'Nome completo',t:'text',rq:1,full:1,ph:'Nome como no documento'},
-  {id:'nasc',lb:'Data de nascimento',t:'date',rq:1},
+  {id:'nome',lb:'Nome completo',t:'text',rq:1,full:1,ph:'Conforme consta no documento de identidade'},
+  {id:'nasc',lb:'Data de nascimento',t:'datatxt',rq:1,ph:'DD/MM/AAAA',hint:'Digite apenas os números; as barras são inseridas automaticamente. Exemplo: 15/03/1952'},
   {id:'sexo',lb:'Sexo biológico',t:'select',rq:1,op:['Masculino','Feminino']},
   {id:'cpf',lb:'CPF',t:'text',ph:'000.000.000-00'},
   {id:'estado_civil',lb:'Estado civil',t:'select',op:['Solteiro(a)','Casado(a) / união estável','Divorciado(a)','Viúvo(a)']},
-  {id:'profissao',lb:'Profissão / ocupação atual',t:'text',ph:'Ex: professora aposentada, pedreiro, estudante'},
+  {id:'profissao',lb:'Profissão ou ocupação atual',t:'text',ph:'Exemplo: professora aposentada, pedreiro, estudante'},
   {id:'escolaridade',lb:'Escolaridade',t:'select',op:['Não alfabetizado','Fundamental incompleto','Fundamental completo','Médio incompleto','Médio completo','Superior incompleto','Superior completo','Pós-graduação']},
-  {id:'tel_paciente',lb:'Telefone / WhatsApp do paciente',t:'tel',ph:'(81) 9 0000-0000'},
+  {id:'tel_paciente',lb:'Telefone de contato (WhatsApp)',t:'tel',ph:'(81) 9 0000-0000'},
   {id:'email_paciente',lb:'E-mail',t:'email',ph:'seuemail@exemplo.com'},
-  {id:'endereco',lb:'Endereço completo',t:'text',rq:1,full:1,ph:'Rua, número, complemento, bairro, cidade'},
-  {id:'convenio',lb:'Convênio / forma de pagamento',t:'text',ph:'Ex: Unimed, particular, reembolso'},
-  {id:'indicacao',lb:'Como chegou até a clínica',t:'select',op:['Indicação médica','Indicação de amigo ou familiar','Instagram / redes sociais','Já foi paciente antes','Convênio','Outro']}
+  {id:'endereco',lb:'Endereço completo',t:'text',rq:1,full:1,ph:'Logradouro, número, complemento, bairro e cidade'},
+  {id:'convenio',lb:'Convênio ou forma de pagamento',t:'text',ph:'Exemplo: Unimed, particular, reembolso'},
 ]},
 {icon:'📞',title:'Contato de Emergência',fields:[
-  {t:'note',lb:'Uma pessoa que possamos acionar em caso de necessidade durante o atendimento.'},
+  {t:'note',lb:'Informe uma pessoa que possa ser contatada em caso de necessidade durante o atendimento.'},
   {id:'emerg_nome',lb:'Nome do contato de emergência',t:'text',rq:1,ph:'Nome completo'},
-  {id:'emerg_par',lb:'Parentesco / vínculo',t:'select',rq:1,op:['Cônjuge / companheiro(a)','Filho(a)','Pai / Mãe','Irmão / Irmã','Neto(a)','Sobrinho(a)','Amigo(a)','Cuidador profissional','Outro']},
+  {id:'emerg_par',lb:'Grau de parentesco ou vínculo',t:'select',rq:1,op:['Cônjuge / companheiro(a)','Filho(a)','Pai / Mãe','Irmão / Irmã','Neto(a)','Sobrinho(a)','Amigo(a)','Cuidador profissional','Outro']},
   {id:'emerg_tel',lb:'Telefone do contato de emergência',t:'tel',rq:1,ph:'(81) 9 0000-0000'},
-  {id:'acompanhante',lb:'Virá acompanhado às sessões?',t:'select',op:['Não — venho sozinho(a)','Sim — sempre','Sim — às vezes','Preciso de acompanhante para me locomover']}
+  {id:'acompanhante',lb:'Comparecerá acompanhado às sessões',t:'select',op:['Não — venho sozinho(a)','Sim — sempre','Sim — às vezes','Preciso de acompanhante para me locomover']}
 ]},
 {icon:'🎯',title:'Motivo da Consulta',fields:[
-  {t:'note',lb:'Esta é a parte mais importante da ficha. Escreva com as suas palavras — não precisa usar termos técnicos.'},
-  {id:'queixa',lb:'O que trouxe você à fisioterapia',t:'textarea',rq:1,full:1,rows:4,ph:'Ex: dor no ombro direito que não passa há três meses e me impede de levantar o braço.'},
-  {id:'inicio_quando',lb:'Quando começou',t:'select',rq:1,op:['Há menos de 1 semana','1 a 4 semanas','1 a 3 meses','3 a 6 meses','6 meses a 1 ano','1 a 5 anos','Mais de 5 anos']},
-  {id:'inicio_como',lb:'Como começou',t:'select',rq:1,op:['De repente, sem motivo aparente','Após uma queda ou pancada','Após esforço ou carregar peso','Após acidente de trânsito','Após cirurgia','Após um AVC ou problema neurológico','Foi aparecendo aos poucos','Desde que nasci / desde criança','Não sei dizer']},
-  {id:'evolucao',lb:'Desde então, o quadro está',t:'select',op:['Piorando','Estável, sempre igual','Melhorando aos poucos','Vai e volta — tem dias bons e ruins']},
-  {id:'limitacao',lb:'O que você deixou de fazer por causa disso',t:'textarea',full:1,rows:3,ph:'Ex: parei de subir escada, não durmo de lado, deixei de trabalhar, não brinco com meus netos...'},
-  {id:'trat_previo',lb:'Já fez algum tratamento para isso?',t:'checks',full:1,op:['Não fiz nenhum tratamento','Fisioterapia','Medicação prescrita por médico','Infiltração','Cirurgia','Acupuntura','Pilates / musculação','RPG','Outro']},
-  {id:'trat_resultado',lb:'Se já fez tratamento, qual foi o resultado',t:'text',full:1,ph:'Ex: melhorou por um tempo e depois voltou; não senti diferença'},
-  {id:'encaminhado',lb:'Foi encaminhado por algum médico?',t:'select',op:['Sim — tenho o pedido/encaminhamento','Sim — mas não tenho o papel','Não — procurei por conta própria']}
+  {t:'note',lb:'Esta é a seção mais importante da ficha. Descreva com suas próprias palavras; não é necessário utilizar termos técnicos.'},
+  {id:'queixa',lb:'Motivo que o(a) trouxe à fisioterapia',t:'textarea',rq:1,full:1,rows:4,ph:'Ex: dor no ombro direito que não passa há três meses e me impede de levantar o braço.'},
+  {id:'inicio_quando',lb:'Início dos sintomas',t:'select',rq:1,op:['Há menos de 1 semana','1 a 4 semanas','1 a 3 meses','3 a 6 meses','6 meses a 1 ano','1 a 5 anos','Mais de 5 anos']},
+  {id:'inicio_como',lb:'Forma de início',t:'select',rq:1,op:['De repente, sem motivo aparente','Após uma queda ou pancada','Após esforço ou carregar peso','Após acidente de trânsito','Após cirurgia','Após um AVC ou problema neurológico','Foi aparecendo aos poucos','Desde que nasci / desde criança','Não sei dizer']},
+  {id:'evolucao',lb:'Evolução desde o início',t:'select',op:['Piorando','Estável, sempre igual','Melhorando aos poucos','Vai e volta — tem dias bons e ruins']},
+  {id:'limitacao',lb:'Atividades que deixou de realizar em decorrência do quadro',t:'textarea',full:1,rows:3,ph:'Ex: parei de subir escada, não durmo de lado, deixei de trabalhar, não brinco com meus netos...'},
+  {id:'trat_previo',lb:'Tratamentos já realizados para esta queixa',t:'checks',full:1,op:['Não fiz nenhum tratamento','Fisioterapia','Medicação prescrita por médico','Infiltração','Cirurgia','Acupuntura','Pilates / musculação','RPG','Outro']},
+  {id:'trat_resultado',lb:'Resultado obtido com os tratamentos anteriores',t:'text',full:1,ph:'Ex: melhorou por um tempo e depois voltou; não senti diferença'},
+  {id:'encaminhado',lb:'Encaminhamento médico',t:'select',op:['Sim — tenho o pedido/encaminhamento','Sim — mas não tenho o papel','Não — procurei por conta própria']}
 ]},
 {icon:'🩺',title:'Histórico de Saúde',fields:[
   {t:'sub',lb:'Acompanhamento médico'},
-  {id:'medico',lb:'Médico responsável',t:'text',ph:'Nome e especialidade, se souber'},
-  {id:'hospital',lb:'Hospital ou clínica de referência',t:'text',ph:'Onde faz acompanhamento'},
-  {id:'exames',lb:'Exames de imagem já realizados',t:'checks',full:1,op:['Nenhum','Raio-X','Ressonância magnética','Tomografia','Ultrassom','Densitometria óssea','Eletroneuromiografia']},
-  {id:'exames_obs',lb:'O que os exames mostraram',t:'text',full:1,ph:'Escreva o que o médico explicou. Traga os exames na primeira consulta.'},
+  {id:'medico',lb:'Médico responsável pelo acompanhamento',t:'text',ph:'Nome e especialidade, se souber'},
+  {id:'hospital',lb:'Serviço de saúde de referência',t:'text',ph:'Serviço onde realiza acompanhamento'},
+  {id:'exames',lb:'Exames de imagem realizados',t:'checks',full:1,op:['Nenhum','Raio-X','Ressonância magnética','Tomografia','Ultrassom','Densitometria óssea','Eletroneuromiografia']},
+  {id:'exames_obs',lb:'Principais achados dos exames',t:'text',full:1,ph:'Escreva o que o médico explicou. Traga os exames na primeira consulta.'},
   {t:'sub',lb:'Antecedentes'},
-  {id:'comorb',lb:'Outras doenças que você tem',t:'checks',full:1,op:['Nenhuma','Pressão alta','Diabetes','Colesterol alto','Problema no coração','Arritmia','Asma ou bronquite','Osteoporose','Artrite ou reumatismo','Problema de tireoide','Problema renal','Labirintite','Epilepsia','Depressão ou ansiedade']},
-  {id:'cirurgias',lb:'Cirurgias que já fez',t:'textarea',full:1,ph:'Ex: cesárea em 2010; cirurgia de menisco em 2022; ponte de safena em 2019'},
-  {id:'internacoes',lb:'Internações nos últimos 2 anos',t:'text',full:1,ph:'Motivo e quando. Se não houve, escreva "nenhuma".'},
+  {id:'comorb',lb:'Doenças associadas',t:'checks',full:1,op:['Nenhuma','Pressão alta','Diabetes','Colesterol alto','Problema no coração','Arritmia','Asma ou bronquite','Osteoporose','Artrite ou reumatismo','Problema de tireoide','Problema renal','Labirintite','Epilepsia','Depressão ou ansiedade']},
+  {id:'cirurgias',lb:'Cirurgias realizadas',t:'textarea',full:1,ph:'Ex: cesárea em 2010; cirurgia de menisco em 2022; ponte de safena em 2019'},
+  {id:'internacoes',lb:'Internações nos últimos dois anos',t:'text',full:1,ph:'Motivo e quando. Se não houve, escreva "nenhuma".'},
   {id:'alergias',lb:'Alergias conhecidas',t:'text',full:1,ph:'Medicamentos, alimentos, esparadrapo, látex — ou "nenhuma conhecida"'},
-  {id:'gestante',lb:'Está grávida ou amamentando?',t:'select',op:['Não se aplica','Não estou','Sim — gestante','Sim — amamentando']},
-  {id:'implantes',lb:'Usa marca-passo, prótese metálica ou implante?',t:'select',full:1,op:['Não','Marca-passo','Prótese metálica (placa, pino, prótese de quadril ou joelho)','Implante coclear','Outro'],hint:'Importante: alguns recursos da fisioterapia não podem ser usados nesses casos.'}
+  {id:'gestante',lb:'Gestação ou amamentação',t:'select',op:['Não se aplica','Não estou','Sim — gestante','Sim — amamentando']},
+  {id:'implantes',lb:'Uso de marca-passo, prótese metálica ou implante',t:'select',full:1,op:['Não','Marca-passo','Prótese metálica (placa, pino, prótese de quadril ou joelho)','Implante coclear','Outro'],hint:'Informação relevante: determinados recursos fisioterapêuticos são contraindicados nesses casos.'}
 ]},
 {icon:'💊',title:'Medicamentos em Uso',fields:[
-  {t:'note',lb:'Liste os remédios que você toma com regularidade. Se tiver a receita ou a caixa, pode trazer na consulta — não precisa acertar o nome exato aqui.'},
-  {id:'medicamentos',lb:'Medicamentos, doses e horários',t:'textarea',full:1,rows:5,ph:'Ex:\nLosartana 50mg — manhã\nMetformina 850mg — almoço e jantar'},
-  {id:'anticoag',lb:'Usa anticoagulante (afinador de sangue)?',t:'select',op:['Não uso','Sim','Não sei informar']},
-  {id:'med_dor',lb:'Toma remédio para dor com que frequência',t:'select',op:['Não tomo','Só quando a dor está muito forte','Algumas vezes por semana','Todos os dias']}
+  {t:'note',lb:'Relacione os medicamentos de uso regular. Caso não recorde o nome exato, traga a receita ou a embalagem na consulta.'},
+  {id:'medicamentos',lb:'Medicamentos, doses e horários de uso',t:'textarea',full:1,rows:5,ph:'Ex:\nLosartana 50mg — manhã\nMetformina 850mg — almoço e jantar'},
+  {id:'anticoag',lb:'Uso de anticoagulante',t:'select',op:['Não uso','Sim','Não sei informar']},
+  {id:'med_dor',lb:'Frequência de uso de analgésicos',t:'select',op:['Não tomo','Só quando a dor está muito forte','Algumas vezes por semana','Todos os dias']}
 ]},
 {icon:'🔥',title:'Dor',fields:[
-  {t:'note',lb:'Se você não sente dor, pule esta parte inteira.'},
-  {id:'dor_tem',lb:'Você sente dor?',t:'select',full:1,op:['Não sinto dor','Sim — só quando me movimento','Sim — a maior parte do tempo','Sim — o tempo todo, sem parar']},
-  {id:'dor_local',lb:'Onde dói',t:'text',full:1,ph:'Ex: lombar do lado direito, descendo pela perna até o joelho'},
-  {id:'dor_agora',lb:'Nota da dor AGORA (0 = nenhuma, 10 = a pior possível)',t:'scale',full:1,l:'Sem dor',r:'Pior dor'},
-  {id:'dor_pior',lb:'Nota da dor no PIOR momento da última semana',t:'scale',full:1,l:'Sem dor',r:'Pior dor'},
-  {id:'dor_tipo',lb:'Como é a dor',t:'checks',full:1,op:['Peso ou pressão','Pontada / fisgada','Queimação','Choque elétrico','Formigamento ou adormecimento','Latejante','Dor difusa, no corpo todo']},
-  {id:'dor_piora',lb:'O que faz piorar',t:'text',full:1,ph:'Ex: subir escada, ficar sentado muito tempo, carregar peso, frio'},
-  {id:'dor_melhora',lb:'O que faz melhorar',t:'text',full:1,ph:'Ex: repouso, bolsa quente, alongar, tomar remédio, caminhar'},
-  {id:'dor_periodo',lb:'Em que momento do dia é pior',t:'select',op:['Ao acordar','Ao longo do dia, com o uso','Ao fim do dia','À noite, atrapalha o sono','Sem diferença']},
-  {id:'dor_sono',lb:'A dor atrapalha o seu sono?',t:'select',op:['Não','Às vezes','Quase toda noite','Toda noite']}
+  {t:'note',lb:'Caso não haja queixa de dor, esta seção pode ser deixada em branco.'},
+  {id:'dor_tem',lb:'Presença de dor',t:'select',full:1,op:['Não sinto dor','Sim — só quando me movimento','Sim — a maior parte do tempo','Sim — o tempo todo, sem parar']},
+  {id:'dor_local',lb:'Localização da dor',t:'text',full:1,ph:'Exemplo: região lombar à direita, com irradiação até o joelho.'},
+  {id:'dor_agora',lb:'Intensidade da dor no momento (0 = ausente · 10 = máxima)',t:'scale',full:1,l:'Sem dor',r:'Pior dor'},
+  {id:'dor_pior',lb:'Intensidade da dor no pior momento da última semana',t:'scale',full:1,l:'Sem dor',r:'Pior dor'},
+  {id:'dor_tipo',lb:'Características da dor',t:'checks',full:1,op:['Peso ou pressão','Pontada / fisgada','Queimação','Choque elétrico','Formigamento ou adormecimento','Latejante','Dor difusa, no corpo todo']},
+  {id:'dor_piora',lb:'Fatores que agravam a dor',t:'text',full:1,ph:'Ex: subir escada, ficar sentado muito tempo, carregar peso, frio'},
+  {id:'dor_melhora',lb:'Fatores que aliviam a dor',t:'text',full:1,ph:'Ex: repouso, bolsa quente, alongar, tomar remédio, caminhar'},
+  {id:'dor_periodo',lb:'Período do dia de maior intensidade',t:'select',op:['Ao acordar','Ao longo do dia, com o uso','Ao fim do dia','À noite, atrapalha o sono','Sem diferença']},
+  {id:'dor_sono',lb:'Interferência da dor no sono',t:'select',op:['Não','Às vezes','Quase toda noite','Toda noite']}
 ]},
-{icon:'🚶',title:'Mobilidade e Vida Diária',fields:[
+{icon:'🚶',title:'Mobilidade e Atividades de Vida Diária',fields:[
   {t:'sub',lb:'Locomoção'},
-  {id:'locomocao',lb:'Como você se locomove',t:'select',rq:1,full:1,op:['Ando normalmente, sem nenhuma ajuda','Ando sozinho, mas com dificuldade ou devagar','Ando com bengala','Ando com muleta','Ando com andador','Preciso do apoio de uma pessoa','Uso cadeira de rodas parte do tempo','Uso cadeira de rodas o tempo todo','Estou acamado']},
-  {id:'distancia',lb:'Quanto consegue caminhar sem parar',t:'select',op:['Sem limite','Cerca de um quarteirão','Só dentro de casa','Poucos passos','Não caminho']},
-  {id:'escada_sobe',lb:'Consegue subir escada?',t:'select',op:['Sim, sem apoio','Sim, segurando no corrimão','Com muita dificuldade','Não consigo']},
+  {id:'locomocao',lb:'Forma de locomoção',t:'select',rq:1,full:1,op:['Ando normalmente, sem nenhuma ajuda','Ando sozinho, mas com dificuldade ou devagar','Ando com bengala','Ando com muleta','Ando com andador','Preciso do apoio de uma pessoa','Uso cadeira de rodas parte do tempo','Uso cadeira de rodas o tempo todo','Estou acamado']},
+  {id:'distancia',lb:'Distância percorrida sem necessidade de parada',t:'select',op:['Sem limite','Cerca de um quarteirão','Só dentro de casa','Poucos passos','Não caminho']},
+  {id:'escada_sobe',lb:'Capacidade de subir escadas',t:'select',op:['Sim, sem apoio','Sim, segurando no corrimão','Com muita dificuldade','Não consigo']},
   {t:'sub',lb:'Atividades do dia a dia'},
-  {t:'note',lb:'Marque como está HOJE, não como você gostaria de estar.'},
-  {id:'avd_banho',lb:'Tomar banho e se vestir',t:'select',op:['Faço sozinho sem dificuldade','Faço sozinho, mas com dificuldade','Preciso de ajuda em parte','Preciso de ajuda completa']},
-  {id:'avd_alim',lb:'Se alimentar',t:'select',op:['Sozinho','Com dificuldade','Preciso de ajuda','Uso sonda']},
-  {id:'avd_transf',lb:'Levantar da cama e da cadeira',t:'select',op:['Sozinho','Com apoio das mãos','Com ajuda de uma pessoa','Não consigo']},
-  {id:'avd_casa',lb:'Tarefas de casa e compras',t:'select',op:['Faço tudo normalmente','Faço as mais leves','Não faço mais','Nunca fiz']}
+  {t:'note',lb:'Assinale a situação atual, e não a desejada.'},
+  {id:'avd_banho',lb:'Banho e vestuário',t:'select',op:['Faço sozinho sem dificuldade','Faço sozinho, mas com dificuldade','Preciso de ajuda em parte','Preciso de ajuda completa']},
+  {id:'avd_alim',lb:'Alimentação',t:'select',op:['Sozinho','Com dificuldade','Preciso de ajuda','Uso sonda']},
+  {id:'avd_transf',lb:'Transferências (levantar da cama e da cadeira)',t:'select',op:['Sozinho','Com apoio das mãos','Com ajuda de uma pessoa','Não consigo']},
+  {id:'avd_casa',lb:'Tarefas domésticas e compras',t:'select',op:['Faço tudo normalmente','Faço as mais leves','Não faço mais','Nunca fiz']}
 ]},
-{icon:'🏃',title:'Hábitos de Vida e Trabalho',fields:[
-  {id:'atividade_fisica',lb:'Pratica atividade física',t:'select',op:['Não pratico','Caminhada leve','Musculação','Pilates','Hidroginástica','Esporte','Outra']},
-  {id:'freq_af',lb:'Com que frequência',t:'select',op:['Não pratico nenhuma','1 a 2 vezes por semana','3 a 4 vezes por semana','5 ou mais vezes por semana','Praticava, mas parei']},
-  {id:'af_parou',lb:'Se parou, por quê',t:'text',full:1,ph:'Ex: parei quando começou a dor no joelho'},
-  {id:'trabalho_tipo',lb:'Como é o seu trabalho',t:'select',op:['Não trabalho / aposentado','Sentado a maior parte do tempo','Em pé a maior parte do tempo','Carrego peso','Movimentos repetitivos','Trabalho doméstico']},
-  {id:'trabalho_situacao',lb:'Situação atual de trabalho',t:'select',op:['Não se aplica','Trabalhando normalmente','Trabalhando com dificuldade','Afastado pelo INSS','Aposentado normalmente','Aposentado por invalidez','Desempregado']},
-  {id:'tabagismo',lb:'Fuma?',t:'select',op:['Nunca fumei','Ex-fumante','Sim, fumo']},
-  {id:'alcool',lb:'Bebida alcoólica',t:'select',op:['Não bebo','Socialmente','Com frequência']},
-  {id:'sono_horas',lb:'Quantas horas dorme por noite',t:'select',op:['Menos de 4','4 a 6','6 a 8','Mais de 8']},
-  {id:'sono_qualidade',lb:'Como é o seu sono',t:'select',op:['Durmo bem','Demoro a pegar no sono','Acordo várias vezes','Acordo cansado','Uso remédio para dormir']}
+{icon:'🏃',title:'Hábitos de Vida e Atividade Laboral',fields:[
+  {id:'atividade_fisica',lb:'Prática de atividade física',t:'select',op:['Não pratico','Caminhada leve','Musculação','Pilates','Hidroginástica','Esporte','Outra']},
+  {id:'freq_af',lb:'Frequência semanal',t:'select',op:['Não pratico nenhuma','1 a 2 vezes por semana','3 a 4 vezes por semana','5 ou mais vezes por semana','Praticava, mas parei']},
+  {id:'af_parou',lb:'Motivo da interrupção, se houver',t:'text',full:1,ph:'Ex: parei quando começou a dor no joelho'},
+  {id:'trabalho_tipo',lb:'Natureza da atividade laboral',t:'select',op:['Não trabalho / aposentado','Sentado a maior parte do tempo','Em pé a maior parte do tempo','Carrego peso','Movimentos repetitivos','Trabalho doméstico','Outro — descrevo abaixo']},
+  {id:'trabalho_desc',lb:'Descrição da atividade laboral',t:'text',full:1,ph:'Exemplo: permaneço sentada durante toda a jornada, com a máquina na altura do tórax.'},
+  {id:'trabalho_situacao',lb:'Situação laboral atual',t:'select',op:['Não se aplica','Trabalhando normalmente','Trabalhando com dificuldade','Afastado pelo INSS','Aposentado normalmente','Aposentado por invalidez','Desempregado']},
+  {id:'tabagismo',lb:'Tabagismo',t:'select',op:['Nunca fumei','Ex-fumante','Sim, fumo']},
+  {id:'alcool',lb:'Consumo de bebida alcoólica',t:'select',op:['Não bebo','Socialmente','Com frequência']},
+  {id:'sono_horas',lb:'Horas de sono por noite',t:'select',op:['Menos de 4','4 a 6','6 a 8','Mais de 8']},
+  {id:'sono_qualidade',lb:'Qualidade do sono',t:'select',op:['Durmo bem','Demoro a pegar no sono','Acordo várias vezes','Acordo cansado','Uso remédio para dormir']}
 ]},
-{icon:'🏠',title:'Moradia e Rotina',fields:[
-  {id:'moradia',lb:'Onde mora',t:'select',op:['Casa própria ou alugada','Apartamento','Casa de repouso / ILPI','Casa de familiar']},
-  {id:'mora_com',lb:'Mora com quem',t:'select',op:['Sozinho(a)','Cônjuge','Filhos','Outros familiares','Cuidador','Em instituição']},
-  {id:'escadas',lb:'Precisa subir escada para entrar ou circular em casa',t:'select',op:['Não','Sim — poucos degraus','Sim — um lance inteiro','Sim — mais de um andar']},
-  {id:'transporte',lb:'Como virá para as sessões',t:'select',op:['Dirijo','Levado por familiar','Transporte por aplicativo','Ônibus','A pé','Transporte adaptado']},
-  {id:'disponibilidade',lb:'Melhor horário para os atendimentos',t:'select',op:['Manhã','Tarde','Noite','Qualquer horário']},
-  {id:'atividades',lb:'O que você gosta de fazer',t:'textarea',full:1,ph:'Ex: cuidar do jardim, jogar dominó, ir à igreja, brincar com os netos, dançar forró',hint:'Isso ajuda a montar exercícios com sentido para você, e não apenas movimentos soltos.'}
+{icon:'🏠',title:'Condições de Moradia e Rotina',fields:[
+  {id:'moradia',lb:'Tipo de moradia',t:'select',op:['Casa própria ou alugada','Apartamento','Casa de repouso / ILPI','Casa de familiar']},
+  {id:'mora_com',lb:'Com quem reside',t:'select',op:['Sozinho(a)','Cônjuge','Filhos','Outros familiares','Cuidador','Em instituição','Outro — descrevo abaixo']},
+  {id:'mora_desc',lb:'Descrição de quem reside com o paciente',t:'text',full:1,ph:'Exemplo: cônjuge e filha mais nova.'},
+  {id:'escadas',lb:'Necessidade de subir escadas na residência',t:'select',op:['Não','Sim — poucos degraus','Sim — um lance inteiro','Sim — mais de um andar']},
+  {id:'transporte',lb:'Meio de transporte até as sessões',t:'select',op:['Dirijo','Levado por familiar','Transporte por aplicativo','Ônibus','A pé','Transporte adaptado']},
+  {id:'disponibilidade',lb:'Preferência de horário para os atendimentos',t:'select',op:['Manhã','Tarde','Noite','Qualquer horário']},
+  {id:'atividades',lb:'Atividades de interesse e lazer',t:'textarea',full:1,ph:'Exemplo: jardinagem, jogos, atividades religiosas, convívio com os netos.',hint:'Estas informações permitem elaborar exercícios com significado pessoal, e não apenas movimentos isolados.'}
 ]}
 ];
 
 var PC_BASE_FIM=[
-{icon:'💬',title:'Objetivos e Observações',fields:[
-  {id:'objetivos',lb:'O que você mais quer conseguir com a fisioterapia',t:'checks',full:1,rq:1,op:['Aliviar a dor','Voltar a andar melhor','Não cair mais','Recuperar o movimento','Ganhar força','Voltar ao trabalho','Voltar a praticar esporte','Ter mais independência no dia a dia','Manter o que já consigo fazer','Orientar minha família']},
-  {id:'meta_pessoal',lb:'Se pudesse voltar a fazer UMA coisa, qual seria',t:'text',full:1,ph:'Ex: carregar meu neto no colo; dormir a noite toda; subir a escada de casa'},
-  {id:'importante',lb:'Algo importante que a fisioterapeuta precisa saber',t:'textarea',full:1,rows:3,ph:'Ex: fico nervoso com toque nas costas; tenho pressão baixa e passo mal se levantar rápido'},
-  {id:'duvidas',lb:'Dúvidas ou expectativas para o primeiro atendimento',t:'textarea',full:1,ph:'Escreva aqui qualquer pergunta que tenha'}
+{icon:'💬',title:'Objetivos do Tratamento e Observações',fields:[
+  {id:'objetivos',lb:'Principais objetivos com a fisioterapia',t:'checks',full:1,rq:1,op:['Aliviar a dor','Voltar a andar melhor','Não cair mais','Recuperar o movimento','Ganhar força','Voltar ao trabalho','Voltar a praticar esporte','Ter mais independência no dia a dia','Manter o que já consigo fazer','Orientar minha família']},
+  {id:'meta_pessoal',lb:'Atividade que mais deseja retomar',t:'text',full:1,ph:'Ex: carregar meu neto no colo; dormir a noite toda; subir a escada de casa'},
+  {id:'importante',lb:'Informações relevantes para o atendimento',t:'textarea',full:1,rows:3,ph:'Ex: fico nervoso com toque nas costas; tenho pressão baixa e passo mal se levantar rápido'},
+  {id:'duvidas',lb:'Dúvidas e expectativas quanto ao tratamento',t:'textarea',full:1,ph:'Registre aqui qualquer dúvida'}
 ]},
 {icon:'✍️',title:'Declaração e Autorização',fields:[
-  {t:'note',lb:'As informações acima são declaradas verdadeiras. Serão usadas exclusivamente para o seu atendimento fisioterapêutico, guardadas com sigilo profissional e não compartilhadas com terceiros sem a sua autorização, conforme a Lei nº 13.709/2018 (LGPD).'},
+  {t:'note',lb:'Declaro que as informações prestadas são verdadeiras. Os dados serão utilizados exclusivamente para fins de atendimento fisioterapêutico, protegidos por sigilo profissional e não compartilhados com terceiros sem autorização expressa, conforme a Lei nº 13.709/2018 (LGPD).'},
   {id:'consent',lb:'Consentimento',t:'checks',full:1,rq:1,op:['Li e concordo com o uso dos meus dados para o atendimento fisioterapêutico (LGPD)']},
   {id:'consent_img',lb:'Autorização de imagem (opcional)',t:'checks',full:1,op:['Autorizo fotos da minha postura e movimento, apenas para acompanhamento clínico no meu prontuário']},
   {id:'data_pre',lb:'Data de preenchimento',t:'date'},
-  {id:'quem_preencheu',lb:'Nome de quem preencheu a ficha',t:'text',ph:'Se não foi o próprio paciente, informe o nome e o parentesco'}
+  {id:'quem_preencheu',lb:'Nome do responsável pelo preenchimento',t:'text',ph:'Caso não tenha sido preenchida pelo paciente, informe nome e grau de parentesco'}
 ]}
 ];
 
@@ -11075,252 +11078,252 @@ var PC_ESPEC={
 parkinson:[
 {icon:'🧠',title:'Doença de Parkinson',fields:[
   {t:'sub',lb:'Sobre o diagnóstico'},
-  {id:'pk_tempo',lb:'Há quanto tempo tem o diagnóstico de Parkinson',t:'select',op:['Menos de 1 ano','1 a 3 anos','3 a 5 anos','5 a 10 anos','Mais de 10 anos']},
-  {id:'pk_lado',lb:'Qual lado do corpo foi afetado primeiro',t:'select',op:['Direito','Esquerdo','Os dois ao mesmo tempo','Não sei dizer']},
+  {id:'pk_tempo',lb:'Tempo decorrido desde o diagnóstico',t:'select',op:['Menos de 1 ano','1 a 3 anos','3 a 5 anos','5 a 10 anos','Mais de 10 anos']},
+  {id:'pk_lado',lb:'Lado do corpo inicialmente acometido',t:'select',op:['Direito','Esquerdo','Os dois ao mesmo tempo','Não sei dizer']},
   {t:'sub',lb:'Medicação e flutuações'},
   {t:'note',lb:'O remédio do Parkinson costuma fazer efeito por algumas horas e depois "cair". Chamamos de período LIGADO quando o remédio está fazendo efeito, e DESLIGADO quando o efeito passou.'},
-  {id:'pk_horarios',lb:'Horários em que toma o remédio do Parkinson',t:'text',full:1,ph:'Ex: 6h, 10h, 14h, 18h e 22h'},
-  {id:'pk_efeito',lb:'Percebe diferença entre o remédio fazendo efeito e o efeito passando?',t:'select',full:1,op:['Não percebo diferença','Sim — diferença pequena','Sim — diferença grande','Ainda não uso medicação']},
-  {id:'pk_off',lb:'Quanto tempo antes da próxima dose o efeito costuma passar',t:'select',op:['Não passa antes da hora','Cerca de 30 minutos antes','Cerca de 1 hora antes','Mais de 1 hora e meia antes','É imprevisível']},
-  {id:'pk_melhor_hora',lb:'Melhor horário do dia para você se movimentar',t:'select',op:['Manhã','Meio do dia','Tarde','Noite','Depende do remédio'],hint:'Ajuda a marcar as sessões no momento em que você rende mais.'},
-  {id:'pk_discinesia',lb:'Tem movimentos involuntários depois de tomar o remédio?',t:'select',full:1,op:['Não tenho','Sim — leves, não atrapalham','Sim — atrapalham as atividades','Não sei dizer']},
+  {id:'pk_horarios',lb:'Horários de administração da medicação',t:'text',full:1,ph:'Ex: 6h, 10h, 14h, 18h e 22h'},
+  {id:'pk_efeito',lb:'Percepção de diferença entre os períodos ON e OFF',t:'select',full:1,op:['Não percebo diferença','Sim — diferença pequena','Sim — diferença grande','Ainda não uso medicação']},
+  {id:'pk_off',lb:'Tempo de perda do efeito antes da dose seguinte',t:'select',op:['Não passa antes da hora','Cerca de 30 minutos antes','Cerca de 1 hora antes','Mais de 1 hora e meia antes','É imprevisível']},
+  {id:'pk_melhor_hora',lb:'Período do dia de melhor desempenho motor',t:'select',op:['Manhã','Meio do dia','Tarde','Noite','Depende do remédio'],hint:'Auxilia no agendamento das sessões no período de melhor desempenho.'},
+  {id:'pk_discinesia',lb:'Movimentos involuntários após a medicação',t:'select',full:1,op:['Não tenho','Sim — leves, não atrapalham','Sim — atrapalham as atividades','Não sei dizer']},
   {t:'sub',lb:'Marcha e congelamento'},
   {id:'pk_freezing',lb:'Já sentiu os pés "grudarem no chão", sem conseguir dar o próximo passo?',t:'select',full:1,op:['Nunca aconteceu','Sim — raramente','Sim — algumas vezes por semana','Sim — várias vezes por dia']},
-  {id:'pk_freezing_quando',lb:'Quando isso costuma acontecer',t:'checks',full:1,op:['Não acontece','Ao começar a andar','Ao virar ou dar meia-volta','Ao passar por portas ou lugares apertados','Quando estou com pressa','Em lugares cheios de gente','Ao chegar perto da cadeira ou da cama']},
-  {id:'pk_passos',lb:'Os passos ficam curtos ou arrastados?',t:'select',op:['Não','Às vezes','Quase sempre']},
-  {id:'pk_bloqueio',lb:'Já caiu por causa desse congelamento?',t:'select',op:['Não','Sim — 1 vez','Sim — várias vezes']},
+  {id:'pk_freezing_quando',lb:'Situações em que os episódios ocorrem',t:'checks',full:1,op:['Não acontece','Ao começar a andar','Ao virar ou dar meia-volta','Ao passar por portas ou lugares apertados','Quando estou com pressa','Em lugares cheios de gente','Ao chegar perto da cadeira ou da cama']},
+  {id:'pk_passos',lb:'Redução do comprimento do passo ou marcha arrastada',t:'select',op:['Não','Às vezes','Quase sempre']},
+  {id:'pk_bloqueio',lb:'Quedas decorrentes dos episódios de bloqueio',t:'select',op:['Não','Sim — 1 vez','Sim — várias vezes']},
   {t:'sub',lb:'Outros sintomas'},
   {id:'pk_tremor',lb:'Tremor',t:'select',op:['Não tenho','Só quando estou parado','Só quando me movimento','Nos dois momentos']},
-  {id:'pk_escrita',lb:'A sua letra mudou?',t:'select',op:['Não','Ficou menor','Ficou tremida','Quase não consigo mais escrever']},
-  {id:'pk_voz',lb:'A sua voz mudou?',t:'select',op:['Não','Ficou mais baixa','Ficou embolada','As pessoas pedem para repetir']},
-  {id:'pk_tontura',lb:'Sente tontura ao levantar (Parkinson)',t:'select',op:['Não','Às vezes','Quase sempre','Já desmaiei']},
-  {id:'pk_sono_agitado',lb:'Se mexe muito ou fala dormindo?',t:'select',op:['Não','Às vezes','Sim, com frequência','Já caí da cama dormindo']},
-  {id:'pk_intestino',lb:'Intestino preso',t:'select',op:['Não','Às vezes','Com frequência','Uso laxante regularmente']},
-  {id:'pk_olfato',lb:'Perdeu o olfato ou o paladar?',t:'select',op:['Não','Em parte','Sim, bastante']}
+  {id:'pk_escrita',lb:'Alteração na escrita',t:'select',op:['Não','Ficou menor','Ficou tremida','Quase não consigo mais escrever']},
+  {id:'pk_voz',lb:'Alteração na voz',t:'select',op:['Não','Ficou mais baixa','Ficou embolada','As pessoas pedem para repetir']},
+  {id:'pk_tontura',lb:'Tontura ao assumir a posição em pé',t:'select',op:['Não','Às vezes','Quase sempre','Já desmaiei']},
+  {id:'pk_sono_agitado',lb:'Agitação ou fala durante o sono',t:'select',op:['Não','Às vezes','Sim, com frequência','Já caí da cama dormindo']},
+  {id:'pk_intestino',lb:'Constipação intestinal',t:'select',op:['Não','Às vezes','Com frequência','Uso laxante regularmente']},
+  {id:'pk_olfato',lb:'Alteração do olfato ou do paladar',t:'select',op:['Não','Em parte','Sim, bastante']}
 ]}],
 
 avc:[
-{icon:'🫀',title:'AVC (Derrame)',fields:[
+{icon:'🫀',title:'Acidente Vascular Cerebral (AVC)',fields:[
   {t:'sub',lb:'Sobre o AVC'},
-  {id:'avc_data',lb:'Quando foi o AVC',t:'text',ph:'Mês e ano, mesmo que aproximado'},
-  {id:'avc_tipo',lb:'Tipo de AVC',t:'select',op:['Isquêmico (entupimento)','Hemorrágico (sangramento)','Não sei informar']},
-  {id:'avc_lado',lb:'Qual lado do corpo ficou afetado',t:'select',op:['Direito','Esquerdo','Os dois','Nenhum lado específico']},
-  {id:'avc_quantos',lb:'Quantos AVCs já teve',t:'select',op:['1','2','3 ou mais','Não sei informar']},
-  {id:'avc_internado',lb:'Quanto tempo ficou internado',t:'select',op:['Não fui internado','Menos de 1 semana','1 a 2 semanas','2 a 4 semanas','Mais de 1 mês']},
-  {id:'avc_reab',lb:'Fez reabilitação logo após o AVC?',t:'select',op:['Sim — no hospital','Sim — depois da alta','Sim — nos dois momentos','Não fiz']},
+  {id:'avc_data',lb:'Data de ocorrência do AVC',t:'text',ph:'Mês e ano, mesmo que aproximado'},
+  {id:'avc_tipo',lb:'Tipo de AVC, se informado',t:'select',op:['Isquêmico (entupimento)','Hemorrágico (sangramento)','Não sei informar']},
+  {id:'avc_lado',lb:'Lado do corpo acometido',t:'select',op:['Direito','Esquerdo','Os dois','Nenhum lado específico']},
+  {id:'avc_quantos',lb:'Número de episódios',t:'select',op:['1','2','3 ou mais','Não sei informar']},
+  {id:'avc_internado',lb:'Tempo de internação',t:'select',op:['Não fui internado','Menos de 1 semana','1 a 2 semanas','2 a 4 semanas','Mais de 1 mês']},
+  {id:'avc_reab',lb:'Reabilitação realizada após o evento',t:'select',op:['Sim — no hospital','Sim — depois da alta','Sim — nos dois momentos','Não fiz']},
   {t:'sub',lb:'Braço e mão do lado afetado'},
-  {id:'avc_braco_move',lb:'Consegue mexer o braço afetado?',t:'select',full:1,op:['Mexo normalmente','Mexo com dificuldade','Mexo pouco','Não mexo nada']},
-  {id:'avc_mao',lb:'Consegue abrir e fechar a mão?',t:'select',op:['Sim, normalmente','Com dificuldade','Só um pouco','Não consigo']},
-  {id:'avc_uso_braco',lb:'Usa esse braço no dia a dia em casa?',t:'select',op:['Uso quase como antes','Uso em algumas tarefas','Quase não uso','Não uso para nada'],hint:'É comum a pessoa conseguir mexer e mesmo assim não usar, porque é mais rápido fazer com a mão boa.'},
-  {id:'avc_ombro_dor',lb:'Sente dor no ombro do lado afetado?',t:'select',op:['Não','Só quando mexem no braço','Sim, com frequência','Sim, o tempo todo']},
-  {id:'avc_rigidez',lb:'O braço ou a perna ficam duros, endurecidos?',t:'select',op:['Ficam normais','Um pouco duros','Bastante duros','Não consigo esticar']},
-  {id:'avc_inchaco',lb:'A mão do lado afetado fica inchada?',t:'select',op:['Não','Um pouco','Bastante']},
+  {id:'avc_braco_move',lb:'Movimentação do membro superior acometido',t:'select',full:1,op:['Mexo normalmente','Mexo com dificuldade','Mexo pouco','Não mexo nada']},
+  {id:'avc_mao',lb:'Capacidade de abrir e fechar a mão',t:'select',op:['Sim, normalmente','Com dificuldade','Só um pouco','Não consigo']},
+  {id:'avc_uso_braco',lb:'Utilização do membro superior nas atividades diárias',t:'select',op:['Uso quase como antes','Uso em algumas tarefas','Quase não uso','Não uso para nada'],hint:'É comum a pessoa conseguir mexer e mesmo assim não usar, porque é mais rápido fazer com a mão boa.'},
+  {id:'avc_ombro_dor',lb:'Dor no ombro do lado acometido',t:'select',op:['Não','Só quando mexem no braço','Sim, com frequência','Sim, o tempo todo']},
+  {id:'avc_rigidez',lb:'Rigidez ou endurecimento dos membros',t:'select',op:['Ficam normais','Um pouco duros','Bastante duros','Não consigo esticar']},
+  {id:'avc_inchaco',lb:'Edema na mão do lado acometido',t:'select',op:['Não','Um pouco','Bastante']},
   {t:'sub',lb:'Fala, deglutição e visão'},
-  {id:'avc_fala',lb:'A fala foi afetada?',t:'select',full:1,op:['Não','Falo enrolado mas me entendem','Tenho dificuldade de achar as palavras','Entendo mas não consigo falar','Tenho dificuldade de entender o que falam']},
-  {id:'avc_engasgo',lb:'Engasga ao comer ou beber depois do AVC?',t:'select',op:['Não','Às vezes com líquido','Às vezes com comida','Com frequência','Uso sonda para me alimentar']},
-  {id:'avc_visao',lb:'A visão foi afetada?',t:'select',op:['Visão normal','Vejo dobrado','Perdi parte do campo de visão','Não enxergo de um lado']},
-  {id:'avc_negligencia',lb:'Costuma esbarrar em coisas de um lado ou esquecer esse lado?',t:'select',full:1,op:['Não','Às vezes','Com frequência']},
-  {id:'avc_bexiga',lb:'Controle da urina depois do AVC',t:'select',op:['Normal','Escapa às vezes','Escapa com frequência','Uso fralda','Uso sonda']}
+  {id:'avc_fala',lb:'Alteração da fala',t:'select',full:1,op:['Não','Falo enrolado mas me entendem','Tenho dificuldade de achar as palavras','Entendo mas não consigo falar','Tenho dificuldade de entender o que falam']},
+  {id:'avc_engasgo',lb:'Engasgos durante a alimentação ou ingestão de líquidos',t:'select',op:['Não','Às vezes com líquido','Às vezes com comida','Com frequência','Uso sonda para me alimentar']},
+  {id:'avc_visao',lb:'Alteração visual',t:'select',op:['Visão normal','Vejo dobrado','Perdi parte do campo de visão','Não enxergo de um lado']},
+  {id:'avc_negligencia',lb:'Desatenção a um dos lados do corpo ou do ambiente',t:'select',full:1,op:['Não','Às vezes','Com frequência']},
+  {id:'avc_bexiga',lb:'Controle urinário após o evento',t:'select',op:['Normal','Escapa às vezes','Escapa com frequência','Uso fralda','Uso sonda']}
 ]}],
 
 alzheimer:[
 {icon:'🧩',title:'Alzheimer e Demências',fields:[
-  {t:'note',lb:'Esta parte deve ser preenchida pelo familiar ou cuidador, não pelo próprio paciente.'},
-  {t:'sub',lb:'Sobre o diagnóstico'},
-  {id:'alz_tipo',lb:'Tipo de demência diagnosticada',t:'select',full:1,op:['Alzheimer','Demência vascular','Demência com Corpos de Lewy','Demência frontotemporal','Parkinson com demência','Mista','Ainda em investigação']},
-  {id:'alz_tempo',lb:'Há quanto tempo tem o diagnóstico',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
-  {id:'alz_primeiro',lb:'Qual foi o primeiro sinal que a família notou',t:'text',full:1,ph:'Ex: começou a repetir as mesmas perguntas; se perdeu voltando do mercado'},
+  {t:'note',lb:'Esta seção deve ser preenchida por familiar ou cuidador, e não pelo próprio paciente.'},
+  {t:'sub',lb:'Sobre o diagnóstico de demência'},
+  {id:'alz_tipo',lb:'Tipo de demência diagnosticada, se informado',t:'select',full:1,op:['Alzheimer','Demência vascular','Demência com Corpos de Lewy','Demência frontotemporal','Parkinson com demência','Mista','Ainda em investigação']},
+  {id:'alz_tempo',lb:'Tempo decorrido desde o diagnóstico de demência',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
+  {id:'alz_primeiro',lb:'Primeiro sinal observado pela família',t:'text',full:1,ph:'Ex: começou a repetir as mesmas perguntas; se perdeu voltando do mercado'},
   {t:'sub',lb:'Memória e orientação'},
   {id:'alz_memoria',lb:'Memória',t:'select',full:1,op:['Esquece coisas pequenas','Esquece compromissos e conversas recentes','Esquece fatos importantes com frequência','Não lembra do que aconteceu há poucos minutos']},
-  {id:'alz_orientacao',lb:'Orientação no tempo e no lugar',t:'select',full:1,op:['Normal','Confunde datas','Se perde em lugares novos','Se perde em lugares conhecidos','Se desorienta dentro de casa']},
-  {id:'alz_reconhece',lb:'Reconhece as pessoas próximas',t:'select',full:1,op:['Reconhece todos','Às vezes troca nomes','Demora a reconhecer','Não reconhece mais algumas pessoas']},
+  {id:'alz_orientacao',lb:'Orientação temporal e espacial',t:'select',full:1,op:['Normal','Confunde datas','Se perde em lugares novos','Se perde em lugares conhecidos','Se desorienta dentro de casa']},
+  {id:'alz_reconhece',lb:'Reconhecimento de pessoas próximas',t:'select',full:1,op:['Reconhece todos','Às vezes troca nomes','Demora a reconhecer','Não reconhece mais algumas pessoas']},
   {id:'alz_comunica',lb:'Comunicação',t:'select',full:1,op:['Fala normalmente','Tem dificuldade de achar as palavras','Fala frases curtas ou palavras soltas','Se comunica por gestos','Praticamente não fala']},
   {t:'sub',lb:'Comportamento'},
-  {id:'alz_comport',lb:'Comportamentos que aparecem',t:'checks',full:1,op:['Nenhum','Agitação ou irritabilidade','Agressividade verbal','Agressividade física','Vê ou ouve coisas que não existem','Acha que estão roubando ou enganando','Fica andando sem rumo','Apatia — perdeu o interesse','Troca o dia pela noite','Chora com facilidade']},
-  {id:'alz_piora_tarde',lb:'Fica mais confuso ou agitado no fim da tarde?',t:'select',full:1,op:['Não','Às vezes','Quase todos os dias']},
-  {id:'alz_estranhos',lb:'Como reage a pessoas desconhecidas',t:'select',full:1,op:['Tranquilo','Fica desconfiado','Fica agitado','Recusa contato'],hint:'Importante para preparar o primeiro atendimento.'},
-  {id:'alz_acalma',lb:'O que costuma acalmar',t:'text',full:1,ph:'Ex: música antiga, a voz da filha, ficar na varanda, uma foto da família'},
+  {id:'alz_comport',lb:'Alterações de comportamento observadas',t:'checks',full:1,op:['Nenhum','Agitação ou irritabilidade','Agressividade verbal','Agressividade física','Vê ou ouve coisas que não existem','Acha que estão roubando ou enganando','Fica andando sem rumo','Apatia — perdeu o interesse','Troca o dia pela noite','Chora com facilidade']},
+  {id:'alz_piora_tarde',lb:'Piora da confusão ou agitação no fim do dia',t:'select',full:1,op:['Não','Às vezes','Quase todos os dias']},
+  {id:'alz_estranhos',lb:'Reação diante de pessoas desconhecidas',t:'select',full:1,op:['Tranquilo','Fica desconfiado','Fica agitado','Recusa contato'],hint:'Importante para preparar o primeiro atendimento.'},
+  {id:'alz_acalma',lb:'Estratégias que costumam acalmar o paciente',t:'text',full:1,ph:'Ex: música antiga, a voz da filha, ficar na varanda, uma foto da família'},
   {t:'sub',lb:'Alimentação e engasgo'},
-  {id:'alz_engasgo',lb:'Engasga ao comer ou beber?',t:'select',op:['Não','Às vezes com líquido','Às vezes com comida','Com frequência','Já teve pneumonia por engasgo']},
-  {id:'alz_peso',lb:'Perdeu peso nos últimos 6 meses?',t:'select',op:['Não perdeu','Um pouco','Bastante','Não sei informar']}
+  {id:'alz_engasgo',lb:'Engasgos durante a alimentação',t:'select',op:['Não','Às vezes com líquido','Às vezes com comida','Com frequência','Já teve pneumonia por engasgo']},
+  {id:'alz_peso',lb:'Perda de peso nos últimos seis meses',t:'select',op:['Não perdeu','Um pouco','Bastante','Não sei informar']}
 ]},
 {icon:'🤝',title:'Cuidador',fields:[
   {id:'cuid_tem',lb:'Quem cuida do paciente',t:'select',full:1,op:['A própria família','Cuidador profissional em período parcial','Cuidador profissional 24h','Família e cuidador se revezam','Vive em instituição']},
-  {id:'cuid_nome',lb:'Nome de quem cuida principalmente',t:'text',ph:'Nome e parentesco'},
-  {id:'cuid_turno',lb:'Turno de maior dificuldade',t:'select',op:['Manhã','Tarde','Noite / madrugada','Sem diferença entre turnos']},
-  {id:'cuid_equipe',lb:'Como se divide o cuidado ao longo do dia',t:'textarea',full:1,ph:'Ex: a filha cuida pela manhã, a cuidadora fica à noite, o neto leva às consultas'},
-  {id:'cuid_cansaco',lb:'De 0 a 10, o cansaço de quem cuida',t:'scale',full:1,l:'Sem cansaço',r:'Esgotado',hint:'Confidencial. Serve para oferecer orientações também a quem cuida.'},
-  {id:'cuid_apoio',lb:'A família tem apoio de outras pessoas?',t:'select',full:1,op:['Sim — vários ajudam','Só uma pessoa ajuda','Praticamente ninguém ajuda']}
+  {id:'cuid_nome',lb:'Nome do cuidador principal',t:'text',ph:'Nome e grau de parentesco'},
+  {id:'cuid_turno',lb:'Período do dia de maior dificuldade',t:'select',op:['Manhã','Tarde','Noite / madrugada','Sem diferença entre turnos']},
+  {id:'cuid_equipe',lb:'Organização do cuidado ao longo do dia',t:'textarea',full:1,ph:'Ex: a filha cuida pela manhã, a cuidadora fica à noite, o neto leva às consultas'},
+  {id:'cuid_cansaco',lb:'Nível de sobrecarga do cuidador (0 = ausente · 10 = máxima)',t:'scale',full:1,l:'Sem cansaço',r:'Esgotado',hint:'Informação confidencial, utilizada para orientar também o cuidador.'},
+  {id:'cuid_apoio',lb:'Rede de apoio disponível à família',t:'select',full:1,op:['Sim — vários ajudam','Só uma pessoa ajuda','Praticamente ninguém ajuda']}
 ]}],
 
 geriatria:[
-{icon:'👴',title:'Quedas e Saúde do Idoso',fields:[
+{icon:'👴',title:'Quedas e Saúde da Pessoa Idosa',fields:[
   {t:'sub',lb:'Quedas'},
-  {id:'ger_queda',lb:'Caiu nos últimos 12 meses?',t:'select',rq:1,op:['Não caí','Sim — 1 vez','Sim — 2 a 3 vezes','Sim — 4 ou mais vezes']},
-  {id:'ger_lesao',lb:'Alguma queda machucou?',t:'select',op:['Não houve queda','Não me machuquei','Sim — roxo ou arranhão','Sim — fratura','Sim — bati a cabeça']},
-  {id:'ger_desmaio',lb:'Alguma queda veio com desmaio ou perda de consciência?',t:'select',full:1,op:['Não houve queda','Não houve desmaio','Sim, houve desmaio','Não sei dizer']},
-  {id:'ger_medo',lb:'Tem medo de cair?',t:'select',op:['Não','Um pouco','Bastante — evito sair por causa disso']},
-  {id:'ger_levanta',lb:'Consegue levantar sozinho depois de uma queda?',t:'select',op:['Sim','Não','Nunca caí']},
-  {id:'ger_local_queda',lb:'Onde costuma cair',t:'select',op:['Não caí','Quarto','Banheiro','Sala','Cozinha','Escada','Área externa','Na rua']},
-  {id:'ger_circ',lb:'Como aconteceram as quedas',t:'textarea',full:1,ph:'Ex: levantei de noite para ir ao banheiro sem acender a luz e tropecei no tapete'},
+  {id:'ger_queda',lb:'Ocorrência de quedas nos últimos doze meses',t:'select',rq:1,op:['Não caí','Sim — 1 vez','Sim — 2 a 3 vezes','Sim — 4 ou mais vezes']},
+  {id:'ger_lesao',lb:'Lesão decorrente de queda',t:'select',op:['Não houve queda','Não me machuquei','Sim — roxo ou arranhão','Sim — fratura','Sim — bati a cabeça']},
+  {id:'ger_desmaio',lb:'Queda associada a desmaio ou perda de consciência',t:'select',full:1,op:['Não houve queda','Não houve desmaio','Sim, houve desmaio','Não sei dizer']},
+  {id:'ger_medo',lb:'Medo de cair',t:'select',op:['Não','Um pouco','Bastante — evito sair por causa disso']},
+  {id:'ger_levanta',lb:'Capacidade de levantar-se sem auxílio após queda',t:'select',op:['Sim','Não','Nunca caí']},
+  {id:'ger_local_queda',lb:'Local mais frequente das quedas',t:'select',op:['Não caí','Quarto','Banheiro','Sala','Cozinha','Escada','Área externa','Na rua']},
+  {id:'ger_circ',lb:'Circunstâncias em que ocorreram as quedas',t:'textarea',full:1,ph:'Ex: levantei de noite para ir ao banheiro sem acender a luz e tropecei no tapete'},
   {t:'sub',lb:'Tontura e equilíbrio'},
-  {id:'ger_tontura',lb:'Sente tontura ao levantar da cama ou da cadeira',t:'select',full:1,op:['Não','Às vezes','Quase sempre','Já desmaiei']},
-  {id:'ger_labirinto',lb:'Sente o mundo girar (vertigem)?',t:'select',op:['Não','Às vezes','Com frequência']},
+  {id:'ger_tontura',lb:'Tontura ao levantar-se da cama ou da cadeira',t:'select',full:1,op:['Não','Às vezes','Quase sempre','Já desmaiei']},
+  {id:'ger_labirinto',lb:'Sensação de rotação do ambiente (vertigem)',t:'select',op:['Não','Às vezes','Com frequência']},
   {t:'sub',lb:'Visão, audição e calçado'},
-  {id:'ger_visao',lb:'Como está a sua visão',t:'select',op:['Boa','Uso óculos e enxergo bem','Enxergo mal mesmo de óculos','Tenho catarata','Enxergo muito pouco']},
-  {id:'ger_oftalmo',lb:'Última consulta com oftalmologista',t:'select',op:['Menos de 1 ano','1 a 2 anos','Mais de 2 anos','Não lembro']},
-  {id:'ger_audicao',lb:'Como está a sua audição',t:'select',op:['Boa','Ouço mal','Uso aparelho auditivo']},
-  {id:'ger_calcado',lb:'Que calçado usa dentro de casa',t:'select',full:1,op:['Sapato fechado e firme','Chinelo de dedo','Chinelo aberto','Ando de meias','Ando descalço']},
+  {id:'ger_visao',lb:'Condição da visão',t:'select',op:['Boa','Uso óculos e enxergo bem','Enxergo mal mesmo de óculos','Tenho catarata','Enxergo muito pouco']},
+  {id:'ger_oftalmo',lb:'Data da última avaliação oftalmológica',t:'select',op:['Menos de 1 ano','1 a 2 anos','Mais de 2 anos','Não lembro']},
+  {id:'ger_audicao',lb:'Condição da audição',t:'select',op:['Boa','Ouço mal','Uso aparelho auditivo']},
+  {id:'ger_calcado',lb:'Calçado utilizado dentro de casa',t:'select',full:1,op:['Sapato fechado e firme','Chinelo de dedo','Chinelo aberto','Ando de meias','Ando descalço']},
   {t:'sub',lb:'Casa e segurança'},
-  {id:'ger_tapete',lb:'Tem tapetes soltos em casa?',t:'select',op:['Não','Sim — alguns','Sim — vários']},
-  {id:'ger_barra',lb:'Tem barra de apoio no banheiro?',t:'select',op:['Sim, tem','Não tem','Não sei']},
-  {id:'ger_luz',lb:'Tem luz acesa no caminho do banheiro à noite?',t:'select',full:1,op:['Sim, tem luz','Não tem luz','Não preciso levantar à noite']},
+  {id:'ger_tapete',lb:'Presença de tapetes soltos na residência',t:'select',op:['Não','Sim — alguns','Sim — vários']},
+  {id:'ger_barra',lb:'Presença de barras de apoio no banheiro',t:'select',op:['Sim, tem','Não tem','Não sei']},
+  {id:'ger_luz',lb:'Iluminação no trajeto ao banheiro durante a noite',t:'select',full:1,op:['Sim, tem luz','Não tem luz','Não preciso levantar à noite']},
   {t:'sub',lb:'Continência e nutrição'},
-  {id:'ger_urina',lb:'Controle da urina',t:'select',op:['Normal','Escapa às vezes','Escapa com frequência','Uso fralda','Uso sonda']},
-  {id:'ger_intestino',lb:'Funcionamento do intestino',t:'select',op:['Normal','Preso com frequência','Escapa às vezes','Uso laxante']},
-  {id:'ger_peso',lb:'Perdeu peso sem querer nos últimos 6 meses?',t:'select',op:['Não perdi peso','Um pouco (até 3 kg)','Bastante (mais de 3 kg)','Não sei informar']},
-  {id:'ger_forca',lb:'Tem dificuldade para carregar um saco de 5 kg?',t:'select',op:['Nenhuma','Um pouco','Muita','Não consigo']},
-  {id:'ger_cansaco',lb:'Sente-se cansado na maior parte dos dias?',t:'select',op:['Não','Às vezes','Quase sempre']}
+  {id:'ger_urina',lb:'Controle urinário',t:'select',op:['Normal','Escapa às vezes','Escapa com frequência','Uso fralda','Uso sonda']},
+  {id:'ger_intestino',lb:'Funcionamento intestinal',t:'select',op:['Normal','Preso com frequência','Escapa às vezes','Uso laxante']},
+  {id:'ger_peso',lb:'Perda de peso não intencional nos últimos seis meses',t:'select',op:['Não perdi peso','Um pouco (até 3 kg)','Bastante (mais de 3 kg)','Não sei informar']},
+  {id:'ger_forca',lb:'Dificuldade para carregar cerca de cinco quilos',t:'select',op:['Nenhuma','Um pouco','Muita','Não consigo']},
+  {id:'ger_cansaco',lb:'Sensação de cansaço na maior parte dos dias',t:'select',op:['Não','Às vezes','Quase sempre']}
 ]}],
 
 escoliose_adulto:[
 {icon:'📐',title:'Escoliose no Adulto e no Idoso',fields:[
-  {t:'note',lb:'Estas perguntas são para quem já parou de crescer. Aqui a preocupação não é mais a curva aumentar com o crescimento, e sim a dor, o cansaço ao caminhar e o quanto isso atrapalha o dia a dia.'},
+  {t:'note',lb:'Esta seção destina-se a pacientes com crescimento ósseo concluído. Nesses casos, a atenção volta-se à dor, à limitação para caminhar e ao impacto funcional, e não mais à progressão da curva pelo crescimento.'},
   {t:'sub',lb:'História da curva'},
-  {id:'ea_origem',lb:'Você já tinha escoliose quando jovem?',t:'select',full:1,op:['Sim — descobri na adolescência','Não — apareceu depois de adulto','Não sei dizer']},
-  {id:'ea_descoberta',lb:'Quando souberam da curva atual',t:'select',op:['Este ano','Há 1 a 5 anos','Há mais de 5 anos','Desde a adolescência']},
-  {id:'ea_graus',lb:'Sabe quantos graus tem a curva?',t:'text',ph:'Ex: 42 graus. Se não souber, deixe em branco.'},
-  {id:'ea_rx',lb:'Quando foi o último raio-X da coluna',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 3 anos','Mais de 3 anos','Nunca fiz']},
-  {id:'ea_piorou',lb:'Percebe que a coluna vem entortando mais?',t:'select',op:['Não','Sim — devagar','Sim — bem rápido','Não sei dizer']},
-  {id:'ea_altura',lb:'Perdeu altura nos últimos anos?',t:'select',op:['Não','Sim — uns 2 a 3 cm','Sim — mais de 3 cm','Não sei dizer'],hint:'Perda de altura pode indicar fratura por osteoporose, que muda o tratamento.'},
+  {id:'ea_origem',lb:'Escoliose previamente conhecida na juventude',t:'select',full:1,op:['Sim — descobri na adolescência','Não — apareceu depois de adulto','Não sei dizer']},
+  {id:'ea_descoberta',lb:'Época em que a curva atual foi identificada',t:'select',op:['Este ano','Há 1 a 5 anos','Há mais de 5 anos','Desde a adolescência']},
+  {id:'ea_graus',lb:'Magnitude da curva em graus, se informada',t:'text',ph:'Exemplo: 42 graus. Caso não saiba, deixe em branco.'},
+  {id:'ea_rx',lb:'Data da última radiografia de coluna',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 3 anos','Mais de 3 anos','Nunca fiz']},
+  {id:'ea_piorou',lb:'Percepção de progressão da curvatura',t:'select',op:['Não','Sim — devagar','Sim — bem rápido','Não sei dizer']},
+  {id:'ea_altura',lb:'Perda de estatura nos últimos anos',t:'select',op:['Não','Sim — uns 2 a 3 cm','Sim — mais de 3 cm','Não sei dizer'],hint:'A perda de estatura pode indicar fratura osteoporótica, o que altera a conduta.'},
   {t:'sub',lb:'Dor'},
-  {t:'note',lb:'No adulto, a dor costuma ser a queixa principal — mais até que a aparência das costas.'},
-  {id:'ea_dor_costas',lb:'Sente dor nas costas?',t:'select',op:['Não sinto','Só quando faço esforço','Quase todos os dias','Todos os dias, o tempo todo']},
-  {id:'ea_dor_nota',lb:'Nota da dor nas costas nesta semana (0 a 10)',t:'scale',full:1,l:'Sem dor',r:'Pior dor'},
-  {id:'ea_dor_perna',lb:'A dor desce para a perna?',t:'select',full:1,op:['Não','Sim — uma perna','Sim — as duas pernas','Sim — alterna entre as pernas']},
-  {id:'ea_formigamento',lb:'Sente formigamento, dormência ou fraqueza nas pernas?',t:'checks',full:1,op:['Nada disso','Formigamento','Dormência','Fraqueza','Sensação de perna pesada','Já tropecei por causa disso']},
+  {t:'note',lb:'Na população adulta, a dor costuma ser a queixa predominante, superando a preocupação estética.'},
+  {id:'ea_dor_costas',lb:'Presença de dor na coluna',t:'select',op:['Não sinto','Só quando faço esforço','Quase todos os dias','Todos os dias, o tempo todo']},
+  {id:'ea_dor_nota',lb:'Intensidade da dor na coluna nesta semana (0 = ausente · 10 = máxima)',t:'scale',full:1,l:'Sem dor',r:'Pior dor'},
+  {id:'ea_dor_perna',lb:'Irradiação da dor para os membros inferiores',t:'select',full:1,op:['Não','Sim — uma perna','Sim — as duas pernas','Sim — alterna entre as pernas']},
+  {id:'ea_formigamento',lb:'Formigamento, dormência ou fraqueza nos membros inferiores',t:'checks',full:1,op:['Nada disso','Formigamento','Dormência','Fraqueza','Sensação de perna pesada','Já tropecei por causa disso']},
   {t:'sub',lb:'Caminhada'},
-  {t:'note',lb:'Estas perguntas ajudam a diferenciar dor da coluna de estreitamento do canal, que é comum depois dos 60 e responde a tratamentos diferentes.'},
-  {id:'ea_caminhar',lb:'Quanto consegue caminhar sem precisar parar',t:'select',full:1,op:['Sem limite','Uns 15 a 30 minutos','Cerca de um quarteirão','Menos de um quarteirão','Poucos passos dentro de casa']},
-  {id:'ea_porque_para',lb:'O que faz você parar',t:'select',full:1,op:['Não preciso parar','Dor nas costas','Dor ou peso nas pernas','Falta de ar','Cansaço geral']},
-  {id:'ea_alivio',lb:'O que alivia quando você para',t:'select',full:1,op:['Não se aplica','Sentar por alguns minutos','Inclinar o corpo para frente','Apoiar no carrinho de compras','Nada alivia'],hint:'Melhorar ao inclinar para frente ou apoiar no carrinho é um sinal característico e importante.'},
-  {id:'ea_apoio',lb:'Usa bengala, andador ou apoio para caminhar?',t:'select',op:['Não uso','Bengala','Andador','Apoio no braço de alguém']},
+  {t:'note',lb:'As questões a seguir auxiliam a diferenciar a dor de origem mecânica da estenose de canal, condição frequente após os 60 anos e que requer conduta distinta.'},
+  {id:'ea_caminhar',lb:'Distância percorrida antes da necessidade de parada',t:'select',full:1,op:['Sem limite','Uns 15 a 30 minutos','Cerca de um quarteirão','Menos de um quarteirão','Poucos passos dentro de casa']},
+  {id:'ea_porque_para',lb:'Motivo que determina a parada',t:'select',full:1,op:['Não preciso parar','Dor nas costas','Dor ou peso nas pernas','Falta de ar','Cansaço geral']},
+  {id:'ea_alivio',lb:'Fator que proporciona alívio durante a parada',t:'select',full:1,op:['Não se aplica','Sentar por alguns minutos','Inclinar o corpo para frente','Apoiar no carrinho de compras','Nada alivia'],hint:'O alívio ao inclinar o tronco à frente ou ao apoiar-se é um sinal clínico característico.'},
+  {id:'ea_apoio',lb:'Uso de dispositivo auxiliar de marcha',t:'select',op:['Não uso','Bengala','Andador','Apoio no braço de alguém']},
   {t:'sub',lb:'Postura e aparência'},
-  {id:'ea_inclina',lb:'Sente que o corpo está inclinado para frente ou para o lado?',t:'select',full:1,op:['Não','Sim — para frente','Sim — para o lado','Sim — para frente e para o lado']},
-  {id:'ea_esforco_pe',lb:'Precisa fazer força para ficar ereto?',t:'select',op:['Não','Um pouco','Bastante — canso rápido de ficar em pé']},
-  {id:'ea_aparencia',lb:'A aparência das suas costas te incomoda?',t:'select',op:['Não incomoda','Incomoda um pouco','Incomoda bastante']},
+  {id:'ea_inclina',lb:'Percepção de inclinação do tronco',t:'select',full:1,op:['Não','Sim — para frente','Sim — para o lado','Sim — para frente e para o lado']},
+  {id:'ea_esforco_pe',lb:'Esforço necessário para manter-se ereto',t:'select',op:['Não','Um pouco','Bastante — canso rápido de ficar em pé']},
+  {id:'ea_aparencia',lb:'Incômodo com a aparência do dorso',t:'select',op:['Não incomoda','Incomoda um pouco','Incomoda bastante']},
   {t:'sub',lb:'Saúde óssea e tratamentos'},
-  {id:'ea_osteo',lb:'Tem osteoporose ou osteopenia?',t:'select',op:['Não','Osteopenia','Osteoporose','Não sei / nunca investiguei']},
-  {id:'ea_densitometria',lb:'Já fez densitometria óssea?',t:'select',op:['Nunca fiz','Sim — há menos de 2 anos','Sim — há mais de 2 anos']},
-  {id:'ea_fratura',lb:'Já teve fratura na coluna ou por queda?',t:'select',full:1,op:['Não','Sim — na coluna','Sim — no quadril ou fêmur','Sim — no punho','Sim — outra']},
-  {id:'ea_trat',lb:'O que já tentou para a coluna',t:'checks',full:1,op:['Nada ainda','Fisioterapia','Remédio para dor','Infiltração','Colete ou cinta','Acupuntura','Pilates','Cirurgia']},
-  {id:'ea_cirurgia',lb:'Já operou a coluna?',t:'select',op:['Não','Sim — e melhorei','Sim — sem melhora','Foi indicada, mas não fiz']},
-  {id:'ea_cirurgia_quando',lb:'Se operou, quando e o quê',t:'text',full:1,ph:'Ex: artrodese lombar em 2019'},
+  {id:'ea_osteo',lb:'Diagnóstico de osteopenia ou osteoporose',t:'select',op:['Não','Osteopenia','Osteoporose','Não sei / nunca investiguei']},
+  {id:'ea_densitometria',lb:'Realização de densitometria óssea',t:'select',op:['Nunca fiz','Sim — há menos de 2 anos','Sim — há mais de 2 anos']},
+  {id:'ea_fratura',lb:'Histórico de fratura vertebral ou por queda',t:'select',full:1,op:['Não','Sim — na coluna','Sim — no quadril ou fêmur','Sim — no punho','Sim — outra']},
+  {id:'ea_trat',lb:'Tratamentos já realizados para a coluna',t:'checks',full:1,op:['Nada ainda','Fisioterapia','Remédio para dor','Infiltração','Colete ou cinta','Acupuntura','Pilates','Cirurgia']},
+  {id:'ea_cirurgia',lb:'Cirurgia prévia de coluna',t:'select',op:['Não','Sim — e melhorei','Sim — sem melhora','Foi indicada, mas não fiz']},
+  {id:'ea_cirurgia_quando',lb:'Descrição e data da cirurgia realizada',t:'text',full:1,ph:'Exemplo: artrodese lombar em 2019'},
   {t:'sub',lb:'Impacto no dia a dia'},
-  {id:'ea_atividades',lb:'O que deixou de fazer por causa da coluna',t:'textarea',full:1,ph:'Ex: parei de ir à feira porque não aguento andar; não consigo mais cuidar do jardim; deixei de viajar de ônibus'},
-  {id:'ea_sono',lb:'A coluna atrapalha o seu sono?',t:'select',op:['Não','Às vezes','Quase toda noite']},
-  {id:'ea_medo',lb:'Tem medo de piorar ou de precisar operar?',t:'select',op:['Não','Um pouco','Bastante']}
+  {id:'ea_atividades',lb:'Atividades limitadas em decorrência da coluna',t:'textarea',full:1,ph:'Ex: parei de ir à feira porque não aguento andar; não consigo mais cuidar do jardim; deixei de viajar de ônibus'},
+  {id:'ea_sono',lb:'Interferência da condição no sono',t:'select',op:['Não','Às vezes','Quase toda noite']},
+  {id:'ea_medo',lb:'Receio de agravamento ou de indicação cirúrgica',t:'select',op:['Não','Um pouco','Bastante']}
 ]}],
 
 escoliose:[
-{icon:'📐',title:'Escoliose e Coluna',fields:[
+{icon:'📐',title:'Escoliose em Fase de Crescimento',fields:[
   {t:'sub',lb:'Sobre a curva'},
-  {id:'esc_quando',lb:'Quando a escoliose foi descoberta',t:'text',ph:'Idade ou ano, mesmo que aproximado'},
-  {id:'esc_como',lb:'Como foi descoberta',t:'select',full:1,op:['Exame na escola','Os pais notaram assimetria','Em consulta médica de rotina','Por causa de dor','Em raio-X feito por outro motivo']},
-  {id:'esc_grau',lb:'Sabe quantos graus tem a curva?',t:'text',ph:'Ex: 28 graus. Se não souber, deixe em branco e traga o raio-X.'},
-  {id:'esc_rx_quando',lb:'Quando foi o último raio-X da coluna',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 2 anos','Mais de 2 anos','Nunca fiz']},
-  {id:'esc_piorou',lb:'A curva piorou desde o último exame?',t:'select',op:['Não piorou','Sim, piorou','Não sei informar','Ainda não repeti o exame']},
+  {id:'esc_quando',lb:'Época do diagnóstico da escoliose',t:'text',ph:'Idade ou ano, mesmo que aproximado'},
+  {id:'esc_como',lb:'Forma como a escoliose foi identificada',t:'select',full:1,op:['Exame na escola','Os pais notaram assimetria','Em consulta médica de rotina','Por causa de dor','Em raio-X feito por outro motivo']},
+  {id:'esc_grau',lb:'Magnitude da curva em graus (fase de crescimento)',t:'text',ph:'Ex: 28 graus. Se não souber, deixe em branco e traga o raio-X.'},
+  {id:'esc_rx_quando',lb:'Data da última radiografia (fase de crescimento)',t:'select',op:['Menos de 6 meses','6 meses a 1 ano','1 a 2 anos','Mais de 2 anos','Nunca fiz']},
+  {id:'esc_piorou',lb:'Progressão da curva desde o último exame',t:'select',op:['Não piorou','Sim, piorou','Não sei informar','Ainda não repeti o exame']},
   {t:'sub',lb:'Crescimento'},
-  {t:'note',lb:'Estas perguntas ajudam a saber se ainda há crescimento pela frente — é isso que define o risco de a curva piorar.'},
-  {id:'esc_crescendo',lb:'Ainda está crescendo em altura?',t:'select',op:['Sim, bastante','Um pouco','Parei de crescer','Não sei dizer']},
-  {id:'esc_menarca',lb:'Já menstruou? (para meninas)',t:'select',op:['Não se aplica','Ainda não','Sim — há menos de 1 ano','Sim — há 1 a 2 anos','Sim — há mais de 2 anos']},
+  {t:'note',lb:'As questões a seguir estimam o crescimento ósseo remanescente, principal determinante do risco de progressão da curva.'},
+  {id:'esc_crescendo',lb:'Crescimento em estatura ainda em curso',t:'select',op:['Sim, bastante','Um pouco','Parei de crescer','Não sei dizer']},
+  {id:'esc_menarca',lb:'Ocorrência da menarca, quando aplicável',t:'select',op:['Não se aplica','Ainda não','Sim — há menos de 1 ano','Sim — há 1 a 2 anos','Sim — há mais de 2 anos']},
   {id:'esc_altura_pais',lb:'Altura dos pais',t:'text',ph:'Ex: mãe 1,60m e pai 1,75m'},
   {t:'sub',lb:'Colete'},
-  {id:'esc_colete',lb:'Usa colete?',t:'select',full:1,op:['Não uso','Sim — uso conforme foi indicado','Sim — mas uso menos do que deveria','Já usei e parei','Foi indicado mas ainda não peguei']},
-  {id:'esc_colete_horas',lb:'Quantas horas por dia usa de verdade',t:'select',op:['Não uso colete','Menos de 6 horas','6 a 12 horas','12 a 18 horas','Mais de 18 horas']},
-  {id:'esc_colete_dific',lb:'O que mais atrapalha no uso do colete',t:'select',full:1,op:['Não uso colete','Nada, me acostumei','Calor e suor','Dor ou marca na pele','Como fica sob a roupa','Vergonha na escola','Dificuldade de colocar sozinho','Atrapalha para dormir']},
+  {id:'esc_colete',lb:'Uso de colete ortopédico',t:'select',full:1,op:['Não uso','Sim — uso conforme foi indicado','Sim — mas uso menos do que deveria','Já usei e parei','Foi indicado mas ainda não peguei']},
+  {id:'esc_colete_horas',lb:'Horas efetivas de uso por dia',t:'select',op:['Não uso colete','Menos de 6 horas','6 a 12 horas','12 a 18 horas','Mais de 18 horas']},
+  {id:'esc_colete_dific',lb:'Principal dificuldade relacionada ao uso do colete',t:'select',full:1,op:['Não uso colete','Nada, me acostumei','Calor e suor','Dor ou marca na pele','Como fica sob a roupa','Vergonha na escola','Dificuldade de colocar sozinho','Atrapalha para dormir']},
   {t:'sub',lb:'Sintomas e atividades'},
-  {id:'esc_dor_costas',lb:'Sente dor nas costas?',t:'select',op:['Não','Depois de muito tempo sentado','Ao fim do dia','Quase sempre']},
-  {id:'esc_cansaco_costas',lb:'Cansa ao ficar muito tempo em pé ou sentado?',t:'select',op:['Não','Um pouco','Bastante']},
-  {id:'esc_esporte',lb:'Pratica algum esporte',t:'text',full:1,ph:'Qual e quantas vezes por semana'},
-  {id:'esc_mochila',lb:'Como carrega a mochila ou bolsa',t:'select',op:['Nos dois ombros','Sempre no mesmo ombro','Na mão','Não carrego peso']},
-  {id:'esc_familia',lb:'Alguém na família tem escoliose?',t:'select',op:['Ninguém','Sim — mãe ou pai','Sim — irmão ou irmã','Sim — outro parente','Não sei']},
-  {t:'sub',lb:'Como você se vê'},
-  {id:'esc_aparencia',lb:'A aparência das suas costas te incomoda?',t:'select',full:1,op:['Não me incomoda','Incomoda um pouco','Incomoda bastante','Evito situações por causa disso']},
-  {id:'esc_evita',lb:'Deixou de fazer alguma coisa por causa da coluna?',t:'text',full:1,ph:'Ex: evito ir à praia; parei de usar roupa mais justa; deixei o vôlei'}
+  {id:'esc_dor_costas',lb:'Presença de dor na coluna (fase de crescimento)',t:'select',op:['Não','Depois de muito tempo sentado','Ao fim do dia','Quase sempre']},
+  {id:'esc_cansaco_costas',lb:'Fadiga ao permanecer longos períodos em pé ou sentado',t:'select',op:['Não','Um pouco','Bastante']},
+  {id:'esc_esporte',lb:'Prática esportiva',t:'text',full:1,ph:'Qual e quantas vezes por semana'},
+  {id:'esc_mochila',lb:'Forma de transporte da mochila ou bolsa',t:'select',op:['Nos dois ombros','Sempre no mesmo ombro','Na mão','Não carrego peso']},
+  {id:'esc_familia',lb:'Histórico familiar de escoliose',t:'select',op:['Ninguém','Sim — mãe ou pai','Sim — irmão ou irmã','Sim — outro parente','Não sei']},
+  {t:'sub',lb:'Percepção corporal'},
+  {id:'esc_aparencia',lb:'Incômodo com a aparência do dorso (fase de crescimento)',t:'select',full:1,op:['Não me incomoda','Incomoda um pouco','Incomoda bastante','Evito situações por causa disso']},
+  {id:'esc_evita',lb:'Atividades limitadas em razão da coluna',t:'text',full:1,ph:'Ex: evito ir à praia; parei de usar roupa mais justa; deixei o vôlei'}
 ]}],
 
 medular:[
 {icon:'🦴',title:'Lesão Medular',fields:[
   {t:'sub',lb:'Sobre a lesão'},
-  {id:'med_causa',lb:'Causa da lesão',t:'select',full:1,op:['Acidente de trânsito','Queda','Mergulho','Ferimento por arma','Cirurgia','Tumor','Infecção','Doença','Outra']},
-  {id:'med_quando',lb:'Quando aconteceu',t:'text',ph:'Mês e ano'},
-  {id:'med_nivel',lb:'Sabe o nível da lesão?',t:'text',ph:'Ex: T6, C5. Se não souber, deixe em branco.'},
-  {id:'med_sensibilidade',lb:'Sente o toque abaixo da lesão?',t:'select',full:1,op:['Sinto normalmente','Sinto diferente ou diminuído','Sinto só em algumas partes','Não sinto nada']},
+  {id:'med_causa',lb:'Causa da lesão medular',t:'select',full:1,op:['Acidente de trânsito','Queda','Mergulho','Ferimento por arma','Cirurgia','Tumor','Infecção','Doença','Outra']},
+  {id:'med_quando',lb:'Data de ocorrência da lesão',t:'text',ph:'Mês e ano'},
+  {id:'med_nivel',lb:'Nível da lesão, se informado',t:'text',ph:'Ex: T6, C5. Se não souber, deixe em branco.'},
+  {id:'med_sensibilidade',lb:'Sensibilidade tátil abaixo do nível da lesão',t:'select',full:1,op:['Sinto normalmente','Sinto diferente ou diminuído','Sinto só em algumas partes','Não sinto nada']},
   {t:'sub',lb:'Bexiga e intestino'},
-  {id:'med_bexiga',lb:'Como esvazia a bexiga',t:'select',full:1,op:['Normalmente','Com manobra','Sonda de alívio várias vezes ao dia','Sonda permanente','Uso fralda']},
-  {id:'med_infeccao',lb:'Quantas infecções urinárias teve no último ano',t:'select',op:['Nenhuma','1 a 2','3 a 5','Mais de 5']},
-  {id:'med_intestino_func',lb:'Como funciona o intestino',t:'select',full:1,op:['Normalmente','Com laxante','Com estímulo manual','Em horário programado','É imprevisível']},
-  {id:'med_disreflexia',lb:'Já teve dor de cabeça forte e súbita com suor e rosto vermelho?',t:'select',full:1,op:['Nunca','Sim — uma vez','Sim — várias vezes','Não sei dizer'],hint:'Isso pode ser disreflexia autonômica, que é uma emergência. Precisamos saber.'},
+  {id:'med_bexiga',lb:'Método de esvaziamento vesical',t:'select',full:1,op:['Normalmente','Com manobra','Sonda de alívio várias vezes ao dia','Sonda permanente','Uso fralda']},
+  {id:'med_infeccao',lb:'Número de infecções urinárias no último ano',t:'select',op:['Nenhuma','1 a 2','3 a 5','Mais de 5']},
+  {id:'med_intestino_func',lb:'Funcionamento intestinal após a lesão',t:'select',full:1,op:['Normalmente','Com laxante','Com estímulo manual','Em horário programado','É imprevisível']},
+  {id:'med_disreflexia',lb:'Episódios de cefaleia súbita intensa com sudorese e rubor facial',t:'select',full:1,op:['Nunca','Sim — uma vez','Sim — várias vezes','Não sei dizer'],hint:'Isso pode ser disreflexia autonômica, que é uma emergência. Precisamos saber.'},
   {t:'sub',lb:'Pele'},
-  {id:'med_ferida',lb:'Tem ou já teve ferida por ficar muito tempo na mesma posição?',t:'select',full:1,op:['Nunca tive','Já tive, está curada','Tenho agora — pequena','Tenho agora — grande','Já operei por causa disso']},
-  {id:'med_ferida_onde',lb:'Onde fica ou ficou a ferida',t:'select',op:['Não se aplica','Bumbum (sacro)','Onde senta (ísquios)','Quadril','Calcanhar','Outro lugar']},
-  {id:'med_alivio',lb:'Faz alívio de peso quando está sentado?',t:'select',full:1,op:['Sim — sozinho, várias vezes por hora','Sim — com ajuda','Às vezes','Não faço']},
-  {id:'med_almofada',lb:'Que almofada usa na cadeira',t:'select',op:['Não uso cadeira','De ar','De gel','De espuma','Comum, sem ser especial']},
+  {id:'med_ferida',lb:'Presença atual ou prévia de lesão por pressão',t:'select',full:1,op:['Nunca tive','Já tive, está curada','Tenho agora — pequena','Tenho agora — grande','Já operei por causa disso']},
+  {id:'med_ferida_onde',lb:'Localização da lesão por pressão',t:'select',op:['Não se aplica','Bumbum (sacro)','Onde senta (ísquios)','Quadril','Calcanhar','Outro lugar']},
+  {id:'med_alivio',lb:'Realização de alívio de pressão na posição sentada',t:'select',full:1,op:['Sim — sozinho, várias vezes por hora','Sim — com ajuda','Às vezes','Não faço']},
+  {id:'med_almofada',lb:'Tipo de almofada utilizada na cadeira',t:'select',op:['Não uso cadeira','De ar','De gel','De espuma','Comum, sem ser especial']},
   {t:'sub',lb:'Espasmos e mobilidade'},
-  {id:'med_espasmo',lb:'Tem espasmos (a perna ou o braço se mexem sozinhos)?',t:'select',full:1,op:['Não','Às vezes, não atrapalham','Com frequência, atrapalham','Muito fortes, atrapalham bastante']},
-  {id:'med_transfere',lb:'Como passa da cadeira para a cama',t:'select',full:1,op:['Sozinho','Com tábua de transferência','Com ajuda de uma pessoa','Com ajuda de duas pessoas','Com equipamento']},
-  {id:'med_cadeira',lb:'Que cadeira de rodas usa',t:'select',op:['Não uso','Manual, eu mesmo empurro','Manual, alguém empurra','Motorizada']},
-  {id:'med_ombro_dor',lb:'Sente dor nos ombros de tanto usar os braços?',t:'select',op:['Não','Às vezes','Com frequência','O tempo todo']},
-  {id:'med_respira',lb:'Tem dificuldade para respirar ou tossir?',t:'select',full:1,op:['Não','Um pouco','Bastante — não consigo tossir forte','Uso aparelho para respirar']}
+  {id:'med_espasmo',lb:'Presença de espasmos musculares',t:'select',full:1,op:['Não','Às vezes, não atrapalham','Com frequência, atrapalham','Muito fortes, atrapalham bastante']},
+  {id:'med_transfere',lb:'Forma de realizar as transferências',t:'select',full:1,op:['Sozinho','Com tábua de transferência','Com ajuda de uma pessoa','Com ajuda de duas pessoas','Com equipamento']},
+  {id:'med_cadeira',lb:'Tipo de cadeira de rodas utilizada',t:'select',op:['Não uso','Manual, eu mesmo empurro','Manual, alguém empurra','Motorizada']},
+  {id:'med_ombro_dor',lb:'Dor nos ombros por sobrecarga dos membros superiores',t:'select',op:['Não','Às vezes','Com frequência','O tempo todo']},
+  {id:'med_respira',lb:'Dificuldade respiratória ou para tossir',t:'select',full:1,op:['Não','Um pouco','Bastante — não consigo tossir forte','Uso aparelho para respirar']}
 ]}],
 
 fibromialgia:[
 {icon:'🌡️',title:'Fibromialgia',fields:[
-  {t:'sub',lb:'Onde dói'},
-  {t:'note',lb:'Na fibromialgia a dor costuma mudar de lugar e aparecer em várias partes ao mesmo tempo.'},
-  {id:'fm_regioes',lb:'Em que partes do corpo sentiu dor na última semana',t:'checks',full:1,op:['Pescoço','Ombro direito','Ombro esquerdo','Braço direito','Braço esquerdo','Antebraço direito','Antebraço esquerdo','Peito','Costas de cima','Costas de baixo (lombar)','Barriga','Quadril direito','Quadril esquerdo','Coxa direita','Coxa esquerda','Perna direita','Perna esquerda','Mandíbula']},
-  {id:'fm_tempo',lb:'Há quanto tempo sente essa dor espalhada',t:'select',op:['Menos de 3 meses','3 a 6 meses','6 meses a 1 ano','1 a 5 anos','Mais de 5 anos']},
-  {id:'fm_muda',lb:'A dor muda de lugar?',t:'select',op:['Não, fica sempre no mesmo lugar','Às vezes muda','Muda o tempo todo']},
+  {t:'sub',lb:'Distribuição da dor'},
+  {t:'note',lb:'Na fibromialgia, a dor costuma ser difusa e migratória, acometendo várias regiões simultaneamente.'},
+  {id:'fm_regioes',lb:'Regiões do corpo acometidas na última semana',t:'checks',full:1,op:['Pescoço','Ombro direito','Ombro esquerdo','Braço direito','Braço esquerdo','Antebraço direito','Antebraço esquerdo','Peito','Costas de cima','Costas de baixo (lombar)','Barriga','Quadril direito','Quadril esquerdo','Coxa direita','Coxa esquerda','Perna direita','Perna esquerda','Mandíbula']},
+  {id:'fm_tempo',lb:'Tempo de evolução da dor difusa',t:'select',op:['Menos de 3 meses','3 a 6 meses','6 meses a 1 ano','1 a 5 anos','Mais de 5 anos']},
+  {id:'fm_muda',lb:'Caráter migratório da dor',t:'select',op:['Não, fica sempre no mesmo lugar','Às vezes muda','Muda o tempo todo']},
   {t:'sub',lb:'Cansaço, sono e memória'},
   {id:'fm_cansaco',lb:'Cansaço',t:'select',full:1,op:['Não sinto cansaço fora do normal','Leve — dá para levar o dia','Moderado — atrapalha bastante','Grave — mal consigo fazer as coisas']},
-  {id:'fm_acorda',lb:'Acorda descansado?',t:'select',full:1,op:['Sim, acordo bem','Às vezes','Quase nunca','Nunca — acordo mais cansado do que deitei']},
+  {id:'fm_acorda',lb:'Sensação de descanso ao despertar',t:'select',full:1,op:['Sim, acordo bem','Às vezes','Quase nunca','Nunca — acordo mais cansado do que deitei']},
   {id:'fm_memoria',lb:'Dificuldade de concentração ou memória ("névoa mental")',t:'select',full:1,op:['Não tenho','Leve','Moderada','Grave — esqueço o que ia falar no meio da frase']},
-  {t:'sub',lb:'Sintomas associados'},
-  {id:'fm_sintomas',lb:'Outros sintomas que sente',t:'checks',full:1,op:['Nenhum','Dor de cabeça frequente','Cólica ou dor na barriga','Intestino solto ou preso','Formigamento nas mãos ou pés','Sensibilidade a barulho','Sensibilidade a luz','Sensibilidade ao frio','Boca seca','Coração acelerado']},
-  {id:'fm_piora',lb:'O que costuma desencadear as crises',t:'checks',full:1,op:['Não sei dizer','Estresse ou preocupação','Esforço físico','Noite mal dormida','Frio ou mudança de tempo','Ficar muito tempo parado','Período menstrual']},
+  {t:'sub',lb:'Outros sintomas associados'},
+  {id:'fm_sintomas',lb:'Sintomas associados',t:'checks',full:1,op:['Nenhum','Dor de cabeça frequente','Cólica ou dor na barriga','Intestino solto ou preso','Formigamento nas mãos ou pés','Sensibilidade a barulho','Sensibilidade a luz','Sensibilidade ao frio','Boca seca','Coração acelerado']},
+  {id:'fm_piora',lb:'Fatores desencadeantes das crises',t:'checks',full:1,op:['Não sei dizer','Estresse ou preocupação','Esforço físico','Noite mal dormida','Frio ou mudança de tempo','Ficar muito tempo parado','Período menstrual']},
   {t:'sub',lb:'Impacto na vida'},
-  {id:'fm_dias_ruins',lb:'Quantos dias por semana se sente mal',t:'select',op:['Nenhum','1 a 2','3 a 4','5 a 6','Todos os dias']},
-  {id:'fm_faltou',lb:'Faltou ao trabalho ou deixou de fazer coisas por causa da dor?',t:'select',full:1,op:['Não','Raramente','Algumas vezes por mês','Toda semana']},
-  {id:'fm_entendem',lb:'As pessoas ao seu redor entendem o que você sente?',t:'select',full:1,op:['Sim, tenho apoio','Em parte','Pouco','Não — sinto que não acreditam em mim']},
-  {id:'fm_humor',lb:'Como tem se sentido emocionalmente',t:'select',full:1,op:['Bem','Um pouco ansioso ou triste','Bastante ansioso ou triste','Muito mal'],hint:'A dor de longa duração afeta o humor, e isso faz parte do tratamento — não é frescura nem "coisa da cabeça".'},
-  {id:'fm_exercicio_medo',lb:'Tem medo de que o exercício piore a dor?',t:'select',full:1,op:['Não','Um pouco','Bastante — por isso evito me mexer']}
+  {id:'fm_dias_ruins',lb:'Número de dias por semana com sintomas importantes',t:'select',op:['Nenhum','1 a 2','3 a 4','5 a 6','Todos os dias']},
+  {id:'fm_faltou',lb:'Afastamento do trabalho ou de atividades em razão da dor',t:'select',full:1,op:['Não','Raramente','Algumas vezes por mês','Toda semana']},
+  {id:'fm_entendem',lb:'Compreensão da condição pelas pessoas próximas',t:'select',full:1,op:['Sim, tenho apoio','Em parte','Pouco','Não — sinto que não acreditam em mim']},
+  {id:'fm_humor',lb:'Estado emocional recente',t:'select',full:1,op:['Bem','Um pouco ansioso ou triste','Bastante ansioso ou triste','Muito mal'],hint:'A dor de longa duração afeta o humor, e isso faz parte do tratamento — não é frescura nem "coisa da cabeça".'},
+  {id:'fm_exercicio_medo',lb:'Receio de que o exercício agrave a dor',t:'select',full:1,op:['Não','Um pouco','Bastante — por isso evito me mexer']}
 ]}],
 
 traumato:[
 {icon:'🩹',title:'Ortopedia e Traumatologia',fields:[
   {t:'sub',lb:'A lesão'},
-  {id:'tr_regiao',lb:'Qual parte do corpo está em tratamento',t:'select',full:1,op:['Ombro','Cotovelo','Punho ou mão','Coluna cervical (pescoço)','Coluna lombar','Quadril','Joelho','Tornozelo ou pé','Mais de uma região']},
-  {id:'tr_lado',lb:'Qual lado',t:'select',op:['Direito','Esquerdo','Os dois','Não se aplica']},
-  {id:'tr_mecanismo',lb:'Como aconteceu',t:'text',full:1,ph:'Ex: torci o joelho jogando futebol; caí da escada; foi aparecendo com o trabalho'},
-  {id:'tr_estalo',lb:'Ouviu ou sentiu um estalo no momento da lesão?',t:'select',op:['Não ouvi','Sim, ouvi','Não se aplica']},
-  {id:'tr_inchaco',lb:'A região inchou?',t:'select',op:['Não','Sim — na hora','Sim — depois de algumas horas','Ainda está inchada']},
+  {id:'tr_regiao',lb:'Região corporal em tratamento',t:'select',full:1,op:['Ombro','Cotovelo','Punho ou mão','Coluna cervical (pescoço)','Coluna lombar','Quadril','Joelho','Tornozelo ou pé','Mais de uma região']},
+  {id:'tr_lado',lb:'Lado acometido',t:'select',op:['Direito','Esquerdo','Os dois','Não se aplica']},
+  {id:'tr_mecanismo',lb:'Mecanismo da lesão',t:'text',full:1,ph:'Ex: torci o joelho jogando futebol; caí da escada; foi aparecendo com o trabalho'},
+  {id:'tr_estalo',lb:'Percepção de estalido no momento da lesão',t:'select',op:['Não ouvi','Sim, ouvi','Não se aplica']},
+  {id:'tr_inchaco',lb:'Presença de edema na região',t:'select',op:['Não','Sim — na hora','Sim — depois de algumas horas','Ainda está inchada']},
   {t:'sub',lb:'Cirurgia e imobilização'},
-  {id:'tr_cirurgia',lb:'Fez cirurgia nessa região?',t:'select',full:1,op:['Não fiz','Sim — recente','Sim — há mais de 6 meses','Está marcada','Foi indicada mas não quero fazer']},
+  {id:'tr_cirurgia',lb:'Cirurgia realizada na região',t:'select',full:1,op:['Não fiz','Sim — recente','Sim — há mais de 6 meses','Está marcada','Foi indicada mas não quero fazer']},
   {id:'tr_cirurgia_data',lb:'Data da cirurgia',t:'text',ph:'Mês e ano'},
-  {id:'tr_imobilizacao',lb:'Usou gesso, tala ou imobilizador?',t:'select',op:['Não','Sim — já retirei','Estou usando agora']},
-  {id:'tr_carga',lb:'O médico liberou apoiar o peso / usar normalmente?',t:'select',full:1,op:['Sim, liberado','Liberado em parte','Ainda não pode','Não sei informar'],hint:'Se tiver alguma restrição por escrito do médico, traga na primeira consulta.'},
-  {id:'tr_muleta',lb:'Está usando muleta, bengala ou tipoia?',t:'select',op:['Não','Muleta','Bengala','Tipoia','Andador']},
+  {id:'tr_imobilizacao',lb:'Uso de gesso, tala ou imobilizador',t:'select',op:['Não','Sim — já retirei','Estou usando agora']},
+  {id:'tr_carga',lb:'Liberação médica para carga ou uso habitual',t:'select',full:1,op:['Sim, liberado','Liberado em parte','Ainda não pode','Não sei informar'],hint:'Se tiver alguma restrição por escrito do médico, traga na primeira consulta.'},
+  {id:'tr_muleta',lb:'Uso atual de muleta, bengala ou tipoia',t:'select',op:['Não','Muleta','Bengala','Tipoia','Andador']},
   {t:'sub',lb:'Como está agora'},
-  {id:'tr_movimento',lb:'Consegue mexer a articulação toda?',t:'select',full:1,op:['Sim, normalmente','Falta um pouco','Falta bastante','Quase não mexo']},
-  {id:'tr_forca',lb:'Sente o lado afetado mais fraco?',t:'select',op:['Não','Um pouco','Bastante','Muito mais fraco']},
-  {id:'tr_falseia',lb:'A articulação falseia ou sai do lugar?',t:'select',op:['Não','Às vezes','Com frequência']},
-  {id:'tr_travamento',lb:'Trava ou dá estalos ao mexer?',t:'select',op:['Não','Estala mas não dói','Estala e dói','Trava']},
+  {id:'tr_movimento',lb:'Amplitude de movimento da articulação',t:'select',full:1,op:['Sim, normalmente','Falta um pouco','Falta bastante','Quase não mexo']},
+  {id:'tr_forca',lb:'Percepção de fraqueza no lado acometido',t:'select',op:['Não','Um pouco','Bastante','Muito mais fraco']},
+  {id:'tr_falseia',lb:'Sensação de falseio ou instabilidade articular',t:'select',op:['Não','Às vezes','Com frequência']},
+  {id:'tr_travamento',lb:'Travamento ou estalidos à movimentação',t:'select',op:['Não','Estala mas não dói','Estala e dói','Trava']},
   {t:'sub',lb:'Volta às atividades'},
-  {id:'tr_esporte',lb:'Praticava algum esporte antes?',t:'text',full:1,ph:'Qual, com que frequência, e há quanto tempo parou'},
-  {id:'tr_voltar',lb:'Pretende voltar a esse esporte?',t:'select',op:['Não se aplica','Sim, pretendo','Talvez','Não pretendo']},
-  {id:'tr_trabalho_exige',lb:'O seu trabalho exige o que dessa região',t:'select',full:1,op:['Não se aplica','Ficar sentado','Ficar em pé muito tempo','Levantar peso','Movimentos repetitivos','Trabalhar com os braços acima da cabeça','Subir escadas ou andaimes']},
-  {id:'tr_prazo',lb:'Tem algum prazo para voltar às atividades?',t:'text',full:1,ph:'Ex: preciso voltar ao trabalho em 2 meses; tenho uma corrida marcada em maio'}
+  {id:'tr_esporte',lb:'Prática esportiva anterior à lesão',t:'text',full:1,ph:'Qual, com que frequência, e há quanto tempo parou'},
+  {id:'tr_voltar',lb:'Intenção de retorno à prática esportiva',t:'select',op:['Não se aplica','Sim, pretendo','Talvez','Não pretendo']},
+  {id:'tr_trabalho_exige',lb:'Exigência funcional da região no trabalho',t:'select',full:1,op:['Não se aplica','Ficar sentado','Ficar em pé muito tempo','Levantar peso','Movimentos repetitivos','Trabalhar com os braços acima da cabeça','Subir escadas ou andaimes']},
+  {id:'tr_prazo',lb:'Prazo previsto para retorno às atividades',t:'text',full:1,ph:'Ex: preciso voltar ao trabalho em 2 meses; tenho uma corrida marcada em maio'}
 ]}]
 
 };
@@ -11379,6 +11382,21 @@ var PC_FORM=pcMontarForm([]);
 
 function pcEsc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+/* Data digitada: coloca as barras sozinho e aceita só números. */
+function pcMascaraData(el){
+  var v=(el.value||'').replace(/\D/g,'').slice(0,8);
+  if(v.length>4) v=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  else if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2);
+  el.value=v;
+}
+/* DD/MM/AAAA -> AAAA-MM-DD (formato interno). Devolve '' se incompleta. */
+function pcDataISO(v){
+  var m=(''+v).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m)return '';
+  var d=+m[1], mes=+m[2], a=+m[3];
+  if(d<1||d>31||mes<1||mes>12||a<1900||a>2100)return '';
+  return m[3]+'-'+m[2]+'-'+m[1];
+}
 function pcRenderField(f){
   if(f.t==='sub')return '<div class="pc-sub-t">'+pcEsc(f.lb)+'</div>';
   if(f.t==='note')return '<div class="pc-note">'+pcEsc(f.lb)+'</div>';
@@ -11402,6 +11420,8 @@ function pcRenderField(f){
       s+='<label><input type="radio" name="pc_'+f.id+'" value="'+n+'"><span>'+n+'</span></label>';
     }
     s+='</div><span class="lb">'+pcEsc(f.r||'10')+'</span></div>';
+  } else if(f.t==='datatxt'){
+    s+='<input type="text" id="pc_'+f.id+'" inputmode="numeric" maxlength="10" placeholder="'+esc(f.ph||'DD/MM/AAAA')+'" oninput="pcMascaraData(this)">';
   } else {
     s+='<input type="'+(f.t||'text')+'" id="pc_'+f.id+'" placeholder="'+pcEsc(f.ph||'')+'">';
   }
@@ -11478,7 +11498,14 @@ function showPreCadastro(conds){
 }
 
 /* ── leitura dos campos ── */
-function pcVal(id){var el=document.getElementById('pc_'+id);return el?(''+el.value).trim():'';}
+function pcVal(id){
+  var el=document.getElementById('pc_'+id);
+  if(!el)return '';
+  var v=(''+el.value).trim();
+  /* campo de data digitada: converte DD/MM/AAAA para o formato interno */
+  if(id==='nasc'&&v.indexOf('/')>0){ var iso=pcDataISO(v); return iso||v; }
+  return v;
+}
 function pcDataBR(v){
   if(!v||v.indexOf('-')<0)return v;
   var p=v.split('-');return p[2]+'/'+p[1]+'/'+p[0];
@@ -11851,6 +11878,376 @@ function pcProcessarColagem(){
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════════
+   PRÉ-CADASTRO → AVALIAÇÃO
+   As respostas do paciente viram a anamnese da primeira avaliação,
+   para não ser preciso redigitar nada.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Guarda as respostas cruas no paciente, para poder consultar depois. */
+function pcGuardarRespostas(p){
+  var d={};
+  PC_FORM.forEach(function(sec){
+    sec.fields.forEach(function(f){
+      if(f.t==='sub'||f.t==='note')return;
+      if(f.t==='checks'){
+        var a=[];
+        f.op.forEach(function(o,i){var el=document.getElementById('pc_'+f.id+'_'+i);if(el&&el.checked)a.push(o);});
+        if(a.length)d[f.id]=a.join(', ');
+      } else if(f.t==='scale'){
+        var r=document.querySelector('input[name="pc_'+f.id+'"]:checked');
+        if(r)d[f.id]=r.value;
+      } else {
+        var el2=document.getElementById('pc_'+f.id);
+        if(el2&&(''+el2.value).trim())d[f.id]=(''+el2.value).trim();
+      }
+    });
+  });
+  p.preCadastro={ recebidoEm:new Date().toISOString(), conds:(PC_CONDS_SEL||[]).slice(), dados:d };
+  return d;
+}
+
+/* Junta vários campos num texto corrido, pulando os vazios. */
+function _jn(partes){ return partes.filter(function(x){return x&&(''+x).trim();}).join('\n'); }
+function _rot(rot,v){ return (v&&(''+v).trim())?(rot+': '+v):''; }
+
+/* Converte as respostas do pré-cadastro nos campos da avaliação. */
+function pcParaAvaliacao(d){
+  if(!d)return {};
+  var a={};
+
+  // ── Identificação e ocupação ──
+  if(d.profissao) a.ocupacao=d.profissao;
+
+  // ── Queixa principal ──
+  a.queixa=_jn([ d.queixa,
+    _rot('Começou', d.inicio_quando),
+    _rot('Como começou', d.inicio_como),
+    _rot('Evolução', d.evolucao),
+    d.limitacao?('Deixou de fazer: '+d.limitacao):'' ]);
+
+  // ── Diagnóstico médico ──
+  var condsLbl=(PC_CONDS_SEL||[]).map(function(c){
+    var m=(typeof pcMetaCond==='function')?pcMetaCond(c):null;
+    if(m&&m.label)return m.label;
+    return (PC_ESPEC[c]&&PC_ESPEC[c][0])?PC_ESPEC[c][0].title:'';
+  }).filter(Boolean).join(', ');
+  a.diag_medico=_jn([
+    condsLbl?('Ficha preenchida para: '+condsLbl):'',
+    _rot('Tempo de diagnóstico', d.diag_tempo),
+    _rot('Médico', d.medico),
+    _rot('Serviço de referência', d.hospital),
+    _rot('Exames realizados', d.exames),
+    d.exames_obs?('Achados: '+d.exames_obs):'' ]);
+
+  // ── História da doença ──
+  a.historia_doenca=_jn([
+    _rot('Tratamentos já realizados', d.trat_previo),
+    d.trat_resultado?('Resultado: '+d.trat_resultado):'',
+    _rot('Encaminhamento', d.encaminhado),
+    _rot('Internações recentes', d.internacoes),
+    _rot('Tempo de doença (Parkinson)', d.pk_tempo),
+    _rot('Data do AVC', d.avc_data), _rot('Tipo de AVC', d.avc_tipo),
+    _rot('Reabilitação prévia (AVC)', d.avc_reab),
+    _rot('Causa da lesão medular', d.med_causa), _rot('Quando', d.med_quando),
+    _rot('Início dos sintomas (fibromialgia)', d.fm_tempo),
+    _rot('Origem da escoliose', d.ea_origem||d.esc_como),
+    _rot('Cirurgia prévia (ortopedia)', d.tr_cirurgia) ]);
+
+  // ── Doenças prévias ──
+  a.doencas_previas=_jn([
+    d.comorb||'',
+    _rot('Alergias', d.alergias),
+    _rot('Gestação/amamentação', d.gestante),
+    d.implantes&&d.implantes!=='Não'?('ATENÇÃO — implante/prótese: '+d.implantes):'' ]);
+
+  // ── Cirurgias ──
+  if(d.cirurgias) a.cirurgias=d.cirurgias;
+
+  // ── Comorbidades: marca as caixas correspondentes ──
+  var cb=(d.comorb||'').toLowerCase();
+  if(/press[ãa]o alta|hipertens/.test(cb)) a.com_has=true;
+  if(/diabetes/.test(cb))                  a.com_dm=true;
+  if(/cora[çc][ãa]o|card|arritmia|insufici[êe]ncia card/.test(cb)) a.com_cardio=true;
+  if(/asma|bronquite|dpoc|respirat/.test(cb)) a.com_resp=true;
+  if(/depress|ansiedade/.test(cb))         a.com_emo=true;
+  if(d.tabagismo==='Sim, fumo')            a.com_fuma=true;
+  if(d.alcool==='Com frequência')          a.com_alcool=true;
+  if(/n[ãa]o pratico|praticava, mas parei/i.test(d.freq_af||d.atividade_fisica||'')) a.com_sed=true;
+  else if(d.atividade_fisica&&d.atividade_fisica!=='Não pratico') a.com_afis=true;
+
+  a.com_obs=_jn([
+    _rot('Tabagismo', d.tabagismo),
+    _rot('Álcool', d.alcool),
+    _rot('Atividade física', d.atividade_fisica),
+    _rot('Frequência', d.freq_af),
+    d.af_parou?('Parou porque: '+d.af_parou):'',
+    _rot('Trabalho', d.trabalho_tipo),
+    _rot('Situação de trabalho', d.trabalho_situacao),
+    _rot('Sono', d.sono_qualidade),
+    _rot('Horas de sono', d.sono_horas) ]);
+
+  // ── Distúrbios associados ──
+  var visao=d.ger_visao||'', audic=d.ger_audicao||'', fala=d.alz_comunica||d.avc_fala||'';
+  if(/enxergo mal|catarata|enxergo muito pouco/i.test(visao)) a.dist_visao=true;
+  if(/reduzida|aparelho|ouço mal/i.test(audic))              a.dist_audicao=true;
+  if(fala&&!/^Fala normalmente$|^Não$/i.test(fala))          a.dist_linguagem=true;
+  a.dist_obs=_jn([
+    _rot('Visão', visao), _rot('Última consulta oftalmológica', d.ger_oftalmo),
+    _rot('Audição', audic), _rot('Comunicação', fala),
+    _rot('Memória', d.alz_memoria), _rot('Orientação', d.alz_orientacao),
+    _rot('Reconhece familiares', d.alz_reconhece),
+    _rot('Engasgos', d.alz_engasgo||d.avc_engasgo),
+    _rot('Tontura', d.ger_tontura), _rot('Labirintite', d.ger_labirinto) ]);
+
+  // ── Objetivo do tratamento ──
+  a.objetivo=_jn([ d.objetivos||'',
+    d.meta_pessoal?('Meta principal do paciente: '+d.meta_pessoal):'' ]);
+
+  // ── Observações gerais ──
+  a.obs_gerais=_jn([
+    d.importante?('IMPORTANTE — '+d.importante):'',
+    _rot('Estado civil', d.estado_civil),
+    _rot('Escolaridade', d.escolaridade),
+    _rot('Acompanhante nas sessões', d.acompanhante),
+    _rot('Melhor horário', d.disponibilidade),
+    _rot('Transporte', d.transporte),
+    _rot('Onde mora', d.moradia),
+    _rot('Mora com', d.mora_desc||d.mora_com),
+    _rot('Trabalho (descrição)', d.trabalho_desc),
+    d.duvidas?('Dúvidas do paciente: '+d.duvidas):'',
+    _rot('Locomoção', d.locomocao),
+    _rot('Distância que caminha', d.distancia),
+    _rot('Sobe escada', d.escada_sobe),
+    _rot('Quedas em 12 meses', d.ger_queda),
+    _rot('Queda com lesão', d.ger_lesao),
+    _rot('Medo de cair', d.ger_medo),
+    _rot('Consegue levantar após queda', d.ger_levanta),
+    _rot('Calçado habitual', d.ger_calcado),
+    _rot('Tapetes soltos', d.ger_tapete),
+    _rot('Barra no banheiro', d.ger_barra),
+    _rot('Luz no caminho noturno', d.ger_luz),
+    _rot('Tontura', d.ger_tontura),
+    _rot('Continência urinária', d.ger_urina),
+    _rot('Escadas em casa', d.escadas),
+    d.atividades?('Gosta de: '+d.atividades):'',
+    d.medicamentos?('MEDICAÇÃO EM USO:\n'+d.medicamentos):'',
+    d.anticoag&&d.anticoag!=='Não uso'?('Anticoagulante: '+d.anticoag):'',
+    d.cuid_tem&&!/^Não/.test(d.cuid_tem)?('Cuidador: '+d.cuid_tem+(d.cuid_nome?' ('+d.cuid_nome+')':'')
+      +(d.cuid_turno?' · turno difícil: '+d.cuid_turno:'')):'',
+    d.cuid_cansaco?('Cansaço do cuidador: '+d.cuid_cansaco+'/10'):'',
+    _rot('AVD banho/vestir', d.avd_banho),
+    _rot('AVD transferências', d.avd_transf) ]);
+
+  // ── Dor ──
+  if(d.dor_tem&&d.dor_tem!=='Não sinto dor'){
+    a.dor_local=d.dor_local||'';
+    if(d.dor_agora) a.dor_eva=d.dor_agora;
+    if(d.dor_pior)  a.dor_eva_pior=d.dor_pior;
+    a.dor_obs=_jn([
+      _rot('Frequência', d.dor_tem), _rot('Características', d.dor_tipo),
+      _rot('Piora com', d.dor_piora), _rot('Melhora com', d.dor_melhora),
+      _rot('Período', d.dor_periodo), _rot('Atrapalha o sono', d.dor_sono) ]);
+  }
+
+  // ── Blocos específicos por patologia ──
+  // Parkinson
+  if(d.pk_lado)        a.lado_inicio=d.pk_lado;
+  if(d.pk_freezing&&!/^Nunca/i.test(d.pk_freezing)) a.freezing='Presente';
+  // AVC
+  if(d.avc_lado)       a.lado_afetado=d.avc_lado;
+  if(d.avc_ombro_dor&&!/^Não/i.test(d.avc_ombro_dor))   a.ombro_dor='Sim';
+  // Escoliose (adolescente e adulto)
+  if(d.esc_grau)       a.cobb_principal=(''+d.esc_grau).replace(/[^\d.,]/g,'').replace(',','.');
+  if(d.ea_graus)       a.cobb_principal=(''+d.ea_graus).replace(/[^\d.,]/g,'').replace(',','.');
+  if(d.esc_colete_horas) a.colete_real=(''+d.esc_colete_horas).replace(/[^\d.,]/g,'').replace(',','.');
+  if(d.ea_dor_nota)    a.ea_dor_lombar=d.ea_dor_nota;
+  if(d.ea_osteo)       a.ea_dmo=(/^Osteoporose/.test(d.ea_osteo)?'Osteoporose':(/Osteopenia/.test(d.ea_osteo)?'Osteopenia':'Não realizada'));
+  if(d.ea_caminhar)    a.ea_marcha_dist=({'Sem limite':'Sem limitação','Uns 15 a 30 minutos':'Mais de 500 m',
+                          'Cerca de um quarteirão':'100 a 500 m','Menos de um quarteirão':'Menos de 100 m',
+                          'Poucos passos dentro de casa':'Apenas dentro de casa'})[d.ea_caminhar]||'';
+  if(d.ea_alivio)      a.ea_alivio_flexao=(/Inclinar|carrinho/.test(d.ea_alivio)?'Sim — importante':(d.ea_alivio==='Nada alivia'?'Não':''));
+  if(d.ea_alivio&&/carrinho/.test(d.ea_alivio)) a.ea_carrinho='Presente';
+  if(d.ger_queda)      a.tri_queda=({'Não caí':'Não','Sim — 1 vez':'Sim — 1 vez',
+                          'Sim — 2 a 3 vezes':'Sim — 2 ou mais vezes',
+                          'Sim — 4 ou mais vezes':'Sim — 2 ou mais vezes'})[d.ger_queda]||'';
+  if(d.ger_queda&&d.ger_queda!=='Não caí')
+    a.quedas_12m=({'Sim — 1 vez':1,'Sim — 2 a 3 vezes':3,'Sim — 4 ou mais vezes':4})[d.ger_queda]||'';
+  if(d.ger_desmaio)    a.tri_sincope=(/^Sim/.test(d.ger_desmaio)?'Sim':'Não');
+  if(d.ger_lesao)      a.tri_lesao=/fratura/i.test(d.ger_lesao)?'Sim — fratura'
+                          :(/roxo|arranh/i.test(d.ger_lesao)?'Sim — hematoma ou escoriação'
+                          :(/^Não me machuquei/i.test(d.ger_lesao)?'Não':''));
+  if(d.ger_calcado)    a.calcado=/firme|fechado/i.test(d.ger_calcado)?'Adequado — fechado e firme'
+                          :(/chinelo/i.test(d.ger_calcado)?'Chinelo solto'
+                          :(/meias/i.test(d.ger_calcado)?'Meias no piso liso':''));
+  if(d.ger_tapete)     a.amb_tapete=(/^Sim/.test(d.ger_tapete)?'Sim':'Não');
+  if(d.ger_barra)      a.amb_barra=(/^Sim/.test(d.ger_barra)?'Sim':'Não');
+  if(d.ger_luz)        a.amb_luz=(/^Sim|adequad/i.test(d.ger_luz)?'Adequada':'Insuficiente');
+  if(d.ger_tontura)    a.tontura_lev=(/^Sim/.test(d.ger_tontura)?'Frequentemente':'Não');
+  if(d.medo_cair)      a.tri_medo=(/^Não/.test(d.medo_cair)?'Não':'Sim');
+  if(d.ger_medo)       a.tri_medo=(/^Não/.test(d.ger_medo)?'Não':'Sim');
+  // Fibromialgia
+  if(d.fm_cansaco)     a.ss_fadiga_txt=d.fm_cansaco;
+  if(d.fm_acorda)      a.ss_sono_txt=d.fm_acorda;
+  // ── AVC: membro superior ──
+  if(d.avc_uso_braco)  a.ms_uso=({'Sim, quase como antes':'Sim — quase como antes',
+                          'Sim, em algumas coisas':'Sim — em algumas tarefas',
+                          'Quase não uso':'Raramente','Não uso':'Não usa'})[d.avc_uso_braco]||'';
+  if(d.avc_inchaco)    a.ms_edema=(/^Não/.test(d.avc_inchaco)?'Ausente':'Moderado');
+  if(d.avc_rigidez)    a.espasticidade_relato=d.avc_rigidez;
+  if(d.avc_visao)      a.dist_visao=!/^Não/.test(d.avc_visao);
+  if(d.avc_negligencia&&!/^Não/.test(d.avc_negligencia)) a.negligencia='Presente (relato do paciente)';
+
+  // ── Lesão medular: pele, bexiga, autonômico ──
+  if(d.med_ferida)     a.pele_status=(/^Não/.test(d.med_ferida)?'Íntegra'
+                          :(/tenho agora|aberta/i.test(d.med_ferida)?'Lesão aberta':'Cicatriz de lesão anterior'));
+  if(d.med_ferida_onde) a.pele_local=d.med_ferida_onde;
+  if(d.med_alivio)     a.alivio_pressao=(/sozinho|independente/i.test(d.med_alivio)?'Sim — de forma independente'
+                          :(/ajuda/i.test(d.med_alivio)?'Sim — com ajuda'
+                          :(/às vezes|as vezes/i.test(d.med_alivio)?'Às vezes':'Não')));
+  if(d.med_almofada)   a.almofada=(/ar/i.test(d.med_almofada)?'Almofada de ar'
+                          :(/gel/i.test(d.med_almofada)?'Almofada de gel'
+                          :(/espuma/i.test(d.med_almofada)?'Almofada de espuma':'Sem almofada específica')));
+  if(d.med_disreflexia) a.auto_hipo=(/^Sim/.test(d.med_disreflexia)?'Ocasional':'Ausente');
+  if(d.med_ombro_dor&&!/^Não/.test(d.med_ombro_dor)) a.dor_local='Ombros (relato do paciente)';
+  if(d.med_espasmo)    a.espasmo_relato=d.med_espasmo;
+
+  // ── Geriatria: fragilidade ──
+  if(d.ger_peso)       a.perda_peso=(/^Não/.test(d.ger_peso)?'Não'
+                          :(/mais de 3|muito/i.test(d.ger_peso)?'Sim — mais de 3 kg':'Sim — até 3 kg'));
+  if(d.ger_cansaco)    a.exaustao=(/^Não/.test(d.ger_cansaco)?'Não'
+                          :(/sempre|maior parte/i.test(d.ger_cansaco)?'Sim — frequente':'Sim — ocasional'));
+  if(d.ger_forca)      a.sarcf_s=(/^Não/.test(d.ger_forca)?0:(/muita|não consigo/i.test(d.ger_forca)?2:1));
+
+  // ── Escoliose do adulto ──
+  if(d.ea_altura)      a.ea_perda_altura=(/mais de 3/i.test(d.ea_altura)?4:(/2 a 3/i.test(d.ea_altura)?2.5:''));
+  if(d.ea_piorou)      a.ea_progressao=(/^Não/.test(d.ea_piorou)?'Estável'
+                          :(/rápido|rapido/i.test(d.ea_piorou)?'Rápida'
+                          :(/devagar/i.test(d.ea_piorou)?'Lenta':'Não sabe informar')));
+  if(d.ea_porque_para) a.ea_motivo_parada=(/costas/i.test(d.ea_porque_para)?'Dor lombar'
+                          :(/perna/i.test(d.ea_porque_para)?'Dor/peso em MMII'
+                          :(/ar/i.test(d.ea_porque_para)?'Dispneia'
+                          :(/cansaço|cansaco/i.test(d.ea_porque_para)?'Fadiga geral':'Não precisa parar'))));
+  if(d.ea_apoio)       a.ea_dispositivo=(/^Não/.test(d.ea_apoio)?'Nenhum'
+                          :(/andador/i.test(d.ea_apoio)?'Andador'
+                          :(/bengala/i.test(d.ea_apoio)?'Bengala':'Nenhum')));
+  if(d.ea_inclina)     a.ea_percep_incl=(/^Não/.test(d.ea_inclina)?'Não'
+                          :(/frente e|ambos/i.test(d.ea_inclina)?'Ambos'
+                          :(/frente/i.test(d.ea_inclina)?'Para frente':'Para o lado')));
+  if(d.ea_esforco_pe)  a.ea_esforco_ereto=(/^Não/.test(d.ea_esforco_pe)?'Nenhum'
+                          :(/bastante|canso/i.test(d.ea_esforco_pe)?'Importante — fadiga rápida':'Leve'));
+  if(d.ea_cirurgia)    a.ea_cirurgia=(/^Não|indicada/i.test(d.ea_cirurgia)?'Não':'Artrodese');
+  if(d.ea_cirurgia_quando) a.ea_cirurgia_obs=d.ea_cirurgia_quando;
+  if(d.ea_dor_nota)    a.ea_dor_lombar=d.ea_dor_nota;
+  if(d.ea_dor_perna&&!/^Não/.test(d.ea_dor_perna)) a.ea_dor_predom='Ambos igualmente';
+
+  // ── Escoliose do adolescente ──
+  if(d.esc_colete)     a.colete_tipo=(/^Não/.test(d.esc_colete)?'Não usa colete':'Outro');
+  if(d.esc_colete_dific) a.colete_dific=d.esc_colete_dific;
+  if(d.esc_aparencia)  a.autoimagem=(/^Não/.test(d.esc_aparencia)?'Não me incomoda'
+                          :(/bastante|muito/i.test(d.esc_aparencia)?'Incomoda bastante':'Incomoda um pouco'));
+  if(d.esc_evita)      a.esc_evita=(/^Não/.test(d.esc_evita)?'Não':'Sim — atividade física');
+  if(d.esc_piorou)     a.status_progressao=(/^Não/.test(d.esc_piorou)?'Estável (<5° em 6 meses)':'Progressiva (≥5°/6 meses)');
+
+  // Traumato
+  if(d.tr_regiao)      a.tr_reg1=d.tr_regiao;
+  if(d.tr_lado)        a.tr_lado1=d.tr_lado;
+  if(d.tr_imobilizacao) a.imobilizacao=d.tr_imobilizacao;
+  if(d.tr_carga)       a.carga_liberada=d.tr_carga;
+  if(d.tr_esporte)     a.esporte_previo=d.tr_esporte;
+  if(d.tr_mecanismo)   a.mecanismo=d.tr_mecanismo;
+  // Lesão medular
+  if(d.med_nivel)      a.nivel_neur=d.med_nivel;
+  if(d.med_causa)      a.etiologia=d.med_causa;
+
+  /* Nada se perde: o que não tem campo próprio na avaliação entra como
+     relato do paciente no histórico, já com o texto da pergunta. */
+  var jaUsado={};
+  Object.keys(a).forEach(function(k){ jaUsado[k]=1; });
+  var consumidos=['nome','nasc','sexo','cpf','endereco','tel_paciente','email_paciente',
+    'convenio','profissao','emerg_nome','emerg_par','emerg_tel','consent','consent_img',
+    'data_pre','quem_preencheu','queixa','inicio_quando','inicio_como','evolucao','limitacao',
+    'trat_previo','trat_resultado','encaminhado','medico','hospital','exames','exames_obs',
+    'comorb','alergias','gestante','implantes','cirurgias','internacoes','tabagismo','alcool',
+    'atividade_fisica','freq_af','af_parou','trabalho_tipo','trabalho_desc','trabalho_situacao',
+    'sono_qualidade','sono_horas','estado_civil','escolaridade','acompanhante','disponibilidade',
+    'transporte','moradia','mora_com','mora_desc','objetivos','meta_pessoal','indicacao'];
+  var cons={}; consumidos.forEach(function(k){cons[k]=1;});
+
+  var rotulos={};
+  try{
+    PC_BASE_INI.concat(PC_BASE_FIM).forEach(function(s){s.fields.forEach(function(f){if(f.id)rotulos[f.id]=f.lb;});});
+    Object.keys(PC_ESPEC).forEach(function(c){PC_ESPEC[c].forEach(function(s){s.fields.forEach(function(f){if(f.id)rotulos[f.id]=f.lb;});});});
+  }catch(e){}
+
+  var extras=[];
+  Object.keys(d).forEach(function(k){
+    if(cons[k])return;
+    var v=d[k];
+    if(v===''||v==null||v===false)return;
+    if(/^(dor_|avd_|med_dor$|locomocao$|quedas)/.test(k)&&jaUsado[k])return;
+    var lb=rotulos[k]||k.replace(/_/g,' ');
+    extras.push('• '+lb+': '+v);
+  });
+  if(extras.length){
+    a.historia_doenca=_jn([ a.historia_doenca,
+      'RELATO DO PACIENTE NA FICHA DE PRÉ-CADASTRO:', extras.join('\n') ]);
+  }
+
+  // limpa os vazios
+  Object.keys(a).forEach(function(k){ if(a[k]===''||a[k]==null) delete a[k]; });
+  return a;
+}
+
+/* Cria a primeira avaliação de cada patologia já preenchida. */
+function pcSemearAvaliacoes(p,dados){
+  var anam=pcParaAvaliacao(dados);
+  if(!Object.keys(anam).length)return 0;
+  var n=0;
+  (p.conds||[]).forEach(function(cond){
+    if(!COND_META[cond])return;
+    if(!p.condEvals[cond])p.condEvals[cond]=[];
+    if(p.condEvals[cond].length)return;   // já existe avaliação: não mexe
+    var data={};
+    Object.keys(anam).forEach(function(k){ data[k]=anam[k]; });
+    data.date=new Date().toISOString().split('T')[0];
+    p.condEvals[cond].push({ id:db.nid++, num:1, type:'Avaliação Inicial',
+      date:data.date, data:data, origem:'pre-cadastro' });
+    n++;
+  });
+  return n;
+}
+
+/* Mostra as respostas originais do pré-cadastro de um paciente. */
+function verPreCadastro(pid){
+  var p=db.patients.find(function(x){return x.id===pid;});
+  if(!p||!p.preCadastro){toast('Este paciente não tem ficha de pré-cadastro','err');return;}
+  var pc=p.preCadastro, d=pc.dados||{};
+  var rot={};
+  PC_BASE_INI.concat(PC_BASE_FIM).forEach(function(s){s.fields.forEach(function(f){if(f.id)rot[f.id]=f.lb;});});
+  Object.keys(PC_ESPEC).forEach(function(c){PC_ESPEC[c].forEach(function(s){s.fields.forEach(function(f){if(f.id)rot[f.id]=f.lb;});});});
+  var linhas=Object.keys(d).map(function(k){
+    return '<tr><td style="padding:5px 8px;color:var(--g4);font-size:11px;vertical-align:top;width:42%">'
+      +esc(rot[k]||k)+'</td><td style="padding:5px 8px;font-size:12px;color:var(--g8)">'
+      +esc(d[k]).replace(/\n/g,'<br>')+'</td></tr>';
+  }).join('');
+  var ov=document.getElementById('verPcModal');
+  if(!ov){
+    ov=document.createElement('div');ov.className='ov';ov.id='verPcModal';ov.setAttribute('data-static','1');
+    ov.innerHTML='<div class="modal" style="max-width:620px"><h3>Ficha de pré-cadastro</h3><div id="verPcBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('verPcBody').innerHTML=
+     '<p style="font-size:11.5px;color:var(--g4);margin-bottom:11px">Respondida pelo paciente em '
+    +esc(new Date(pc.recebidoEm).toLocaleString('pt-BR'))+'. Estas são as respostas originais, como foram enviadas.</p>'
+    +'<div style="max-height:56vh;overflow-y:auto;border:1.5px solid var(--g2);border-radius:10px">'
+    +'<table style="width:100%;border-collapse:collapse">'+linhas+'</table></div>'
+    +'<div class="ma" style="margin-top:14px">'
+    +'<button class="btn" onclick="closeOv(\'verPcModal\')" style="background:#ede8e0;color:var(--g6)">Fechar</button></div>';
+  ov.style.display='flex';
+}
+
 /* ── converter ficha em paciente do sistema ── */
 function pcCriarPaciente(){
   var nome=pcVal('nome');
@@ -11909,12 +12306,16 @@ function pcCriarPaciente(){
     conds:conds, condEvals:{},
     created:new Date().toISOString()
   };
+  var _dadosPC=pcGuardarRespostas(p);
   db.patients.push(p);
+  var _semeadas=pcSemearAvaliacoes(p,_dadosPC);
   saveDB();
   PC_DRAFT={};
   renderList();
   selPatient(p.id);
-  toast('Paciente cadastrado a partir da ficha!','ok');
+  toast(_semeadas
+    ? ('Paciente cadastrado — '+_semeadas+(_semeadas===1?' avaliação já preenchida':' avaliações já preenchidas')+' com a anamnese')
+    : 'Paciente cadastrado a partir da ficha!','ok');
   if(typeof aposCriarPaciente==='function')aposCriarPaciente(p.id);
 }
 
@@ -12287,7 +12688,64 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-16d';   // muda a cada atualização — confere se o arquivo novo carregou
+var APP_VERSAO='2026-08-16e';
+
+/* ── CONTA CONECTADA ───────────────────────────────────────────── */
+function contaAtualizar(){
+  var btn=document.getElementById('contaBtn');
+  if(!btn)return;
+  var u=(typeof window._fbUser==='function')?window._fbUser():null;
+  if(!u||!u.email){ btn.style.display='none'; return; }
+  btn.style.display='flex';
+  var nome=u.email.split('@')[0];
+  document.getElementById('contaIni').textContent=(nome[0]||'?').toUpperCase();
+  document.getElementById('contaTxt').textContent=nome;
+  btn.title='Conectada como '+u.email;
+}
+
+function abrirConta(){
+  var u=(typeof window._fbUser==='function')?window._fbUser():null;
+  var email=(u&&u.email)||'—';
+  var ov=document.getElementById('contaModal');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.className='ov';ov.id='contaModal';ov.setAttribute('data-static','1');
+    ov.innerHTML='<div class="modal"><h3>Conta conectada</h3><div id="contaBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+  var ultimo='';
+  try{ if(db&&db._updated) ultimo=new Date(db._updated).toLocaleString('pt-BR'); }catch(e){}
+  var estado=(document.getElementById('syncTxt')||{}).textContent||'—';
+  document.getElementById('contaBody').innerHTML=
+     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">'
+    +'<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    +esc((email[0]||'?').toUpperCase())+'</div>'
+    +'<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:var(--g8);word-break:break-all">'+esc(email)+'</div>'
+    +'<div style="font-size:11px;color:var(--g4);margin-top:2px">Login com e-mail e senha</div></div></div>'
+    +'<div style="background:var(--g1);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--g6);line-height:1.7">'
+    +'<div><b>Nuvem:</b> '+esc(estado)+'</div>'
+    +(ultimo?'<div><b>Última sincronização:</b> '+esc(ultimo)+'</div>':'')
+    +'<div><b>Versão do sistema:</b> '+APP_VERSAO+'</div></div>'
+    +'<div class="ib" style="margin-top:12px;font-size:11.5px">Ao sair, seus dados continuam guardados na nuvem e neste aparelho. '
+    +'Você precisará do e-mail e da senha para entrar de novo.</div>'
+    +'<div class="ma" style="margin-top:16px">'
+    +'<button class="btn" onclick="closeOv(\'contaModal\')" style="background:#ede8e0;color:var(--g6)">Fechar</button>'
+    +'<button class="btn btn-del" onclick="contaSair()">Sair da conta</button>'
+    +'</div>';
+  ov.style.display='flex';
+}
+
+function contaSair(){
+  if(!confirm('Sair da conta? Você precisará entrar de novo com e-mail e senha.'))return;
+  try{ saveDB(); }catch(e){}
+  closeOv('contaModal');
+  setTimeout(function(){
+    if(typeof window._fbSignOut==='function'){
+      window._fbSignOut().then(function(){ location.reload(); })
+        .catch(function(){ toast('Não consegui sair agora','err'); });
+    } else { location.reload(); }
+  },500);
+}   // muda a cada atualização — confere se o arquivo novo carregou
 
 /* Teste completo: diz exatamente onde está travando. */
 function precadDiagnostico(){
@@ -12456,7 +12914,11 @@ function precadPreencher(f){
     var v=d[k];
     if(v===''||v==null)return;
     var el=document.getElementById('pc_'+k);
-    if(el){ el.value=v; return; }
+    if(el){
+      /* nascimento chega em AAAA-MM-DD e é exibido como DD/MM/AAAA */
+      if(k==='nasc'&&/^\d{4}-\d{2}-\d{2}$/.test(v)){ var p2=v.split('-'); v=p2[2]+'/'+p2[1]+'/'+p2[0]; }
+      el.value=v; return;
+    }
     // checkbox: veio como "0,3,5" (índices marcados)
     if(/^\d+(,\d+)*$/.test(''+v)){
       var idx=(''+v).split(',');
@@ -12500,6 +12962,7 @@ function precadDescartar(i,silencioso){
 }
 
 try{precadIniciar();}catch(e){}
-setTimeout(function(){try{precadIniciar();}catch(e){}},2500);
+try{contaAtualizar();}catch(e){}
+setTimeout(function(){try{precadIniciar();}catch(e){}try{contaAtualizar();}catch(e){}},2500);
 </script>
 </body></html>
