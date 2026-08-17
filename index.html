@@ -592,6 +592,24 @@
   color:#fff;background:var(--or);border-radius:9px;padding:3px 10px;flex-shrink:0}
 @media(max-width:640px){.pc-linkprev{margin:0 10px 9px}.pc-linkprev .lp-url{min-width:100%}}
 
+/* ── Ver somente o preenchido ── */
+.vp-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:var(--g1);border-radius:9px;padding:8px 12px;margin-bottom:12px;font-size:11.5px;font-weight:700;color:var(--g6)}
+.vp-chk{display:flex;align-items:center;gap:6px;font-weight:500;color:var(--g4);cursor:pointer}
+.vp-chk input{accent-color:var(--or);margin:0}
+.vp-sec{margin-bottom:14px}
+.vp-sec-t{font-size:10.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--or2);
+  border-bottom:1.5px solid var(--or-l);padding-bottom:4px;margin-bottom:6px}
+.vp-li{display:flex;gap:10px;padding:5px 2px;border-bottom:1px solid var(--g1);font-size:12.5px;line-height:1.5}
+.vp-li:last-child{border-bottom:none}
+.vp-li.vp-multi{flex-direction:column;gap:2px}
+.vp-lb{color:var(--g4);flex:0 0 45%;font-weight:600}
+.vp-li.vp-multi .vp-lb{flex:none}
+.vp-vl{color:var(--g8);flex:1}
+.vp-li.vp-calc .vp-vl{color:var(--or2);font-weight:600}
+#vpBody{max-height:62vh;overflow-y:auto}
+@media(max-width:640px){.vp-li{flex-direction:column;gap:1px}.vp-lb{flex:none;font-size:11px}}
+
 </style>
 <!-- Firebase SDK -->
 <script type="module">
@@ -1790,6 +1808,7 @@ function openForm(pid,cond,eid){
     +'<div><h3>'+m.icon+' '+ev.type+' — '+esc(p.name)+'</h3><p>'+m.label+' · '+d+' · Avaliação nº '+ev.num+'</p></div>'
     +'<div class="fhdr-r">'
     +'<button class="btn btn-del" onclick="selPatient('+pid+')">← Voltar</button>'
+    +'<button class="btn" onclick="verPreenchido()" style="background:#6B5B95;color:#fff">👁️ Preenchido</button>'
     +'<button class="btn btn-gr" onclick="saveNow()">💾 Salvar</button>'
     +'</div></div>'
     +'<div class="how-bulk"><span style="font-size:11px;color:var(--g4);align-self:center;margin-right:2px">Explicações dos testes:</span><button type="button" onclick="howAll(true)">? Abrir todas</button><button type="button" onclick="howAll(false)">Recolher todas</button></div>'
@@ -12545,6 +12564,7 @@ function openFormInteg(pid,grp){
     +'<p>'+d+' · Avaliação nº '+curEvNum+'</p></div>'
     +'<div class="fhdr-r">'
     +'<button class="btn btn-del" onclick="selPatient('+pid+')">← Voltar</button>'
+    +'<button class="btn" onclick="verPreenchido()" style="background:#6B5B95;color:#fff">👁️ Preenchido</button>'
     +'<button class="btn btn-gr" onclick="saveNow()">💾 Salvar</button>'
     +'</div></div>'
     +'<div class="integ-bar">'+chips
@@ -12964,5 +12984,206 @@ function precadDescartar(i,silencioso){
 try{precadIniciar();}catch(e){}
 try{contaAtualizar();}catch(e){}
 setTimeout(function(){try{precadIniciar();}catch(e){}try{contaAtualizar();}catch(e){}},2500);
+</script>
+<script>
+
+/* ══════════════════════════════════════════════════════════════════
+   VER SOMENTE O PREENCHIDO
+   Percorre a avaliação aberta na tela e mostra só o que tem conteúdo,
+   com o texto da pergunta ao lado. Serve para conferir antes de salvar,
+   ler em voz alta na consulta ou imprimir sem o formulário em branco.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Descobre o rótulo de um campo a partir da estrutura em volta. */
+function vpRotulo(el){
+  var ff=el.closest?el.closest('.ff'):null;
+  if(ff){ var l=ff.querySelector('label'); if(l)return l.textContent.trim(); }
+  var sb=el.closest?el.closest('.sbox'):null;
+  if(sb){ var s=sb.querySelector('.sbox-lbl'); if(s)return s.textContent.trim(); }
+  var qr=el.closest?el.closest('.qz-row'):null;
+  if(qr){ var q=qr.querySelector('.qz-txt'); if(q)return q.textContent.trim(); }
+  var k=el.getAttribute('data-key')||'';
+  return (typeof fieldLabel==='function'&&fieldLabel(k))||k;
+}
+
+/* Valor legível de um campo. Devolve '' quando vazio. */
+function vpValor(el){
+  if(el.type==='checkbox')return el.checked?'Sim':'';
+  if(el.type==='radio')return el.checked?(el.value||'Sim'):'';
+  var v=(''+(el.value||'')).trim();
+  if(!v||v==='—'||v==='Selecione')return '';
+  /* Total calculado em zero significa que nada foi pontuado ainda — é ruído. */
+  if(el.classList.contains('ro')&&/^0(\s*\/.*)?$/.test(v))return '';
+  return v;
+}
+
+/* Monta o resumo do que está preenchido na tela atual. */
+function vpColetar(){
+  var area=document.getElementById('mainArea');
+  if(!area)return [];
+  var out=[];
+  area.querySelectorAll('.fsec').forEach(function(sec){
+    var tit=sec.querySelector('.fst');
+    var nome=tit?tit.textContent.trim():'Seção';
+    var itens=[];
+    var vistos={};
+    sec.querySelectorAll('[data-key]').forEach(function(el){
+      if(el.type==='hidden')return;
+      var k=el.getAttribute('data-key');
+      if(el.type==='radio'&&!el.checked)return;
+      var v=vpValor(el);
+      if(!v)return;
+      if(vistos[k])return; vistos[k]=1;
+      itens.push({lb:vpRotulo(el), v:v, calc:el.classList.contains('ro')});
+    });
+    /* Totais das escalas aparecem numa barra, não num campo. */
+    sec.querySelectorAll('.tbar').forEach(function(tb){
+      var sp=tb.querySelectorAll('span');
+      if(sp.length<2)return;
+      var lb=sp[0].textContent.trim(), v=sp[1].textContent.trim();
+      if(!v||v==='—'||v==='-'||/^0(\s*\/.*)?$/.test(v))return;   // nada pontuado ainda
+      itens.push({lb:lb, v:v, calc:true});
+    });
+    if(itens.length)out.push({sec:nome, itens:itens});
+  });
+  return out;
+}
+
+/* Dados do cadastro do paciente que estão preenchidos. */
+function vpCadastro(p){
+  if(!p)return [];
+  var campos=[['Nome','name'],['Data de nascimento','birth'],['Idade','age'],['Sexo','sex'],
+    ['CPF','cpf'],['RG','rg'],['Telefone','phone'],['E-mail','email'],['Endereço','endereco'],
+    ['Profissão','profissao'],['Convênio','convenio'],['Contato de emergência','emerg_nome'],
+    ['Telefone de emergência','emerg_tel'],['Médico responsável','med'],['Recomendações','rec']];
+  var itens=[];
+  campos.forEach(function(c){
+    var v=p[c[1]];
+    if(v===undefined||v===null)return;
+    v=(''+v).trim(); if(!v)return;
+    if(c[1]==='birth'&&/^\d{4}-\d{2}-\d{2}$/.test(v)){var d=v.split('-');v=d[2]+'/'+d[1]+'/'+d[0];}
+    itens.push({lb:c[0], v:v});
+  });
+  if((p.conds||[]).length){
+    itens.push({lb:'Condições clínicas',
+      v:p.conds.map(function(c){return (COND_META[c]||{}).label||c;}).join(', ')});
+  }
+  if(p.obs&&(''+p.obs).trim()) itens.push({lb:'Observações', v:(''+p.obs).trim(), multi:true});
+  return itens;
+}
+
+/* Abre a visualização. */
+function verPreenchido(){
+  var secoes=vpColetar();
+  var p=(typeof curPid!=='undefined'&&db&&db.patients)
+    ? db.patients.find(function(x){return x.id===curPid;}) : null;
+  var cad=vpCadastro(p);
+  var nCampos=secoes.reduce(function(a,s){return a+s.itens.length;},0);
+
+  var ov=document.getElementById('vpModal');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.className='ov';ov.id='vpModal';ov.setAttribute('data-static','1');
+    ov.innerHTML='<div class="modal" style="max-width:680px"><h3>👁️ Somente o preenchido</h3><div id="vpBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+
+  var h='';
+  if(!nCampos&&!cad.length){
+    h='<div class="ib">Nada preenchido ainda nesta tela.</div>';
+  } else {
+    h='<div class="vp-topo"><span>'+nCampos+(nCampos===1?' campo preenchido':' campos preenchidos')
+     +'</span><label class="vp-chk"><input type="checkbox" id="vpCalc" onchange="verPreenchido()"'
+     +(VP_MOSTRAR_CALC?' checked':'')+'> mostrar campos calculados</label></div>';
+
+    if(cad.length){
+      h+='<div class="vp-sec"><div class="vp-sec-t">👤 Cadastro do paciente</div>';
+      cad.forEach(function(i){
+        h+='<div class="vp-li'+(i.multi?' vp-multi':'')+'"><span class="vp-lb">'+esc(i.lb)+'</span>'
+          +'<span class="vp-vl">'+esc(i.v).replace(/\n/g,'<br>')+'</span></div>';
+      });
+      h+='</div>';
+    }
+    secoes.forEach(function(s){
+      var itens=s.itens.filter(function(i){return VP_MOSTRAR_CALC||!i.calc;});
+      if(!itens.length)return;
+      h+='<div class="vp-sec"><div class="vp-sec-t">'+esc(s.sec)+'</div>';
+      itens.forEach(function(i){
+        var longo=i.v.length>60||i.v.indexOf('\n')>=0;
+        h+='<div class="vp-li'+(longo?' vp-multi':'')+(i.calc?' vp-calc':'')+'">'
+          +'<span class="vp-lb">'+esc(i.lb)+'</span>'
+          +'<span class="vp-vl">'+esc(i.v).replace(/\n/g,'<br>')+'</span></div>';
+      });
+      h+='</div>';
+    });
+  }
+  h+='<div class="ma" style="margin-top:16px">'
+    +'<button class="btn" onclick="closeOv(\'vpModal\')" style="background:#ede8e0;color:var(--g6)">Fechar</button>'
+    +'<button class="btn" onclick="vpImprimir()" style="background:var(--g6);color:#fff">🖨️ Imprimir</button>'
+    +'<button class="btn btn-gr" onclick="vpCopiar()">📋 Copiar</button>'
+    +'</div>';
+  document.getElementById('vpBody').innerHTML=h;
+  var cb=document.getElementById('vpCalc');
+  if(cb)cb.onchange=function(){VP_MOSTRAR_CALC=cb.checked;verPreenchido();};
+  ov.style.display='flex';
+}
+var VP_MOSTRAR_CALC=true;
+
+/* Texto puro, para copiar ou mandar por mensagem. */
+function vpTexto(){
+  var p=(typeof curPid!=='undefined'&&db&&db.patients)
+    ? db.patients.find(function(x){return x.id===curPid;}) : null;
+  var linhas=[];
+  if(p)linhas.push('PACIENTE: '+p.name);
+  vpCadastro(p).forEach(function(i){ if(i.lb!=='Nome')linhas.push('• '+i.lb+': '+i.v); });
+  vpColetar().forEach(function(s){
+    var itens=s.itens.filter(function(i){return VP_MOSTRAR_CALC||!i.calc;});
+    if(!itens.length)return;
+    linhas.push('','── '+s.sec.toUpperCase()+' ──');
+    itens.forEach(function(i){ linhas.push('• '+i.lb+': '+i.v); });
+  });
+  return linhas.join('\n');
+}
+
+function vpCopiar(){
+  var t=vpTexto();
+  function ok(){toast('Copiado','ok');}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,function(){prompt('Copie:',t);});
+  else prompt('Copie:',t);
+}
+
+function vpImprimir(){
+  var p=(typeof curPid!=='undefined'&&db&&db.patients)
+    ? db.patients.find(function(x){return x.id===curPid;}) : null;
+  var w=window.open('','_blank');
+  if(!w){toast('Permita pop-ups para imprimir','err');return;}
+  var h='<html><head><meta charset="utf-8"><title>Avaliação — itens preenchidos</title><style>'
+   +'body{font-family:Arial,Helvetica,sans-serif;color:#2b2b24;max-width:760px;margin:0 auto;padding:24px;font-size:12.5px;line-height:1.5}'
+   +'h1{font-size:19px;color:#C86A32;margin:0 0 2px}.sb{font-size:11px;color:#6E6E64;margin-bottom:16px}'
+   +'h2{font-size:12px;color:#C86A32;border-bottom:1.5px solid #F5A97A;padding-bottom:3px;margin:16px 0 7px;text-transform:uppercase;letter-spacing:.6px}'
+   +'table{width:100%;border-collapse:collapse}td{padding:3px 6px;vertical-align:top;border-bottom:1px solid #eee}'
+   +'td.k{width:42%;font-weight:bold;color:#5A5A52}'
+   +'.ft{margin-top:20px;font-size:9.5px;color:#888;border-top:1px solid #ddd;padding-top:8px}'
+   +'</style></head><body>'
+   +'<h1>Avaliação — itens preenchidos</h1>'
+   +'<div class="sb">'+(p?esc(p.name)+' · ':'')+'Bianca Viniski Fisioterapia · CREFITO 409973-F</div>';
+  var cad=vpCadastro(p);
+  if(cad.length){
+    h+='<h2>Cadastro do paciente</h2><table>';
+    cad.forEach(function(i){h+='<tr><td class="k">'+esc(i.lb)+'</td><td>'+esc(i.v).replace(/\n/g,'<br>')+'</td></tr>';});
+    h+='</table>';
+  }
+  vpColetar().forEach(function(s){
+    var itens=s.itens.filter(function(i){return VP_MOSTRAR_CALC||!i.calc;});
+    if(!itens.length)return;
+    h+='<h2>'+esc(s.sec)+'</h2><table>';
+    itens.forEach(function(i){h+='<tr><td class="k">'+esc(i.lb)+'</td><td>'+esc(i.v).replace(/\n/g,'<br>')+'</td></tr>';});
+    h+='</table>';
+  });
+  h+='<div class="ft">Somente os campos preenchidos. Impresso em '+new Date().toLocaleString('pt-BR')+'.</div></body></html>';
+  w.document.write(h);w.document.close();
+  setTimeout(function(){w.print();},350);
+}
+
 </script>
 </body></html>
