@@ -610,6 +610,104 @@
 #vpBody{max-height:62vh;overflow-y:auto}
 @media(max-width:640px){.vp-li{flex-direction:column;gap:1px}.vp-lb{flex:none;font-size:11px}}
 
+/* ══ AJUSTES DE LAYOUT NO CELULAR ══ */
+@media(max-width:640px){
+  /* Barra superior: rola na horizontal em vez de cortar os botões */
+  .hdr-actions{overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    max-width:100%;padding:2px 0;mask-image:linear-gradient(to right,#000 92%,transparent);}
+  .hdr-actions::-webkit-scrollbar{display:none;}
+  .hdr-actions > *{flex-shrink:0;}
+  .master-header{gap:6px;}
+  .mh-brand{flex-shrink:1;min-width:0;overflow:hidden;}
+  .mh-brand img{height:28px!important;}
+  .mh-title{font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* Lista de pacientes fechada: mostra só a faixa, sem invadir o conteúdo */
+  .master-sidebar{max-height:44px;}
+  /* Fechada, mostra só a faixa "Pacientes ▼" (o 1º filho do sb-head) */
+  .master-sidebar:not(.sb-open) .sb-head > *:not(:first-child),
+  .master-sidebar:not(.sb-open) .cond-filters,
+  .master-sidebar:not(.sb-open) .pt-list{display:none;}
+  .master-sidebar:not(.sb-open) .sb-head{padding:11px 14px;}
+  .master-sidebar.sb-open{max-height:calc(100dvh - 150px);overflow-y:auto;}
+  .app-layout{height:calc(100dvh - 52px);}
+
+  /* Cartões de avaliação: três botões cabem lado a lado */
+  .ev-acts{flex-wrap:wrap;gap:6px;}
+  .ev-acts .btn{flex:1 1 auto;min-width:0;justify-content:center;padding:9px 8px;font-size:11.5px;}
+
+  /* Janelas: usam a tela toda, com rolagem */
+  .ov{align-items:flex-end;}
+  .modal{max-width:100%!important;width:100%;border-radius:16px 16px 0 0;
+    max-height:92dvh;overflow-y:auto;padding:16px 14px calc(16px + env(safe-area-inset-bottom));}
+  .ma{position:sticky;bottom:0;background:var(--w);padding-top:10px;margin-top:14px;
+    box-shadow:0 -6px 12px -8px rgba(0,0,0,.2);}
+  .ma .btn{flex:1;justify-content:center;}
+  #vpBody{max-height:none;}
+
+  /* Cabeçalho do formulário: botões em linha, sem estourar */
+  .fhdr-r{display:flex;flex-wrap:wrap;gap:6px;}
+  .fhdr-r .btn{flex:1 1 auto;justify-content:center;}
+}
+@media(max-width:380px){
+  .mh-title{display:none;}
+}
+
+/* ── Selo de versão ── */
+.ver-tag{font-size:8.5px;font-weight:700;letter-spacing:.4px;color:var(--g4);opacity:.65;
+  background:rgba(0,0,0,.05);border-radius:8px;padding:1px 5px;margin-left:2px;}
+
+/* ══ CELULAR — correções de layout ══ */
+@media(max-width:640px){
+  /* A lista de pacientes fechada não pode invadir o conteúdo. */
+  .master-sidebar:not(.sb-open){max-height:46px!important;overflow:hidden!important;}
+  .master-sidebar:not(.sb-open) .btn-new-pt,
+  .master-sidebar:not(.sb-open) .sb-search,
+  .master-sidebar:not(.sb-open) .cond-filters,
+  .master-sidebar:not(.sb-open) .pt-list{display:none!important;}
+  .master-sidebar .sb-head{padding:8px 12px!important;}
+  .master-sidebar:not(.sb-open) .sb-head{padding:12px!important;}
+
+  /* Área principal ocupa o resto da tela e rola sozinha. */
+  .master-main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:12px 10px 90px!important;}
+
+  /* Cartões de avaliação mais compactos. */
+  .ev-card{padding:11px!important;margin-bottom:9px!important;}
+  .ev-num{width:30px!important;height:30px!important;font-size:13px!important;}
+  .ev-info h4{font-size:13px!important;}
+  .ev-info p{font-size:11px!important;}
+  .ev-chips{gap:5px!important;margin:7px 0!important;}
+  .sc{padding:3px 7px!important;}
+  .sc-v{font-size:12px!important;}
+  .ev-acts .btn{padding:9px 6px!important;font-size:12px!important;}
+
+  /* Cabeçalho do paciente não fica grudado no conteúdo. */
+  .pt-header{padding:12px!important;margin-bottom:10px!important;}
+  .pt-header h2{font-size:16px!important;line-height:1.25!important;}
+
+  /* Seções de condição com respiro. */
+  .cond-section{margin-bottom:12px!important;}
+  .cs-header{padding:11px 12px!important;}
+  .cs-title{font-size:14px!important;}
+  .cs-icon-box{width:32px!important;height:32px!important;font-size:16px!important;}
+
+  /* Modais ocupam a tela sem estourar. */
+  .modal{max-width:100%!important;width:calc(100vw - 20px)!important;
+    max-height:88vh!important;max-height:88dvh!important;overflow-y:auto;padding:16px!important;}
+  .modal h3{font-size:16px!important;}
+
+  /* Formulários: campos em uma coluna. */
+  .fg,.fg3{grid-template-columns:1fr!important;}
+  .fsb{padding:12px!important;}
+  .fst{font-size:13px!important;}
+}
+@media(max-width:380px){
+  .master-main{padding:10px 8px 90px!important;}
+  .ev-acts .btn{font-size:11px!important;padding:8px 5px!important;}
+}
+
 </style>
 <!-- Firebase SDK -->
 <script type="module">
@@ -1048,7 +1146,7 @@
 <button class="hdr-btn" onclick="showPagamentos()" title="Pagamentos" aria-label="Pagamentos">💰<span class="hdr-lbl"> Pagamentos</span></button>
 <button class="hdr-btn" onclick="showRelatorioFrequencia()" title="Frequência" aria-label="Frequência">📈<span class="hdr-lbl"> Frequência</span></button>
 <button class="hdr-btn hdr-btn-home" onclick="selPatient(null)" title="Início" aria-label="Início">🏠</button>
-<div class="save-pill saved" id="sp"><div class="save-dot"></div><span id="st">Salvo</span></div>
+<div class="save-pill saved" id="sp" onclick="abrirConta()" title="Toque para ver a conta e a versão"><div class="save-dot"></div><span id="st">Salvo</span><span id="verTag" class="ver-tag"></span></div>
 </div></header><div class="app-layout"><aside class="master-sidebar"><div class="sb-head" onclick="toggleSidebar()" style="cursor:pointer;user-select:none"><div style="display:flex;align-items:center;justify-content:space-between"><div class="sb-lbl">Pacientes</div><span id="sb-chev" style="font-size:12px;transition:transform .3s">▼</span></div><button class="btn-new-pt" onclick="openNewPatient()">＋ Novo Paciente</button><div class="sb-search"><span class="sb-search-ic">🔍</span><input type="text" id="srch" placeholder="Buscar paciente..." oninput="renderList()"></div></div><div class="cond-filters"><button class="cf-btn cf-all all active" data-cond="all" onclick="setCondFilter('all')">Todos</button>
 <button class="cf-btn" data-cond="parkinson" onclick="setCondFilter('parkinson')" style="--fc:#E8844A;--fcp:#FDF0E8">🧠 Parkinson</button>
 <button class="cf-btn" data-cond="alzheimer" onclick="setCondFilter('alzheimer')" style="--fc:#7A5FA5;--fcp:#F0EBFA">🧠 Alzheimer</button>
@@ -1633,6 +1731,7 @@ function renderPatientProfile(p){
         +'<div class="ev-info"><h4>'+ev.type+'</h4><p>'+d+'</p></div></div>'
         +'<div class="ev-chips">'+getChips(cond,ev)+'</div>'
         +'<div class="ev-acts">'
+        +'<button class="btn" style="background:#6B5B95;color:#fff" onclick="verAvaliacao('+p.id+',\''+cond+'\','+ev.id+')">👁️ Ver</button>'
         +'<button class="btn btn-gr" onclick="openForm('+p.id+',\''+cond+'\','+ev.id+')">✏️ Editar</button>'
         +'<button class="btn btn-del" onclick="deleteEval('+p.id+',\''+cond+'\','+ev.id+')">🗑</button>'
         +'</div></div>';
@@ -11449,7 +11548,7 @@ function pcRenderField(f){
 }
 
 function showPreCadastro(conds){
-  if(conds)PC_CONDS_SEL=conds.filter(function(c){return PC_ESPEC[c];});
+  if(conds&&Array.isArray(conds))PC_CONDS_SEL=conds.filter(function(c){return PC_ESPEC[c];});
   PC_FORM=pcMontarForm(PC_CONDS_SEL);
   curView='precadastro';curPid=null;curCond=null;
   setAccent('parkinson');
@@ -12708,7 +12807,15 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-16e';
+var APP_VERSAO='2026-08-17a';
+/* Mostra a versão ao lado do indicador de salvamento, para conferir
+   rapidamente se o arquivo publicado é o mais recente. */
+(function(){
+  function pinta(){var e=document.getElementById('verTag');if(e)e.textContent='v'+APP_VERSAO.slice(5);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pinta);
+  else pinta();
+  setTimeout(pinta,1200);
+})();
 
 /* ── CONTA CONECTADA ───────────────────────────────────────────── */
 function contaAtualizar(){
@@ -13018,8 +13125,8 @@ function vpValor(el){
 }
 
 /* Monta o resumo do que está preenchido na tela atual. */
-function vpColetar(){
-  var area=document.getElementById('mainArea');
+function vpColetar(raiz){
+  var area=raiz||document.getElementById('mainArea');
   if(!area)return [];
   var out=[];
   area.querySelectorAll('.fsec').forEach(function(sec){
@@ -13029,6 +13136,7 @@ function vpColetar(){
     var vistos={};
     sec.querySelectorAll('[data-key]').forEach(function(el){
       if(el.type==='hidden')return;
+      if(el.getAttribute('data-vazio'))return;
       var k=el.getAttribute('data-key');
       if(el.type==='radio'&&!el.checked)return;
       var v=vpValor(el);
@@ -13072,20 +13180,73 @@ function vpCadastro(p){
   return itens;
 }
 
+/* Ver uma avaliação salva sem abrir o formulário: monta as seções num
+   elemento solto, preenche com os dados gravados e lê dali. */
+function verAvaliacao(pid,cond,eid){
+  var p=(db.patients||[]).find(function(x){return x.id===pid;});
+  if(!p)return;
+  var ev=((p.condEvals||{})[cond]||[]).find(function(e){return e.id===eid;});
+  if(!ev){toast('Avaliação não encontrada','err');return;}
+  var mod=(window._APP&&window._APP._r&&window._APP._r[cond])||null;
+  if(!mod||!mod.buildSections){toast('Não consegui montar esta avaliação','err');return;}
+
+  var _pid=curPid,_cond=curCond,_eid=curEid;
+  curPid=pid;curCond=cond;curEid=eid;
+  var host=document.createElement('div');
+  host.style.cssText='position:absolute;left:-99999px;top:0;width:900px';
+  try{ host.innerHTML=(typeof antropometriaSection==='function'?antropometriaSection():'')+mod.buildSections(); }
+  catch(e){ curPid=_pid;curCond=_cond;curEid=_eid; toast('Não consegui montar esta avaliação','err'); return; }
+  document.body.appendChild(host);
+
+  var dados=ev.data||{};
+  host.querySelectorAll('[data-key]').forEach(function(el){
+    var k=el.getAttribute('data-key');
+    var v=dados[k];
+    if(v===undefined||v===null||v===''){
+      /* Não foi respondido: o select mostraria a primeira opção como se
+         fosse escolha da fisioterapeuta. Marca para ser ignorado. */
+      el.setAttribute('data-vazio','1');
+      return;
+    }
+    if(el.type==='checkbox')el.checked=!!v; else el.value=v;
+  });
+  /* totais das barras */
+  host.querySelectorAll('.tbar').forEach(function(tb){
+    var hid=tb.nextElementSibling;
+    var k=hid&&hid.getAttribute?hid.getAttribute('data-key'):null;
+    var sp=tb.querySelectorAll('span');
+    if(k&&dados[k]!==undefined&&sp.length>1)sp[1].textContent=dados[k];
+  });
+
+  verPreenchido(host, p, ev, cond);
+  host.remove();
+  curPid=_pid;curCond=_cond;curEid=_eid;
+}
+
 /* Abre a visualização. */
-function verPreenchido(){
-  var secoes=vpColetar();
-  var p=(typeof curPid!=='undefined'&&db&&db.patients)
-    ? db.patients.find(function(x){return x.id===curPid;}) : null;
+function verPreenchido(raiz,pAlvo,evAlvo,condAlvo){
+  VP_RAIZ=raiz||null; VP_ALVO={p:pAlvo,ev:evAlvo,cond:condAlvo};
+  var secoes=vpColetar(VP_RAIZ);
+  var p=pAlvo||((typeof curPid!=='undefined'&&db&&db.patients)
+    ? db.patients.find(function(x){return x.id===curPid;}) : null);
   var cad=vpCadastro(p);
+  if(raiz||!VP_CACHE||raiz===null&&!VP_RAIZ)VP_CACHE={secoes:secoes,cad:cad,p:p};
+  if(!raiz&&VP_RAIZ===null&&VP_CACHE&&!secoes.length&&VP_CACHE.secoes.length){
+    secoes=VP_CACHE.secoes; cad=VP_CACHE.cad; p=VP_CACHE.p;
+  }
   var nCampos=secoes.reduce(function(a,s){return a+s.itens.length;},0);
 
   var ov=document.getElementById('vpModal');
   if(!ov){
     ov=document.createElement('div');
     ov.className='ov';ov.id='vpModal';ov.setAttribute('data-static','1');
-    ov.innerHTML='<div class="modal" style="max-width:680px"><h3>👁️ Somente o preenchido</h3><div id="vpBody"></div></div>';
+    ov.innerHTML='<div class="modal" style="max-width:680px"><h3 id="vpTit">👁️ Somente o preenchido</h3><div id="vpBody"></div></div>';
     document.body.appendChild(ov);
+  }
+  var tit=document.getElementById('vpTit');
+  if(tit){
+    var mm=condAlvo?(COND_META[condAlvo]||{}):{};
+    tit.textContent='👁️ '+(evAlvo?(evAlvo.type+(mm.label?' — '+mm.label:'')):'Somente o preenchido');
   }
 
   var h='';
@@ -13124,19 +13285,25 @@ function verPreenchido(){
     +'</div>';
   document.getElementById('vpBody').innerHTML=h;
   var cb=document.getElementById('vpCalc');
-  if(cb)cb.onchange=function(){VP_MOSTRAR_CALC=cb.checked;verPreenchido();};
+  if(cb)cb.onchange=function(){VP_MOSTRAR_CALC=cb.checked;
+    verPreenchido(null,VP_ALVO.p,VP_ALVO.ev,VP_ALVO.cond);};
   ov.style.display='flex';
 }
-var VP_MOSTRAR_CALC=true;
+var VP_MOSTRAR_CALC=true, VP_RAIZ=null, VP_ALVO={};
+/* Guarda o resumo já montado, para o alternador e a impressão não
+   dependerem de um elemento que já foi removido da tela. */
+var VP_CACHE=null;
 
 /* Texto puro, para copiar ou mandar por mensagem. */
 function vpTexto(){
+  var _c=VP_CACHE||{};
   var p=(typeof curPid!=='undefined'&&db&&db.patients)
     ? db.patients.find(function(x){return x.id===curPid;}) : null;
+  if(_c.p)p=_c.p;
   var linhas=[];
   if(p)linhas.push('PACIENTE: '+p.name);
-  vpCadastro(p).forEach(function(i){ if(i.lb!=='Nome')linhas.push('• '+i.lb+': '+i.v); });
-  vpColetar().forEach(function(s){
+  (_c.cad||vpCadastro(p)).forEach(function(i){ if(i.lb!=='Nome')linhas.push('• '+i.lb+': '+i.v); });
+  (_c.secoes||vpColetar()).forEach(function(s){
     var itens=s.itens.filter(function(i){return VP_MOSTRAR_CALC||!i.calc;});
     if(!itens.length)return;
     linhas.push('','── '+s.sec.toUpperCase()+' ──');
@@ -13153,6 +13320,7 @@ function vpCopiar(){
 }
 
 function vpImprimir(){
+  var _c=VP_CACHE||{};
   var p=(typeof curPid!=='undefined'&&db&&db.patients)
     ? db.patients.find(function(x){return x.id===curPid;}) : null;
   var w=window.open('','_blank');
@@ -13167,13 +13335,14 @@ function vpImprimir(){
    +'</style></head><body>'
    +'<h1>Avaliação — itens preenchidos</h1>'
    +'<div class="sb">'+(p?esc(p.name)+' · ':'')+'Bianca Viniski Fisioterapia · CREFITO 409973-F</div>';
-  var cad=vpCadastro(p);
+  if(_c.p)p=_c.p;
+  var cad=_c.cad||vpCadastro(p);
   if(cad.length){
     h+='<h2>Cadastro do paciente</h2><table>';
     cad.forEach(function(i){h+='<tr><td class="k">'+esc(i.lb)+'</td><td>'+esc(i.v).replace(/\n/g,'<br>')+'</td></tr>';});
     h+='</table>';
   }
-  vpColetar().forEach(function(s){
+  (_c.secoes||vpColetar()).forEach(function(s){
     var itens=s.itens.filter(function(i){return VP_MOSTRAR_CALC||!i.calc;});
     if(!itens.length)return;
     h+='<h2>'+esc(s.sec)+'</h2><table>';
