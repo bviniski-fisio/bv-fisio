@@ -13028,7 +13028,7 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-19e';
+var APP_VERSAO='2026-08-19g';
 /* Mostra a versão ao lado do indicador de salvamento, para conferir
    rapidamente se o arquivo publicado é o mais recente. */
 (function(){
@@ -13889,16 +13889,25 @@ function _docBlocos(html){
   var blocos=[];
   var partes=(''+html).split(/(<div class="doc">|<\/div>\s*<div class="doc">)/);
   function inline(txt){
-    /* devolve trechos marcando o que é negrito */
+    /* Devolve trechos marcando o que é negrito.
+       ATENÇÃO: não se pode aparar as pontas de cada trecho — o espaço
+       que separa o texto normal do negrito vive justamente ali. */
     var runs=[], resto=txt;
     var re=/<(b|strong)>([\s\S]*?)<\/(?:b|strong)>/i, m;
     while((m=re.exec(resto))){
-      if(m.index>0)runs.push({t:_docStrip(resto.slice(0,m.index)),b:false});
-      runs.push({t:_docStrip(m[2]),b:true});
+      if(m.index>0)runs.push({t:_docLimpa(resto.slice(0,m.index)),b:false});
+      runs.push({t:_docLimpa(m[2]),b:true});
       resto=resto.slice(m.index+m[0].length);
     }
-    if(resto)runs.push({t:_docStrip(resto),b:false});
-    return runs.filter(function(r){return r.t!=='';});
+    if(resto)runs.push({t:_docLimpa(resto),b:false});
+    runs=runs.filter(function(r){return r.t!=='';});
+    /* aparar só nas extremidades do parágrafo inteiro */
+    if(runs.length){
+      runs[0].t=runs[0].t.replace(/^\s+/,'');
+      runs[runs.length-1].t=runs[runs.length-1].t.replace(/\s+$/,'');
+      runs=runs.filter(function(r){return r.t!=='';});
+    }
+    return runs;
   }
   function varre(h){
     var re=/<h1[^>]*>([\s\S]*?)<\/h1>|<h2[^>]*>([\s\S]*?)<\/h2>|<div class="ident"[^>]*>([\s\S]*?)<\/div>|<div class="sig">([\s\S]*?)<\/div>\s*<\/div>|<p[^>]*>([\s\S]*?)<\/p>|<div class="dh">([\s\S]*?)<\/div>\s*<\/div>/gi;
@@ -13914,6 +13923,13 @@ function _docBlocos(html){
   }
   varre(html);
   return blocos;
+}
+/* Limpa as marcações mas PRESERVA os espaços das pontas. */
+function _docLimpa(s){
+  return (''+s).replace(/<[^>]+>/g,'')
+    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
+    .replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .replace(/\s+/g,' ');
 }
 function _docStrip(s){
   return (''+s).replace(/<[^>]+>/g,'')
@@ -13946,7 +13962,18 @@ async function gerarDocumentosPDF(pid,quais){
     pg=doc.addPage(); pg.setSize(LARG,ALT); y=ALT-M;
   }
   function espaco(n){ if(y-n<M+34) novaPg(); }
-  function larguraTxt(t,tam,b){ return (b?fonteB:fonte).widthOfTextAtSize(_pdfSan(t),tam); }
+  /* Mede SEMPRE pela fonte normal. As fontes padrão do PDF não são
+     embutidas e cada leitor substitui por uma parecida; a substituta do
+     negrito tem largura um pouco diferente, e era isso que fazia o texto
+     seguinte cair por cima. Com uma métrica só, nada desalinha. */
+  function larguraTxt(t,tam){ return fonte.widthOfTextAtSize(_pdfSan(t),tam); }
+  /* Escreve um traçado só. O negrito usa a fonte negrito de verdade; o que
+     não se pode é MISTURAR fontes na mesma linha calculando as posições,
+     porque as fontes padrão do PDF não são embutidas e cada leitor
+     substitui por outra de largura diferente, sobrepondo os pedaços. */
+  function escreve(t,x,yy,tam,negrito,cor){
+    pg.drawText(_pdfSan(t),{x:x,y:yy,size:tam,font:negrito?fonteB:fonte,color:cor});
+  }
 
   /* Escreve trechos com negrito misturado, quebrando linha sozinho. */
   function escreveRuns(runs,tam,x0,maxW,corTxt,recuo){
@@ -13961,18 +13988,22 @@ async function gerarDocumentosPDF(pid,quais){
         var u=juntos[juntos.length-1];
         if(u&&u.b===r.b)u.t+=r.t; else juntos.push({t:r.t,b:r.b});
       });
-      var x=x0+(recuo||0);
-      juntos.forEach(function(r){
-        var t=r.t.replace(/\s+$/,'');
-        if(t)pg.drawText(_pdfSan(t),{x:x,y:y,size:tam,font:r.b?fonteB:fonte,color:corTxt||preto});
-        x+=larguraTxt(r.t,tam,r.b);
-      });
+      /* Desenha só o texto e AVANÇA a posição pelo espaço em branco.
+         Não se desenha espaço nenhum: alguns leitores de PDF descartam
+         espaços no começo ou no fim de um trecho, e as palavras colam. */
+      /* Cada trecho é desenhado exatamente como está e a posição avança
+         pela largura desse mesmo texto. Sem aparar nada: qualquer corte
+         entre o que se mede e o que se escreve desalinha o resto da linha. */
+      /* A linha sai num traçado só — ver a nota em escreve(). */
+      var texto=juntos.map(function(r){return r.t;}).join('').replace(/\s+$/,'');
+      var todoNegrito=juntos.length>0&&juntos.every(function(r){return r.b;});
+      if(texto)escreve(texto,x0+(recuo||0),y,tam,todoNegrito,corTxt||preto);
       y-=tam*1.5; linha=[]; larg=0;
     }
     runs.forEach(function(run){
       run.t.split(/(\s+)/).forEach(function(pal){
         if(!pal)return;
-        var w=larguraTxt(pal,tam,run.b);
+        var w=larguraTxt(pal,tam);
         if(larg+w>maxW-(recuo||0)&&larg>0){ despeja(); if(/^\s+$/.test(pal))return; }
         linha.push({t:pal,b:run.b}); larg+=w;
       });
@@ -13987,7 +14018,7 @@ async function gerarDocumentosPDF(pid,quais){
   docs.forEach(function(item,idx){
     novaPg();
     /* cabeçalho da clínica */
-    pg.drawText(_pdfSan('Bianca Viniski'),{x:M,y:y,size:16,font:fonteB,color:laranja}); y-=14;
+    escreve('Bianca Viniski',M,y,16,true,laranja); y-=14;
     pg.drawText(_pdfSan('Fisioterapia · '+C.tagline),{x:M,y:y,size:9,font:fonte,color:cinza}); y-=11;
     pg.drawText(_pdfSan(C.razao+' — CNPJ '+C.cnpj),{x:M,y:y,size:8,font:fonte,color:cinza}); y-=10;
     pg.drawText(_pdfSan(C.prof+' — Fisioterapeuta · CREFITO '+C.crefito),{x:M,y:y,size:8,font:fonte,color:cinza}); y-=10;
@@ -13998,8 +14029,8 @@ async function gerarDocumentosPDF(pid,quais){
       if(b.tipo==='titulo'){
         espaco(30);
         var t=b.runs.map(function(r){return r.t;}).join(' ');
-        var w=larguraTxt(t,14,true);
-        pg.drawText(_pdfSan(t),{x:(LARG-w)/2,y:y,size:14,font:fonteB,color:preto}); y-=26;
+        var w=larguraTxt(t,14);
+        escreve(t,(LARG-w)/2,y,14,true,preto); y-=26;
       } else if(b.tipo==='caixa'){
         var alt=b.linhas.length*13+14;
         espaco(alt+6);
@@ -14007,11 +14038,8 @@ async function gerarDocumentosPDF(pid,quais){
           borderColor:borda,borderWidth:0.8});
         y-=4;
         b.linhas.forEach(function(runs){
-          var x=M;
-          runs.forEach(function(r){
-            pg.drawText(_pdfSan(r.t),{x:x,y:y,size:8.8,font:r.b?fonteB:fonte,color:preto});
-            x+=larguraTxt(r.t,8.8,r.b)+2;
-          });
+          var linhaTxt=runs.map(function(r){return r.t;}).join('').replace(/\s+$/,'');
+          if(linhaTxt)escreve(linhaTxt,M,y,8.8,false,preto);
           y-=13;
         });
         y-=14;
@@ -14030,9 +14058,9 @@ async function gerarDocumentosPDF(pid,quais){
           var linhas=(b.partes[i]||'').split(' | ');
           var yy=y-11;
           linhas.forEach(function(l,j){
-            var w2=larguraTxt(l,j===0?9:7.5,j===0);
-            pg.drawText(_pdfSan(l),{x:x+(meia-w2)/2,y:yy,size:j===0?9:7.5,
-              font:j===0?fonteB:fonte,color:j===0?preto:cinza});
+            var tam2=j===0?9:7.5;
+            var w2=larguraTxt(l,tam2);
+            escreve(l,x+(meia-w2)/2,yy,tam2,j===0,j===0?preto:cinza);
             yy-=10;
           });
         });
