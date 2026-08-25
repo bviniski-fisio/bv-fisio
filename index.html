@@ -10910,12 +10910,13 @@ function _docIdentBlock(p){
   var menor=_docMenor(p);
   var h='<div class="ident">'
     +'<b>Paciente:</b> '+_docLinha(p.name)+'<br>'
-    +'<b>Data de nascimento:</b> '+_docLinha(p.birth?new Date(p.birth+'T12:00:00').toLocaleDateString('pt-BR'):'')
-    +' &nbsp;&nbsp;<b>CPF:</b> '+_docLinha(p.cpf)+'<br>'
+    +'<b>Nascimento:</b> '+_docLinha(p.birth?new Date(p.birth+'T12:00:00').toLocaleDateString('pt-BR'):'')+'<br>'
+    +'<b>CPF:</b> '+_docLinha(p.cpf)+'<br>'
     +'<b>Endereço:</b> '+_docLinha(p.endereco)+'<br>'
     +'<b>Telefone:</b> '+_docLinha(p.phone);
   if(menor){
-    h+='<br><b>Responsável legal:</b> __________________________ &nbsp;&nbsp;<b>CPF do responsável:</b> ______________';
+    h+='<br><b>Responsável legal:</b> __________________________'
+      +'<br><b>CPF do responsável:</b> ______________';
   }
   h+='</div>';
   return h;
@@ -10972,8 +10973,8 @@ function _docRespBlock(p){
   var tipo=p.resp_tipo||'Financeira e legal';
   return '<div class="ident" style="background:#F2EFF8;border-color:#D6CCE8">'
     +'<b style="color:#4A3F6B">Responsável '+_docEsc(tipo.toLowerCase())+'</b><br>'
-    +'<b>Nome:</b> '+_docLinha(p.resp_nome)
-    +' &nbsp;&nbsp;<b>Vínculo:</b> '+_docLinha(p.resp_par)+'<br>'
+    +'<b>Nome:</b> '+_docLinha(p.resp_nome)+'<br>'
+    +'<b>Vínculo:</b> '+_docLinha(p.resp_par)+'<br>'
     +'<b>CPF:</b> '+_docLinha(p.resp_cpf)+'<br>'
     +'<b>Telefone:</b> '+_docLinha(p.resp_tel)+'<br>'
     +'<b>Endereço:</b> '+_docLinha(p.resp_end||p.endereco)
@@ -11088,6 +11089,12 @@ function _docsConjunto(p,quais){
   if(!quais||quais.indexOf('contrato')>=0)partes.push(_docContrato(p));
   if(!quais||quais.indexOf('tcle')>=0)partes.push(_docTCLE(p));
   if(!quais||quais.indexOf('imagem')>=0)partes.push(_docImagem(p));
+  if(quais&&quais.indexOf('proposta')>=0&&PROPOSTA_CFG)partes.push(_docProposta(p,PROPOSTA_CFG));
+  if(quais&&quais.indexOf('pasta_capa')>=0)partes.push(_docPastaCapa(p));
+  if(quais&&quais.indexOf('pasta_registro')>=0)partes.push(_docPastaRegistro(p));
+  if(quais&&quais.indexOf('pasta_orient')>=0)partes.push(_docPastaOrientacoes(p));
+  if(quais&&quais.indexOf('pasta_exerc')>=0)partes.push(_docPastaExercicios(p));
+  if(quais&&quais.indexOf('pasta_alertas')>=0)partes.push(_docPastaAlertas(p));
   return partes.join('');
 }
 
@@ -11128,6 +11135,13 @@ function showDocumentos(pid){
     {id:'tcle',ic:'✍️',nome:'Termo de Consentimento Livre e Esclarecido',desc:'Esclarece o tratamento e registra a autorização do paciente.'},
     {id:'imagem',ic:'📷',nome:'Autorização de Uso de Imagem',desc:'Consentimento para registro fotográfico de evolução.'}
   ];
+  var pasta=[
+    {id:'pasta_capa',ic:'🏷️',nome:'Identificação e Medicamentos',desc:'Capa da pasta, com dados, contatos e espaço para a lista de remédios.'},
+    {id:'pasta_registro',ic:'📋',nome:'Registro de Atendimentos',desc:'Folha para anotar cada sessão e colher a assinatura de quem recebeu.'},
+    {id:'pasta_orient',ic:'🤝',nome:'Orientações ao Cuidador',desc:'Cuidados do dia a dia, específicos para as patologias do paciente.'},
+    {id:'pasta_exerc',ic:'🏃',nome:'Exercícios Domiciliares',desc:'Programa para preencher, com controle semanal de execução.'},
+    {id:'pasta_alertas',ic:'🚨',nome:'Sinais de Alerta e Contatos',desc:'Quando procurar ajuda e para quem ligar.'}
+  ];
   var cards=docs.map(function(d){
     return '<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E6DECE;border-radius:11px;padding:13px 15px;margin-bottom:10px">'
       +'<div style="font-size:22px">'+d.ic+'</div>'
@@ -11144,6 +11158,30 @@ function showDocumentos(pid){
     +'<div style="background:#EDF2E8;border:1px solid #CBD8BD;border-radius:10px;padding:11px 14px;font-size:12px;color:#4A6B3E;margin:10px 0 16px">'
     +'Documentação obrigatória CREFITO. Os textos são <b>modelos base</b> — revise valores e cláusulas e ajuste conforme orientação jurídica antes de usar.</div>'
     +cards
+    +'<div style="background:#FFF6EE;border:1.5px solid var(--or-l);border-radius:12px;padding:14px 16px;margin:18px 0 6px">'
+    +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+    +'<div style="font-size:24px">💰</div>'
+    +'<div style="flex:1;min-width:180px"><div style="font-weight:700;font-size:14px;color:#3a2f22">Proposta de Plano de Tratamento</div>'
+    +'<div style="font-size:11.5px;color:var(--g4)">Monte o plano por fases da doença, com frequência e investimento, e gere a proposta em PDF.</div></div>'
+    +'<button class="btn btn-or" style="padding:10px 16px;white-space:nowrap" onclick="abrirProposta('+pid+')">Montar proposta</button>'
+    +'</div></div>'
+    +'<div style="display:flex;align-items:center;gap:9px;margin:22px 0 10px">'
+    +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:700;color:#4A6B3E">🏠 Pasta do Paciente</div>'
+    +'<div style="flex:1;height:1px;background:#CBD8BD"></div></div>'
+    +'<div style="background:#EDF2E8;border:1px solid #CBD8BD;border-radius:10px;padding:11px 14px;font-size:12px;color:#4A6B3E;margin-bottom:14px">'
+    +'Documentos para <b>deixar na casa do paciente</b>, à disposição da família, dos cuidadores e de outros profissionais. '
+    +'As orientações mudam conforme as patologias cadastradas.</div>'
+    +pasta.map(function(d){
+      return '<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #CBD8BD;border-radius:11px;padding:13px 15px;margin-bottom:10px">'
+        +'<div style="font-size:22px">'+d.ic+'</div>'
+        +'<div style="flex:1"><div style="font-weight:700;font-size:13.5px;color:#3a2f22">'+d.nome+'</div>'
+        +'<div style="font-size:11.5px;color:var(--g4)">'+d.desc+'</div></div>'
+        +'<button class="btn" style="background:#4A6B3E;color:#fff;padding:8px 13px;white-space:nowrap" onclick="gerarDocumentosPDF('+pid+',[\''+d.id+'\'])">PDF</button>'
+        +'</div>';
+    }).join('')
+    +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px">'
+    +'<button class="btn" style="background:#4A6B3E;color:#fff;padding:11px 18px" onclick="gerarDocumentosPDF('+pid+',[\'pasta_capa\',\'pasta_registro\',\'pasta_orient\',\'pasta_exerc\',\'pasta_alertas\'])">🏠 Baixar a pasta completa</button>'
+    +'</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px">'
     +'<button class="btn" style="background:#3a2f22;color:#fff;padding:11px 18px" onclick="gerarDocumentosPDF('+pid+',null)">📄 Baixar PDF (todos)</button>'
     +'<button class="btn" style="background:#ede8e0;color:var(--g6);padding:11px 14px" onclick="gerarDocumentos('+pid+',null)">🖨️ Imprimir</button>'
@@ -13028,7 +13066,7 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-19g';
+var APP_VERSAO='2026-08-21a';
 /* Mostra a versão ao lado do indicador de salvamento, para conferir
    rapidamente se o arquivo publicado é o mais recente. */
 (function(){
@@ -13647,6 +13685,21 @@ async function pcGerarPDF(nomePaciente,conds){
   var fonteB=await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);
   var form=doc.getForm();
 
+  /* Logo embutido uma única vez no arquivo. */
+  var logo=null, logoW=0, logoH=0;
+  try{
+    var _b64=(typeof LOGO_ICON_SRC!=='undefined'?LOGO_ICON_SRC:'');
+    var _vg=_b64.indexOf(',');
+    if(_vg>0){
+      var _br=atob(_b64.slice(_vg+1));
+      var _by=new Uint8Array(_br.length);
+      for(var _i=0;_i<_br.length;_i++)_by[_i]=_br.charCodeAt(_i);
+      logo=await doc.embedPng(_by);
+      logoH=54; logoW=logo.width*(logoH/logo.height);
+      if(logoW>190){ logoW=190; logoH=logo.height*(logoW/logo.width); }
+    }
+  }catch(e){ console.warn('logo não embutido',e); logo=null; }
+
   var LARG=595, ALT=842, M=42, LINHA=ALT-M;
   /* addPage() + setSize é mais robusto que passar o array de tamanho:
      evita a checagem de tipo que falha quando a biblioteca e a página
@@ -13666,9 +13719,14 @@ async function pcGerarPDF(nomePaciente,conds){
   }
 
   /* Cabeçalho da primeira página */
-  txt('BIANCA VINISKI FISIOTERAPIA',M,13,laranja,true); y-=15;
-  txt('Reabilitação Neurofuncional e Gerontológica · CREFITO 409973-F',M,8,cinza); y-=11;
-  txt('(81) 99615-0609 · biancaviniski@hotmail.com',M,8,cinza); y-=20;
+  var xC=M;
+  if(logo){
+    pg.drawImage(logo,{x:M,y:y-logoH+11,width:logoW,height:logoH});
+    xC=M+logoW+12;
+  }
+  txt('BIANCA VINISKI FISIOTERAPIA',xC,13,laranja,true); y-=15;
+  txt('Reabilitação Neurofuncional e Gerontológica · CREFITO 409973-F',xC,8,cinza); y-=11;
+  txt('(81) 99615-0609 · biancaviniski@hotmail.com',xC,8,cinza); y-=20;
   txt('FICHA DE PRÉ-CADASTRO',M,15,preto,true); y-=16;
   txt('Preencha os campos abaixo e devolva este arquivo à fisioterapeuta.',M,8.5,cinza); y-=10;
   txt('Toque em cada campo para digitar. Salve o arquivo antes de enviar.',M,8.5,cinza); y-=18;
@@ -13910,9 +13968,14 @@ function _docBlocos(html){
     return runs;
   }
   function varre(h){
-    var re=/<h1[^>]*>([\s\S]*?)<\/h1>|<h2[^>]*>([\s\S]*?)<\/h2>|<div class="ident"[^>]*>([\s\S]*?)<\/div>|<div class="sig">([\s\S]*?)<\/div>\s*<\/div>|<p[^>]*>([\s\S]*?)<\/p>|<div class="dh">([\s\S]*?)<\/div>\s*<\/div>/gi;
+    var re=/<div class="grade" data-cols="([^"]*)" data-linhas="(\d+)"|<h1[^>]*>([\s\S]*?)<\/h1>|<h2[^>]*>([\s\S]*?)<\/h2>|<div class="ident"[^>]*>([\s\S]*?)<\/div>|<div class="sig">([\s\S]*?)<\/div>\s*<\/div>|<p[^>]*>([\s\S]*?)<\/p>|<div class="dh">([\s\S]*?)<\/div>\s*<\/div>/gi;
     var m;
     while((m=re.exec(h))){
+      if(m[1]!==undefined){
+        blocos.push({tipo:'grade',cols:m[1].split('|').map(_docStrip),linhas:parseInt(m[2],10)});
+        continue;
+      }
+      m=[m[0],m[3],m[4],m[5],m[6],m[7],m[8]];
       if(m[1])blocos.push({tipo:'titulo',runs:inline(m[1])});
       else if(m[2])blocos.push({tipo:'clausula',runs:inline(m[2])});
       else if(m[3])blocos.push({tipo:'caixa',linhas:m[3].split(/<br\s*\/?>/i).map(inline)});
@@ -13926,10 +13989,12 @@ function _docBlocos(html){
 }
 /* Limpa as marcações mas PRESERVA os espaços das pontas. */
 function _docLimpa(s){
-  return (''+s).replace(/<[^>]+>/g,'')
+  return (''+s)
+    .replace(/<br\s*\/?>/gi,'\n')   /* quebra de linha é quebra mesmo */
+    .replace(/<[^>]+>/g,'')
     .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
     .replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
-    .replace(/\s+/g,' ');
+    .replace(/[ \t]+/g,' ');
 }
 function _docStrip(s){
   return (''+s).replace(/<[^>]+>/g,'')
@@ -13952,14 +14017,49 @@ async function gerarDocumentosPDF(pid,quais){
   doc.setTitle('Documentos — '+p.name);
   var fonte=await doc.embedFont(PDFLib.StandardFonts.Helvetica);
   var fonteB=await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+  /* Logo embutido uma única vez no arquivo — todas as páginas apontam para
+     a mesma imagem, sem multiplicar o tamanho do PDF. */
+  var logo=null, logoW=0, logoH=0;
+  try{
+    var _b64=(typeof LOGO_ICON_SRC!=='undefined'?LOGO_ICON_SRC:'');
+    var _vg=_b64.indexOf(',');
+    if(_vg>0){
+      var _bruto=atob(_b64.slice(_vg+1));
+      var _bytes=new Uint8Array(_bruto.length);
+      for(var _i=0;_i<_bruto.length;_i++)_bytes[_i]=_bruto.charCodeAt(_i);
+      logo=await doc.embedPng(_bytes);
+      logoH=62;
+      logoW=logo.width*(logoH/logo.height);
+      if(logoW>210){ logoW=210; logoH=logo.height*(logoW/logo.width); }
+    }
+  }catch(e){ console.warn('logo não embutido no PDF',e); logo=null; }
   var LARG=595, ALT=842, M=52, UTIL=LARG-M*2;
   var laranja=PDFLib.rgb(0.78,0.42,0.20), cinza=PDFLib.rgb(0.42,0.42,0.39),
       preto=PDFLib.rgb(0.13,0.13,0.11), claro=PDFLib.rgb(0.99,0.95,0.92),
       borda=PDFLib.rgb(0.90,0.86,0.82);
   var pg=null, y=0;
 
+  var tituloAtual='';        /* título do documento em curso */
+  var primeiraDoDoc=true;    /* a primeira página leva o cabeçalho completo */
   function novaPg(){
     pg=doc.addPage(); pg.setSize(LARG,ALT); y=ALT-M;
+    if(!primeiraDoDoc){
+      /* Faixa compacta: identifica a folha sem repetir o cabeçalho inteiro. */
+      if(logo){
+        var lh=26, lw=logo.width*(lh/logo.height);
+        if(lw>92){ lw=92; lh=logo.height*(lw/logo.width); }
+        pg.drawImage(logo,{x:M,y:y-lh+9,width:lw,height:lh});
+      }
+      if(tituloAtual){
+        var s=_pdfSan(tituloAtual+' (continuação)');
+        pg.drawText(s,{x:LARG-M-fonte.widthOfTextAtSize(s,8.5),y:y,size:8.5,font:fonte,color:cinza});
+      }
+      y-=20;
+      pg.drawLine({start:{x:M,y:y},end:{x:LARG-M,y:y},thickness:0.7,color:PDFLib.rgb(0.90,0.72,0.58)});
+      y-=22;
+    }
+    primeiraDoDoc=false;
   }
   function espaco(n){ if(y-n<M+34) novaPg(); }
   /* Mede SEMPRE pela fonte normal. As fontes padrão do PDF não são
@@ -14003,6 +14103,7 @@ async function gerarDocumentosPDF(pid,quais){
     runs.forEach(function(run){
       run.t.split(/(\s+)/).forEach(function(pal){
         if(!pal)return;
+        if(pal.indexOf('\n')>=0){ despeja(); return; }   /* quebra pedida no texto */
         var w=larguraTxt(pal,tam);
         if(larg+w>maxW-(recuo||0)&&larg>0){ despeja(); if(/^\s+$/.test(pal))return; }
         linha.push({t:pal,b:run.b}); larg+=w;
@@ -14015,42 +14116,122 @@ async function gerarDocumentosPDF(pid,quais){
   if(!quais||quais.indexOf('contrato')>=0)docs.push({html:_docContrato(p)});
   if(!quais||quais.indexOf('tcle')>=0)docs.push({html:_docTCLE(p)});
   if(!quais||quais.indexOf('imagem')>=0)docs.push({html:_docImagem(p)});
+  if(quais&&quais.indexOf('proposta')>=0&&PROPOSTA_CFG)docs.push({html:_docProposta(p,PROPOSTA_CFG)});
+  if(quais&&quais.indexOf('pasta_capa')>=0)docs.push({html:_docPastaCapa(p)});
+  if(quais&&quais.indexOf('pasta_registro')>=0)docs.push({html:_docPastaRegistro(p)});
+  if(quais&&quais.indexOf('pasta_orient')>=0)docs.push({html:_docPastaOrientacoes(p)});
+  if(quais&&quais.indexOf('pasta_exerc')>=0)docs.push({html:_docPastaExercicios(p)});
+  if(quais&&quais.indexOf('pasta_alertas')>=0)docs.push({html:_docPastaAlertas(p)});
   docs.forEach(function(item,idx){
+    /* o título aparece na faixa das páginas seguintes */
+    var mT=(item.html||'').match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+    tituloAtual=mT?_docStrip(mT[1]):'';
+    primeiraDoDoc=true;
     novaPg();
-    /* cabeçalho da clínica */
-    escreve('Bianca Viniski',M,y,16,true,laranja); y-=14;
-    pg.drawText(_pdfSan('Fisioterapia · '+C.tagline),{x:M,y:y,size:9,font:fonte,color:cinza}); y-=11;
-    pg.drawText(_pdfSan(C.razao+' — CNPJ '+C.cnpj),{x:M,y:y,size:8,font:fonte,color:cinza}); y-=10;
-    pg.drawText(_pdfSan(C.prof+' — Fisioterapeuta · CREFITO '+C.crefito),{x:M,y:y,size:8,font:fonte,color:cinza}); y-=10;
-    pg.drawText(_pdfSan(C.tel+' · '+C.email),{x:M,y:y,size:8,font:fonte,color:cinza}); y-=8;
-    pg.drawLine({start:{x:M,y:y},end:{x:LARG-M,y:y},thickness:1.2,color:laranja}); y-=24;
+    /* ── Cabeçalho: logo à esquerda, identificação à direita ── */
+    var yTopo=y;
+    if(logo){
+      pg.drawImage(logo,{x:M,y:y-logoH+12,width:logoW,height:logoH});
+    }
+    /* bloco de identificação alinhado à direita, com hierarquia clara */
+    var xDir=LARG-M;
+    function dir(t,tam,cor,neg){
+      var s=_pdfSan(t);
+      pg.drawText(s,{x:xDir-larguraTxt(t,tam),y:y,size:tam,font:neg?fonteB:fonte,color:cor});
+    }
+    dir('Bianca Viniski',17,laranja,true); y-=12;
+    dir('Fisioterapia · '+C.tagline,8.5,cinza); y-=13;
+    dir(C.prof+' — Fisioterapeuta · CREFITO '+C.crefito,7.8,cinza); y-=9.5;
+    dir(C.razao+' · CNPJ '+C.cnpj,7.8,cinza); y-=9.5;
+    dir(C.tel+' · '+C.email,7.8,cinza);
+    y=Math.min(y,yTopo-logoH+6)-12;
+    /* filete duplo: fino em cima, grosso embaixo */
+    pg.drawLine({start:{x:M,y:y},end:{x:LARG-M,y:y},thickness:1.6,color:laranja}); y-=2.6;
+    pg.drawLine({start:{x:M,y:y},end:{x:LARG-M,y:y},thickness:0.5,color:PDFLib.rgb(0.90,0.72,0.58)});
+    y-=30;
 
     _docBlocos(item.html).forEach(function(b){
       if(b.tipo==='titulo'){
-        espaco(30);
+        espaco(46);
         var t=b.runs.map(function(r){return r.t;}).join(' ');
-        var w=larguraTxt(t,14);
-        escreve(t,(LARG-w)/2,y,14,true,preto); y-=26;
+        var w=larguraTxt(t,15);
+        escreve(t,(LARG-w)/2,y,15,true,preto);
+        /* filete curto sob o título, centralizado */
+        var meio=LARG/2;
+        pg.drawLine({start:{x:meio-26,y:y-9},end:{x:meio+26,y:y-9},thickness:1.4,color:laranja});
+        y-=32;
       } else if(b.tipo==='caixa'){
-        var alt=b.linhas.length*13+14;
-        espaco(alt+6);
-        pg.drawRectangle({x:M-6,y:y-alt+10,width:UTIL+12,height:alt,color:claro,
-          borderColor:borda,borderWidth:0.8});
-        y-=4;
+        var alt=b.linhas.length*14.5+16;
+        espaco(alt+8);
+        /* faixa lateral colorida + fundo claro */
+        pg.drawRectangle({x:M-8,y:y-alt+11,width:UTIL+16,height:alt,color:claro,
+          borderColor:borda,borderWidth:0.7});
+        pg.drawRectangle({x:M-8,y:y-alt+11,width:2.6,height:alt,color:laranja});
+        y-=5;
         b.linhas.forEach(function(runs){
-          var linhaTxt=runs.map(function(r){return r.t;}).join('').replace(/\s+$/,'');
-          if(linhaTxt)escreve(linhaTxt,M,y,8.8,false,preto);
-          y-=13;
+          /* Rótulo e valor em COLUNAS FIXAS: cada um tem sua posição própria,
+             sem depender da largura do outro. É o que permite manter o negrito
+             do rótulo sem risco de um texto cair por cima do outro. */
+          var todo=runs.map(function(r){return r.t;}).join('').replace(/\s+$/,'');
+          if(!todo){ y-=14.5; return; }
+          var pos=todo.indexOf(':');
+          if(pos>0 && pos<34){
+            var rot=todo.slice(0,pos+1), val=todo.slice(pos+1).trim();
+            escreve(rot,M,y,8.8,true,PDFLib.rgb(0.36,0.30,0.24));
+            var xVal=M+Math.max(larguraTxt(rot,8.8)+8,74);
+            /* o valor encolhe se não couber no espaço restante */
+            var tv=8.8;
+            while(tv>6.4 && larguraTxt(val,tv)>UTIL-(xVal-M)-6) tv-=0.2;
+            escreve(val,xVal,y,tv,false,preto);
+          } else {
+            /* linha sem rótulo é o título da caixa */
+            escreve(todo.toUpperCase(),M,y,7.6,true,laranja);
+          }
+          y-=14.5;
         });
-        y-=14;
+        y-=16;
+      } else if(b.tipo==='grade'){
+        var nc=b.cols.length, alturaLinha=19, cab=17;
+        var total=cab+b.linhas*alturaLinha;
+        /* a grade não se parte no meio: se não couber, começa na página seguinte */
+        if(y-total<M+34) novaPg();
+        var larguraCol=UTIL/nc;
+        /* faixas alternadas facilitam seguir a linha ao preencher à mão */
+        for(var Z=0;Z<b.linhas;Z++){
+          if(Z%2===1)continue;
+          pg.drawRectangle({x:M,y:y-cab+4-(Z+1)*alturaLinha,width:UTIL,height:alturaLinha,
+            color:PDFLib.rgb(0.985,0.975,0.965)});
+        }
+        /* cabeçalho */
+        pg.drawRectangle({x:M,y:y-cab+4,width:UTIL,height:cab,color:PDFLib.rgb(0.94,0.90,0.86)});
+        b.cols.forEach(function(c,i){
+          /* o rótulo encolhe até caber na coluna, em vez de vazar a tabela */
+          var tam=8;
+          while(tam>5.5 && larguraTxt(c,tam)>larguraCol-10) tam-=0.25;
+          escreve(c,M+larguraCol*i+5,y-cab+10,tam,true,preto);
+        });
+        /* linhas */
+        for(var L=0;L<=b.linhas;L++){
+          var yy=y-cab+4-L*alturaLinha;
+          pg.drawLine({start:{x:M,y:yy},end:{x:M+UTIL,y:yy},thickness:0.6,color:borda});
+        }
+        for(var Ci=0;Ci<=nc;Ci++){
+          var xx=M+larguraCol*Ci;
+          pg.drawLine({start:{x:xx,y:y+4},end:{x:xx,y:y-cab+4-b.linhas*alturaLinha},
+            thickness:0.6,color:borda});
+        }
+        pg.drawLine({start:{x:M,y:y+4},end:{x:M+UTIL,y:y+4},thickness:0.6,color:borda});
+        y-=total+12;
       } else if(b.tipo==='clausula'){
-        espaco(26);
-        y-=4;
+        espaco(30);
+        y-=9;
+        /* marcador vertical antes do título da cláusula */
+        pg.drawRectangle({x:M-8,y:y-2,width:2.2,height:10,color:laranja});
         escreveRuns(b.runs,10.5,M,UTIL,laranja);
-        y-=3;
+        y-=5;
       } else if(b.tipo==='assinatura'){
-        espaco(78);
-        y-=34;
+        espaco(96);
+        y-=46;
         var meia=(UTIL-30)/2;
         [0,1].forEach(function(i){
           var x=M+i*(meia+30);
@@ -14075,11 +14256,16 @@ async function gerarDocumentosPDF(pid,quais){
   /* rodapé com numeração */
   var pgs=doc.getPages();
   pgs.forEach(function(g,i){
-    g.drawLine({start:{x:M,y:M-14},end:{x:LARG-M,y:M-14},thickness:0.6,color:borda});
+    if(logo){
+      var _mh=22, _mw=logo.width*(_mh/logo.height);
+      if(_mw>78){ _mw=78; _mh=logo.height*(_mw/logo.width); }
+      try{ g.drawImage(logo,{x:LARG-M-_mw,y:M-34,width:_mw,height:_mh,opacity:0.32}); }catch(e){}
+    }
+    g.drawLine({start:{x:M,y:M-14},end:{x:LARG-M,y:M-14},thickness:0.5,color:borda});
     g.drawText(_pdfSan(C.razao+' · CNPJ '+C.cnpj+' · CREFITO '+C.crefito+' · '+C.tel),
-      {x:M,y:M-26,size:7.5,font:fonte,color:cinza});
+      {x:M,y:M-26,size:7,font:fonte,color:cinza});
     var t='Página '+(i+1)+' de '+pgs.length;
-    g.drawText(_pdfSan(t),{x:LARG-M-fonte.widthOfTextAtSize(_pdfSan(t),7.5),y:M-26,
+    g.drawText(_pdfSan(t),{x:LARG-M-88-fonte.widthOfTextAtSize(_pdfSan(t),7.5),y:M-26,
       size:7.5,font:fonte,color:cinza});
   });
 
@@ -14094,6 +14280,456 @@ async function gerarDocumentosPDF(pid,quais){
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
   toast('PDF baixado','ok');
 }
+
+</script>
+<script>
+
+/* ══════════════════════════════════════════════════════════════════
+   PASTA DO PACIENTE — documentação que fica na casa
+   Cinco documentos pensados para o atendimento domiciliar: capa de
+   identificação, folha de registro dos atendimentos para assinar,
+   orientações ao cuidador conforme a patologia, espaço para o
+   programa de exercícios e a folha de sinais de alerta.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Grade para preencher à mão (assinaturas, exercícios). */
+function _docGrade(colunas,linhas){
+  return '<div class="grade" data-cols="'+_docEsc(colunas.join('|'))+'" data-linhas="'+linhas+'">'
+    +'<table style="width:100%;border-collapse:collapse;margin:8px 0">'
+    +'<tr>'+colunas.map(function(c){
+        return '<th style="border:1px solid #bbb;background:#f0ece6;padding:5px 6px;font-size:10px;text-align:left">'+_docEsc(c)+'</th>';
+      }).join('')+'</tr>'
+    +Array.apply(null,{length:linhas}).map(function(){
+        return '<tr>'+colunas.map(function(){
+          return '<td style="border:1px solid #ccc;height:22px"></td>';}).join('')+'</tr>';
+      }).join('')
+    +'</table></div>';
+}
+
+/* Orientações que mudam conforme a patologia do paciente. */
+function _docOrientaCond(p){
+  var C=(p.conds||[]), out=[];
+  function bloco(titulo,itens){
+    out.push('<h2 class="ds">'+titulo+'</h2><p>'+itens.map(function(i){return '• '+i;}).join('<br>')+'</p>');
+  }
+  if(C.indexOf('parkinson')>=0) bloco('Cuidados na doença de Parkinson',[
+    'Dar o remédio <b>sempre no mesmo horário</b>. Atraso de meia hora já muda a movimentação.',
+    'Nos bloqueios de marcha (pés que "grudam" no chão), não puxe a pessoa. Peça que olhe para frente e conte "um, dois, três" antes de dar o passo, ou pise sobre uma linha no chão.',
+    'Evitar tapetes soltos, fios pelo caminho e móveis que mudam de lugar.',
+    'Dar tempo: pressa aumenta o bloqueio e o risco de queda.',
+    'Se engasgar com líquidos, avisar a fisioterapeuta e o médico.'
+  ]);
+  if(C.indexOf('alzheimer')>=0) bloco('Cuidados na demência',[
+    'Manter a <b>mesma rotina</b> todos os dias — horários fixos ajudam mais que qualquer explicação.',
+    'Falar frases curtas, uma instrução por vez, de frente e no campo de visão.',
+    'Não corrigir nem discutir o que a pessoa fala: mudar de assunto funciona melhor.',
+    'Agitação no fim da tarde é comum. Acender as luzes antes de escurecer costuma ajudar.',
+    'Deixar o caminho do quarto ao banheiro iluminado à noite.'
+  ]);
+  if(C.indexOf('avc')>=0) bloco('Cuidados após o AVC',[
+    'Ao ajudar a levantar, apoiar pelo <b>tronco</b>, nunca puxando pelo braço afetado — o ombro sai do lugar com facilidade.',
+    'Manter o braço afetado apoiado quando sentado, sobre almofada ou mesa.',
+    'Estimular o uso do lado afetado nas tarefas do dia a dia, mesmo que devagar.',
+    'Aproximar-se pelo lado afetado ao conversar, para estimular a atenção àquele lado.',
+    'Se engasgar ao comer ou beber, interromper e avisar a equipe.'
+  ]);
+  if(C.indexOf('medular')>=0) bloco('Cuidados na lesão medular',[
+    '<b>Aliviar o peso a cada 15 a 30 minutos</b> quando sentado — inclinar o tronco ou erguer-se com os braços.',
+    'Inspecionar a pele todos os dias, com espelho ou com ajuda, nas costas, bumbum, calcanhares e tornozelos.',
+    'Vermelhidão que não some ao apertar já é ferida começando: avisar imediatamente.',
+    'Dor de cabeça súbita e forte com suor e rosto vermelho é <b>emergência</b> — verificar se a bexiga está cheia ou o intestino preso e procurar atendimento.',
+    'Manter o horário das sondagens e do funcionamento intestinal.'
+  ]);
+  if(C.indexOf('geriatria')>=0) bloco('Prevenção de quedas',[
+    'Retirar tapetes soltos e deixar os caminhos livres.',
+    'Luz acesa ou abajur no trajeto ao banheiro durante a noite.',
+    'Calçado fechado e firme dentro de casa — chinelo de dedo escorrega.',
+    'Levantar em duas etapas: sentar na cama, esperar um pouco, depois ficar de pé.',
+    'Barra de apoio no banheiro e ao lado do vaso.',
+    'Se houver queda, anotar o dia e o que aconteceu para contar à fisioterapeuta.'
+  ]);
+  if(C.indexOf('fibromialgia')>=0) bloco('Cuidados na fibromialgia',[
+    'Manter atividade leve e regular, mesmo nos dias ruins — parar completamente costuma piorar.',
+    'Dosar o esforço: dividir as tarefas ao longo do dia em vez de fazer tudo de uma vez.',
+    'Cuidar do sono: horário regular, quarto escuro, evitar telas antes de deitar.',
+    'Crises fazem parte do quadro e passam. Não significam que o tratamento falhou.'
+  ]);
+  if(C.indexOf('escoliose')>=0) bloco('Cuidados com a coluna',[
+    'Usar o colete pelas horas combinadas — o resultado depende disso.',
+    'Fazer os exercícios orientados todos os dias, mesmo que por pouco tempo.',
+    'Mochila nos dois ombros, com peso próximo ao corpo.',
+    'Avisar se aparecer dor nova, vermelhidão ou ferida por causa do colete.'
+  ]);
+  if(!out.length) bloco('Orientações gerais',[
+    'Seguir os exercícios combinados nos dias indicados.',
+    'Avisar sobre dor nova, febre, queda ou qualquer mudança importante.',
+    'Manter os horários dos medicamentos.'
+  ]);
+  return out.join('');
+}
+
+function _docPastaCapa(p){
+  var C=DOCS_CLINICA;
+  var conds=_docCondicoes(p);
+  return '<div class="doc">'+_docHeader('Pasta do Paciente — Identificação')
+    +'<p style="text-align:center;font-size:11px;color:#666">Este material deve permanecer na residência do paciente, '
+    +'à disposição da família, dos cuidadores e de outros profissionais.</p>'
+    +_docIdentBlock(p)
+    +_docRespBlock(p)
+    +'<h2 class="ds">Acompanhamento fisioterapêutico</h2>'
+    +'<p>'
+    +(conds?'<b>Condições em acompanhamento:</b> '+_docEsc(conds)+'<br>':'')
+    +(p.med?'<b>Médico responsável:</b> '+_docEsc(p.med)+'<br>':'')
+    +(p.dias_atend?'<b>Dias de atendimento:</b> '+_docEsc(p.dias_atend)+'<br>':'')
+    +(p.horario_atento?'':'')
+    +(p.horario_atend?'<b>Horário:</b> '+_docEsc(p.horario_atend)+'<br>':'')
+    +(p.freq_semanal?'<b>Frequência:</b> '+_docEsc(p.freq_semanal)+'<br>':'')
+    +(p.local_atend?'<b>Local:</b> '+_docEsc(p.local_atend)+'<br>':'')
+    +'<b>Fisioterapeuta:</b> '+C.prof+' — CREFITO '+C.crefito+'<br>'
+    +'<b>Contato:</b> '+C.tel
+    +'</p>'
+    +'<h2 class="ds">Medicamentos em uso</h2>'
+    +'<p style="font-size:11px;color:#666">Anote abaixo os medicamentos, as doses e os horários. Mantenha atualizado.</p>'
+    +_docGrade(['Medicamento','Dose','Horários'],9)
+    +'<h2 class="ds">Alergias e cuidados especiais</h2>'
+    +_docGrade(['Anotar aqui'],3)
+    +'<div class="foot">'+C.razao+' · CNPJ '+C.cnpj+' · CREFITO '+C.crefito+' · '+C.tel+'</div></div>';
+}
+
+function _docPastaRegistro(p){
+  var C=DOCS_CLINICA;
+  return '<div class="doc">'+_docHeader('Registro de Atendimentos')
+    +'<div class="ident"><b>Paciente:</b> '+_docLinha(p.name)+'</div>'
+    +'<p style="font-size:11px;color:#666">A cada atendimento, a fisioterapeuta anota a data e o que foi realizado. '
+    +'O paciente, familiar ou cuidador assina confirmando a presença do profissional.</p>'
+    +_docGrade(['Data','Início','Fim','Procedimento realizado','Assinatura de quem recebeu'],18)
+    +'<div class="foot">'+C.razao+' · CNPJ '+C.cnpj+' · CREFITO '+C.crefito+'</div></div>';
+}
+
+function _docPastaOrientacoes(p){
+  var C=DOCS_CLINICA;
+  return '<div class="doc">'+_docHeader('Orientações ao Cuidador')
+    +'<div class="ident"><b>Paciente:</b> '+_docLinha(p.name)+'</div>'
+    +'<p>Estas orientações complementam o atendimento e devem ser seguidas nos dias em que não há sessão. '
+    +'Em caso de dúvida, entre em contato antes de improvisar.</p>'
+    +_docOrientaCond(p)
+    +'<h2 class="ds">Orientações específicas para este paciente</h2>'
+    +_docGrade(['Anotações da fisioterapeuta'],6)
+    +'<div class="foot">'+C.prof+' · CREFITO '+C.crefito+' · '+C.tel+'</div></div>';
+}
+
+function _docPastaExercicios(p){
+  var C=DOCS_CLINICA;
+  return '<div class="doc">'+_docHeader('Programa de Exercícios Domiciliares')
+    +'<div class="ident"><b>Paciente:</b> '+_docLinha(p.name)
+    +'<br><b>Início:</b> '+_docLinha(_docData(p.data_inicio)||'')+'</div>'
+    +'<p>Realizar os exercícios abaixo conforme orientado. <b>Interromper e avisar</b> se houver dor forte, '
+    +'falta de ar, tontura ou mal-estar.</p>'
+    +_docGrade(['Exercício','Repetições','Séries','Quando fazer'],10)
+    +'<h2 class="ds">Controle da semana</h2>'
+    +'<p style="font-size:11px;color:#666">Marque um X nos dias em que os exercícios foram realizados.</p>'
+    +_docGrade(['Semana','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],6)
+    +'<div class="foot">'+C.prof+' · CREFITO '+C.crefito+' · '+C.tel+'</div></div>';
+}
+
+function _docPastaAlertas(p){
+  var C=DOCS_CLINICA;
+  var C2=(p.conds||[]);
+  var extra=[];
+  if(C2.indexOf('medular')>=0)extra.push('Dor de cabeça súbita e forte com suor, rosto vermelho e sensação de mal-estar');
+  if(C2.indexOf('avc')>=0||C2.indexOf('parkinson')>=0)extra.push('Engasgo frequente com comida ou líquidos, ou febre depois de engasgar');
+  if(C2.indexOf('alzheimer')>=0)extra.push('Recusa alimentar por mais de um dia ou piora súbita da confusão');
+  if(C2.indexOf('geriatria')>=0)extra.push('Queda com batida na cabeça, mesmo sem ferimento aparente');
+  var lista=[
+    'Falta de ar, dor no peito ou lábios arroxeados',
+    'Febre persistente',
+    'Fraqueza nova em braço ou perna, boca torta ou fala embolada',
+    'Confusão mental que apareceu de repente',
+    'Ferida na pele que não estava lá antes',
+    'Dor forte que não passa com o remédio de costume'
+  ].concat(extra);
+  return '<div class="doc">'+_docHeader('Sinais de Alerta e Contatos')
+    +'<div class="ident"><b>Paciente:</b> '+_docLinha(p.name)+'</div>'
+    +'<h2 class="ds">Procure atendimento médico se aparecer</h2>'
+    +'<p>'+lista.map(function(i){return '• '+i;}).join('<br>')+'</p>'
+    +'<h2 class="ds">Em caso de emergência</h2>'
+    +'<p><b>SAMU:</b> 192 &nbsp;·&nbsp; <b>Bombeiros:</b> 193<br>'
+    +((p.emerg_nome||p.emerg_tel)?'<b>Contato da família:</b> '+_docEsc(p.emerg_nome||'')+(p.emerg_tel?' — '+_docEsc(p.emerg_tel):'')+'<br>':'')
+    +(p.med?'<b>Médico responsável:</b> '+_docEsc(p.med)+'<br>':'')
+    +'<b>Fisioterapeuta:</b> '+C.prof+' — '+C.tel+'</p>'
+    +'<p style="font-size:11px;color:#666">A fisioterapeuta não substitui atendimento de urgência. '
+    +'Diante de qualquer sinal acima, procure o serviço médico e depois comunique a equipe.</p>'
+    +'<h2 class="ds">Outros telefones úteis</h2>'
+    +_docGrade(['Quem','Telefone'],5)
+    +'<div class="foot">'+C.prof+' · CREFITO '+C.crefito+' · '+C.tel+'</div></div>';
+}
+
+</script>
+<script>
+
+/* ══════════════════════════════════════════════════════════════════
+   PROPOSTA DE PLANO DE TRATAMENTO
+   Monta a proposta por fases da doença, com frequência e custo, e
+   gera o PDF com o mesmo cabeçalho dos demais documentos.
+   ══════════════════════════════════════════════════════════════════ */
+
+var PLANO_PERFIS={
+  avc:{label:'Pós-AVC',nota:'reabilitação neurofuncional',fases:[
+    {id:'a',tag:'Fase aguda',nome:'Estabilização',per:'semanas 1 a 3',sem:3,freqs:[5],
+     foco:'Mobilização precoce, posicionamento para prevenir escaras, prevenção de contraturas e de complicações respiratórias, estímulo sensório-motor e controle de tronco.',
+     rec:['Domiciliar','Solo']},
+    {id:'s',tag:'Fase subaguda',nome:'Reabilitação',per:'semanas 4 a 24',sem:20,freqs:[3,4,5],
+     foco:'Janela de neuroplasticidade: treino orientado à tarefa, recuperação da marcha e do equilíbrio, fortalecimento do hemicorpo, reeducação das atividades de vida diária e uso funcional do membro superior.',
+     rec:['Solo','Piscina','Pilates']},
+    {id:'c',tag:'Fase crônica',nome:'Manutenção',per:'a partir de 6 meses',sem:null,freqs:[2],
+     foco:'Manutenção dos ganhos, condicionamento cardiorrespiratório e prevenção de quedas e do declínio funcional.',
+     rec:['Academia assistida','Piscina']}]},
+  parkinson:{label:'Doença de Parkinson',nota:'progressiva · Hoehn & Yahr',fases:[
+    {id:'i',tag:'Fase inicial',nome:'H&Y 1 e 2',per:'contínuo · rever a cada 12 semanas',sem:null,freqs:[2],
+     foco:'Exercícios de grande amplitude, condicionamento, prevenção da rigidez, treino de dupla tarefa, marcha e postura.',
+     rec:['Solo','Pilates']},
+    {id:'m',tag:'Fase intermediária',nome:'H&Y 2 e 3',per:'contínuo',sem:null,freqs:[3],
+     foco:'Equilíbrio e prevenção de quedas, estratégias para o congelamento da marcha com pistas externas, treino de transferências e mobilidade.',
+     rec:['Solo','Piscina']},
+    {id:'av',tag:'Fase avançada',nome:'H&Y 4 e 5',per:'contínuo',sem:null,freqs:[2,3],
+     foco:'Mobilidade no leito e na cadeira, prevenção de contraturas, fisioterapia respiratória, conforto e orientação aos cuidadores.',
+     rec:['Domiciliar']}]},
+  alzheimer:{label:'Alzheimer e demências',nota:'progressiva',fases:[
+    {id:'l',tag:'Fase leve',nome:'Autonomia',per:'contínuo',sem:null,freqs:[2],
+     foco:'Manutenção da mobilidade e da força, exercícios de dupla tarefa cognitivo-motora, prevenção de quedas e estímulo à autonomia.',
+     rec:['Solo','Pilates']},
+    {id:'mo',tag:'Fase moderada',nome:'Preservação',per:'contínuo',sem:null,freqs:[2,3],
+     foco:'Preservação da marcha e das transferências, rotina previsível, atividade física para reduzir a agitação e orientação intensiva aos cuidadores.',
+     rec:['Solo','Domiciliar']},
+    {id:'av',tag:'Fase avançada',nome:'Conforto',per:'contínuo',sem:null,freqs:[2],
+     foco:'Mobilização passiva, prevenção de contraturas e de úlceras por pressão, fisioterapia respiratória, conforto e posicionamento.',
+     rec:['Domiciliar']}]},
+  idoso:{label:'Idoso frágil ou descondicionado',nota:'envelhecimento ativo',fases:[
+    {id:'r',tag:'Fase de recuperação',nome:'Retomada',per:'semanas 1 a 4',sem:4,freqs:[3],
+     foco:'Após queda, internação ou descondicionamento: retomada segura do movimento, mobilidade, transferências e prevenção de novas complicações.',
+     rec:['Domiciliar','Solo']},
+    {id:'f',tag:'Fase de fortalecimento',nome:'Ganho de força',per:'semanas 5 a 16',sem:12,freqs:[2,3],
+     foco:'Ganho de força e de massa muscular, equilíbrio, treino de marcha e resistência para reverter a fragilidade.',
+     rec:['Pilates','Piscina','Academia assistida']},
+    {id:'ma',tag:'Fase de manutenção',nome:'Envelhecimento ativo',per:'contínuo',sem:null,freqs:[2],
+     foco:'Prevenção de quedas e de sarcopenia, condicionamento e autonomia nas atividades do dia a dia.',
+     rec:['Academia assistida','Piscina']}]},
+  medular:{label:'Lesão medular',nota:'reabilitação neurofuncional',fases:[
+    {id:'a',tag:'Fase aguda',nome:'Proteção',per:'semanas 1 a 4',sem:4,freqs:[5],
+     foco:'Prevenção de complicações respiratórias, de úlceras por pressão, de trombose e de contraturas; cinesioterapia respiratória, mobilização, posicionamento e controle de tronco.',
+     rec:['Domiciliar','Solo']},
+    {id:'s',tag:'Fase subaguda',nome:'Reabilitação intensiva',per:'semanas 5 a 24',sem:20,freqs:[4,5],
+     foco:'Fortalecimento da musculatura preservada, treino de transferências, independência funcional, treino de marcha quando aplicável e adaptação de órteses.',
+     rec:['Solo','Piscina','Academia assistida']},
+    {id:'c',tag:'Fase crônica',nome:'Manutenção',per:'contínuo',sem:null,freqs:[2,3],
+     foco:'Manutenção da função, prevenção de complicações secundárias, condicionamento e reintegração às atividades.',
+     rec:['Academia assistida','Piscina']}]},
+  poscirurgico:{label:'Pós-cirúrgico e imobilismo',nota:'retorno funcional',fases:[
+    {id:'a',tag:'Fase aguda',nome:'Pós-operatório',per:'semanas 1 a 2',sem:2,freqs:[4,5],
+     foco:'Mobilização precoce, controle da dor e do edema, prevenção das complicações do imobilismo e reeducação postural.',
+     rec:['Domiciliar']},
+    {id:'s',tag:'Fase subaguda',nome:'Recondicionamento',per:'semanas 3 a 10',sem:8,freqs:[3],
+     foco:'Recuperação da amplitude, da força e da resistência, treino de marcha e transferências, retomada progressiva das atividades diárias.',
+     rec:['Solo','Piscina','Pilates']},
+    {id:'c',tag:'Fase de alta',nome:'Alta funcional',per:'semanas 11 a 16',sem:6,freqs:[2],
+     foco:'Refinamento funcional, condicionamento, retorno às atividades e orientação de manutenção para a alta.',
+     rec:['Academia assistida','Pilates']}]},
+  escoliose:{label:'Escoliose e coluna',nota:'tratamento conservador',fases:[
+    {id:'a',tag:'Fase inicial',nome:'Aprendizado',per:'semanas 1 a 8',sem:8,freqs:[2,3],
+     foco:'Consciência corporal, aprendizado dos exercícios específicos para a curva, correção ativa e adaptação ao colete quando indicado.',
+     rec:['Solo','Pilates']},
+    {id:'s',tag:'Fase de consolidação',nome:'Estabilização',per:'semanas 9 a 24',sem:16,freqs:[2],
+     foco:'Fortalecimento estabilizador, integração da correção nas atividades diárias, resistência postural e acompanhamento da progressão.',
+     rec:['Solo','Pilates','Piscina']},
+    {id:'c',tag:'Fase de manutenção',nome:'Autonomia',per:'contínuo · reavaliar a cada 6 meses',sem:null,freqs:[1,2],
+     foco:'Programa domiciliar autônomo, manutenção dos ganhos e vigilância da progressão até a maturidade óssea.',
+     rec:['Solo','Academia assistida']}]},
+  fibromialgia:{label:'Fibromialgia e dor crônica',nota:'reabilitação progressiva',fases:[
+    {id:'a',tag:'Fase inicial',nome:'Educação e alívio',per:'semanas 1 a 6',sem:6,freqs:[2],
+     foco:'Educação em dor, regulação do sono, exercício de baixa intensidade com progressão muito gradual e manejo das crises.',
+     rec:['Solo','Piscina']},
+    {id:'s',tag:'Fase de progressão',nome:'Condicionamento',per:'semanas 7 a 20',sem:14,freqs:[2,3],
+     foco:'Aumento progressivo da carga e da resistência, fortalecimento global, exposição gradual às atividades evitadas.',
+     rec:['Piscina','Pilates','Academia assistida']},
+    {id:'c',tag:'Fase de manutenção',nome:'Autonomia',per:'contínuo',sem:null,freqs:[1,2],
+     foco:'Manutenção da atividade física regular, autogestão das crises e prevenção do descondicionamento.',
+     rec:['Academia assistida','Piscina']}]}
+};
+
+/* Sugere o perfil a partir das condições cadastradas. */
+function planoPerfilSugerido(p){
+  var c=(p&&p.conds)||[];
+  var mapa=[['avc','avc'],['parkinson','parkinson'],['alzheimer','alzheimer'],
+            ['medular','medular'],['escoliose','escoliose'],['fibromialgia','fibromialgia'],
+            ['traumato','poscirurgico'],['geriatria','idoso']];
+  for(var i=0;i<mapa.length;i++) if(c.indexOf(mapa[i][0])>=0) return mapa[i][1];
+  return 'idoso';
+}
+function planoMoeda(v){
+  var n=parseFloat(v)||0;
+  return 'R$ '+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+
+var PLANO_SEL={};   /* {faseId:{on:bool,freq:int}} */
+var PLANO_PID=null;
+
+function abrirProposta(pid){
+  var p=db.patients.find(function(x){return x.id===pid;});
+  if(!p){toast('Paciente não encontrado','err');return;}
+  PLANO_PID=pid;
+  var perfil=planoPerfilSugerido(p);
+  planoResetSel(perfil);
+  var ov=document.getElementById('propModal');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.className='ov';ov.id='propModal';ov.setAttribute('data-static','1');
+    ov.innerHTML='<div class="modal" style="max-width:640px"><h3>💰 Proposta de Plano de Tratamento</h3><div id="propBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+  planoRender(perfil,p);
+  ov.style.display='flex';
+}
+
+function planoResetSel(perfil){
+  PLANO_SEL={};
+  (PLANO_PERFIS[perfil].fases||[]).forEach(function(f,i){
+    PLANO_SEL[f.id]={on:i<2, freq:f.freqs[Math.floor(f.freqs.length/2)]};
+  });
+}
+
+function planoTrocarPerfil(){
+  var perfil=document.getElementById('propPerfil').value;
+  planoResetSel(perfil);
+  planoRender(perfil, db.patients.find(function(x){return x.id===PLANO_PID;}));
+}
+
+function planoToggle(id){ PLANO_SEL[id].on=!PLANO_SEL[id].on; planoAtualizar(); }
+function planoFreq(id,v){ PLANO_SEL[id].freq=+v; planoAtualizar(); }
+function planoAtualizar(){
+  var perfil=document.getElementById('propPerfil').value;
+  planoRender(perfil, db.patients.find(function(x){return x.id===PLANO_PID;}), true);
+}
+
+function planoRender(perfil,p,soCorpo){
+  var P=PLANO_PERFIS[perfil];
+  var val=parseFloat((document.getElementById('propValor')||{}).value)||parseFloat(p.valor_sessao)||0;
+  var h='';
+  if(!soCorpo){
+    h+='<div class="mg" style="margin-bottom:12px">'
+      +'<div class="ff mf"><label>Perfil clínico</label><select id="propPerfil" onchange="planoTrocarPerfil()">'
+      +Object.keys(PLANO_PERFIS).map(function(k){
+        return '<option value="'+k+'"'+(k===perfil?' selected':'')+'>'+esc(PLANO_PERFIS[k].label)+'</option>';
+      }).join('')+'</select></div>'
+      +'<div class="ff"><label>Valor da sessão (R$)</label><input type="number" step="0.01" min="0" id="propValor" value="'
+      +(p.valor_sessao||'')+'" oninput="planoAtualizar()"></div>'
+      +'<div class="ff"><label>Validade da proposta</label><select id="propValidade"><option>15 dias</option><option selected>30 dias</option><option>60 dias</option></select></div>'
+      +'<div class="ff mf"><label>Observações (opcional)</label><textarea id="propObs" rows="2" placeholder="Ex: valores incluem deslocamento até o bairro de Boa Viagem."></textarea></div>'
+      +'</div>'
+      +'<div id="propFases"></div>';
+  }
+  var corpo='';
+  var totalMes=0, totalPrograma=0, temPrazo=false;
+  P.fases.forEach(function(f){
+    var s=PLANO_SEL[f.id]||{on:false,freq:f.freqs[0]};
+    var mes=s.freq*4*val;
+    if(s.on)totalMes+=mes;
+    if(s.on&&f.sem){ totalPrograma+=s.freq*f.sem*val; temPrazo=true; }
+    corpo+='<div style="border:1.5px solid '+(s.on?'var(--or-l)':'var(--g2)')+';border-radius:11px;'
+      +'padding:11px 13px;margin-bottom:9px;background:'+(s.on?'var(--or-p)':'#fff')+'">'
+      +'<label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer">'
+      +'<input type="checkbox" '+(s.on?'checked':'')+' onchange="planoToggle(\''+f.id+'\')" style="margin-top:3px;accent-color:var(--or)">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-weight:700;font-size:13px;color:var(--g8)">'+esc(f.tag)+' · '+esc(f.nome)+'</div>'
+      +'<div style="font-size:11px;color:var(--g4);margin-bottom:5px">'+esc(f.per)+'</div>'
+      +'<div style="font-size:11.5px;color:var(--g6);line-height:1.5">'+esc(f.foco)+'</div>'
+      +'</div></label>'
+      +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--g2)">'
+      +'<span style="font-size:11px;color:var(--g4)">Frequência</span>'
+      +'<select onchange="planoFreq(\''+f.id+'\',this.value)" style="padding:4px 8px;border-radius:7px;border:1.5px solid var(--g2);font-family:\'DM Sans\';font-size:12px">'
+      +f.freqs.map(function(q){return '<option value="'+q+'"'+(q===s.freq?' selected':'')+'>'+q+'x por semana</option>';}).join('')
+      +'</select>'
+      +'<span style="margin-left:auto;font-size:11.5px;font-weight:700;color:var(--or2)">'
+      +(s.freq*4)+' sessões/mês · '+planoMoeda(mes)+'</span>'
+      +'</div></div>';
+  });
+  corpo+='<div style="background:var(--g1);border-radius:10px;padding:12px 14px;margin-top:4px">'
+    +'<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--g8)">'
+    +'<span>Investimento mensal</span><span>'+planoMoeda(totalMes)+'</span></div>'
+    +(temPrazo?'<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--g6);margin-top:5px">'
+      +'<span>Fases com prazo definido</span><span>'+planoMoeda(totalPrograma)+'</span></div>':'')
+    +'</div>'
+    +'<div class="ma" style="margin-top:14px">'
+    +'<button class="btn" onclick="closeOv(\'propModal\')" style="background:#ede8e0;color:var(--g6)">Fechar</button>'
+    +'<button class="btn btn-gr" onclick="gerarPropostaPDF()">📄 Gerar proposta em PDF</button>'
+    +'</div>';
+
+  if(soCorpo){
+    document.getElementById('propFases').innerHTML=corpo;
+  } else {
+    document.getElementById('propBody').innerHTML=h;
+    document.getElementById('propFases').innerHTML=corpo;
+  }
+}
+
+/* Documento da proposta, no mesmo formato dos demais. */
+function _docProposta(p,cfg){
+  var C=DOCS_CLINICA, P=PLANO_PERFIS[cfg.perfil];
+  var val=cfg.valor||0;
+  var totalMes=0, totalPrograma=0, temPrazo=false;
+  var linhas='';
+  P.fases.forEach(function(f){
+    var s=cfg.sel[f.id];
+    if(!s||!s.on)return;
+    var mes=s.freq*4*val; totalMes+=mes;
+    var tot=null;
+    if(f.sem){ tot=s.freq*f.sem*val; totalPrograma+=tot; temPrazo=true; }
+    linhas+='<h2 class="ds">'+_docEsc(f.tag)+' — '+_docEsc(f.nome)+'</h2>'
+      +'<p><b>Período:</b> '+_docEsc(f.per)+'<br>'
+      +'<b>Frequência:</b> '+s.freq+' sessões por semana ('+(s.freq*4)+' por mês)<br>'
+      +'<b>Ambientes indicados:</b> '+_docEsc(f.rec.join(', '))+'<br>'
+      +'<b>Foco do trabalho:</b> '+_docEsc(f.foco)+'<br>'
+      +'<b>Investimento mensal:</b> '+planoMoeda(mes)
+      +(tot!==null?'<br><b>Total estimado da fase:</b> '+planoMoeda(tot):'')
+      +'</p>';
+  });
+  if(!linhas)linhas='<p>Nenhuma fase selecionada.</p>';
+
+  return '<div class="doc">'+_docHeader('Proposta de Plano de Tratamento')
+    +_docIdentBlock(p)
+    +'<p>Proposta elaborada a partir da avaliação fisioterapêutica, organizada por <b>fases da evolução clínica</b>. '
+    +'Cada fase tem objetivo, frequência e duração próprios — a passagem de uma para a outra depende da resposta ao tratamento e é discutida com o paciente e a família.</p>'
+    +'<div class="ident"><b>Perfil clínico:</b> '+_docEsc(P.label)+'<br>'
+    +'<b>Valor da sessão:</b> '+planoMoeda(val)+'<br>'
+    +'<b>Data da proposta:</b> '+new Date().toLocaleDateString('pt-BR')+'<br>'
+    +'<b>Validade:</b> '+_docEsc(cfg.validade||'30 dias')+'</div>'
+    +linhas
+    +'<h2 class="ds">Resumo do investimento</h2>'
+    +'<p><b>Investimento mensal com as fases selecionadas:</b> '+planoMoeda(totalMes)
+    +(temPrazo?'<br><b>Total estimado das fases com prazo definido:</b> '+planoMoeda(totalPrograma):'')
+    +'<br><br>Os valores referem-se a sessões individuais de fisioterapia. '
+    +'A estimativa mensal considera 4 semanas. Reajustes serão comunicados com antecedência mínima de 30 dias.</p>'
+    +(cfg.obs?'<h2 class="ds">Observações</h2><p>'+_docEsc(cfg.obs)+'</p>':'')
+    +'<h2 class="ds">Como prosseguir</h2>'
+    +'<p>Havendo interesse, o próximo passo é a assinatura do contrato de prestação de serviços e a definição dos dias e horários. '
+    +'A proposta pode ser ajustada conforme a disponibilidade e as prioridades do paciente e da família.</p>'
+    +_docSignBlock(p)
+    +'<div class="foot">'+C.razao+' · CNPJ '+C.cnpj+' · CREFITO '+C.crefito+' · '+C.tel+'</div></div>';
+}
+
+function gerarPropostaPDF(){
+  var p=db.patients.find(function(x){return x.id===PLANO_PID;});
+  if(!p){toast('Paciente não encontrado','err');return;}
+  PROPOSTA_CFG={
+    perfil:document.getElementById('propPerfil').value,
+    valor:parseFloat(document.getElementById('propValor').value)||0,
+    validade:(document.getElementById('propValidade')||{}).value||'30 dias',
+    obs:(document.getElementById('propObs')||{}).value||'',
+    sel:JSON.parse(JSON.stringify(PLANO_SEL))
+  };
+  closeOv('propModal');
+  gerarDocumentosPDF(p.id,['proposta']);
+}
+var PROPOSTA_CFG=null;
 
 </script>
 </body></html>
