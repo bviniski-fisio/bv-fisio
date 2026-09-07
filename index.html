@@ -4098,7 +4098,11 @@ function _doGenerateReport(pid,p){
         {key:'posterior',label:'Posterior',icon:'🔙'},
         {key:'adams',label:'Adams',icon:'🤸'},
         {key:'adams_dir',label:'Adams Dir.',icon:'↗'},
-        {key:'adams_esq',label:'Adams Esq.',icon:'↖'}
+        {key:'adams_esq',label:'Adams Esq.',icon:'↖'},
+        /* As radiografias faltavam aqui: eram salvas na avaliação mas o
+           relatório não as listava, então nunca apareciam. */
+        {key:'rx_ap',label:'Rx AP (frontal)',icon:'🩻'},
+        {key:'rx_sagital',label:'Rx Sagital (perfil)',icon:'🩻'}
       ];
       EVIEWS.forEach(function(v){
         var hasView=picks.some(function(ev){var photos=photoStore[ev.id]||[];return photos.some(function(ph){return ph.key===v.key&&ph.src;});});
@@ -13066,7 +13070,7 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-21a';
+var APP_VERSAO='2026-08-21b';
 /* Mostra a versão ao lado do indicador de salvamento, para conferir
    rapidamente se o arquivo publicado é o mais recente. */
 (function(){
