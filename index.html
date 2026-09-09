@@ -742,6 +742,15 @@
 .mh-title,.mh-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .hdr-actions{min-width:0;}
 
+/* ── Miniaturas no visualizador de avaliação ── */
+.vp-fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;margin-top:8px}
+.vp-foto{margin:0;cursor:zoom-in;background:var(--g1);border-radius:9px;overflow:hidden;border:1.5px solid var(--g2)}
+.vp-foto:active{opacity:.8}
+.vp-foto img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#fff}
+.vp-foto figcaption{font-size:9px;font-weight:600;color:var(--g5);padding:4px 5px;text-align:center;
+  line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:640px){.vp-fotos{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:7px}}
+
 </style>
 <!-- Firebase SDK -->
 <script type="module">
@@ -882,6 +891,29 @@
         }
       }
     } catch(e) { console.warn('[FB] erro ao salvar fotos da chave', key, e); }
+  };
+
+  /* Carrega UMA chave de fotos direto da nuvem, remontando os pedaços.
+     Usada quando o aparelho não tem a foto localmente — por exemplo,
+     quando ela foi adicionada em outro celular depois desta sessão abrir. */
+  window._fbLoadPhotoKey = async function(key) {
+    try {
+      await window._fbAuthReady;
+      var ref = doc(fbDB, 'clinica', 'dados', 'fotos', key);
+      var snap = await getDoc(ref);
+      if (!snap.exists()) return null;
+      var meta = snap.data() || {};
+      if (meta.parts && meta.parts > 1) {
+        var full = '';
+        for (var p = 0; p < meta.parts; p++) {
+          var cs = await getDoc(doc(fbDB, 'clinica', 'dados', 'fotos', key + '__p' + p));
+          if (cs.exists() && cs.data().data) full += cs.data().data;
+        }
+        try { return JSON.parse(full); } catch(e) { return null; }
+      }
+      if (meta.data) { try { return JSON.parse(meta.data); } catch(e) { return null; } }
+      return null;
+    } catch(e) { console.warn('[FB] erro ao buscar fotos da chave', key, e); return null; }
   };
 
   // Carrega TODAS as fotos da nuvem → objeto { chave: [fotos] }
@@ -10254,6 +10286,25 @@ function cleanPhotoStore(evalId){
   });
   if(changed)savePhotos(evalId);
 }
+/* Rebusca as fotos na nuvem, ignorando o que está guardado neste aparelho.
+   Serve para trazer imagens adicionadas em outro celular. */
+function rebuscarFotos(evalId,cond){
+  if(typeof window._fbLoadPhotoKey!=='function'){
+    toast('Sem conexão com a nuvem no momento','err'); return;
+  }
+  toast('Buscando fotos na nuvem…','ok');
+  window._fbLoadPhotoKey('bv_photos_'+evalId).then(function(arr){
+    if(!arr||!arr.length){ toast('Nenhuma foto encontrada na nuvem para esta avaliação','err'); return; }
+    var comImagem=arr.filter(function(p){return p&&p.src;}).length;
+    photoStore[evalId]=arr;
+    try{ if(!db.photos)db.photos={}; db.photos['bv_photos_'+evalId]=arr; }catch(e){}
+    if(idb){ try{ var tx=idb.transaction(['app'],'readwrite');
+      tx.objectStore('app').put(JSON.stringify(arr),'bv_photos_'+evalId); }catch(e){} }
+    initPhotoSection(evalId,cond||curCond);
+    toast(comImagem+(comImagem===1?' foto trazida da nuvem':' fotos trazidas da nuvem'),'ok');
+  }).catch(function(){ toast('Não consegui buscar as fotos agora','err'); });
+}
+
 function initPhotoSection(evalId,cond){
   var afterLoad=function(){
     if((cond||curCond)==='escoliose'){
@@ -10274,10 +10325,16 @@ function renderPhotos(evalId,cond){
   var wrap=document.getElementById('photo_wrap_'+evalId);
   if(!wrap)return;
   var photos=photoStore[evalId]||[];
+  /* Botão para trazer imagens adicionadas em outro aparelho. */
+  var barraNuvem='<div style="display:flex;justify-content:flex-end;margin-bottom:8px">'
+    +'<button type="button" onclick="rebuscarFotos(\''+evalId+'\',\''+(cond||curCond||'')+'\')" '
+    +'style="background:#EDF2E8;color:#4A6B3E;border:1px solid #CBD8BD;border-radius:8px;'
+    +'padding:6px 11px;font-family:\'DM Sans\';font-size:11px;font-weight:700;cursor:pointer">'
+    +'☁️ Buscar fotos da nuvem</button></div>';
   // Fotos do atendimento (chave atd_) usam SEMPRE o modo timeline livre, nunca o grid de 9 vistas.
   var isAtend=(''+evalId).indexOf('atd_')===0;
   var isEsc=!isAtend && (cond||curCond)==='escoliose';
-  var h='';
+  var h=barraNuvem;
   if(isEsc){
     h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:10px">';
     ESCOLIOSE_VISTAS.forEach(function(v){
@@ -10818,7 +10875,28 @@ function _loadPhotosLS(evalId,done){
     var raw=localStorage.getItem('bv_photos_'+evalId);
     if(raw){var p=JSON.parse(raw);if(p&&p.length){done(p);return;}}
   }catch(e){}
-  done([]);
+  /* Nada guardado neste aparelho: a foto pode ter sido adicionada em outro
+     celular depois que esta sessão abriu. Busca na nuvem antes de desistir. */
+  _loadPhotosNuvem(evalId,done);
+}
+
+/* Busca a chave na nuvem e guarda uma cópia local para as próximas vezes. */
+function _loadPhotosNuvem(evalId,done){
+  if(typeof window._fbLoadPhotoKey!=='function'){ done([]); return; }
+  var chave='bv_photos_'+evalId;
+  var respondido=false;
+  var fim=function(arr){ if(respondido)return; respondido=true; done(arr||[]); };
+  /* não deixa a tela travar se a rede estiver lenta */
+  var relogio=setTimeout(function(){ fim([]); },6000);
+  window._fbLoadPhotoKey(chave).then(function(arr){
+    clearTimeout(relogio);
+    if(!arr||!arr.length){ fim([]); return; }
+    try{ if(!db.photos)db.photos={}; db.photos[chave]=arr; }catch(e){}
+    if(idb){ try{ var tx=idb.transaction(['app'],'readwrite');
+      tx.objectStore('app').put(JSON.stringify(arr),chave); }catch(e){} }
+    else { try{ localStorage.setItem(chave,JSON.stringify(arr)); }catch(e){} }
+    fim(arr);
+  }).catch(function(){ clearTimeout(relogio); fim([]); });
 }
 
 // ── FOTOS DO ATENDIMENTO (por paciente + condição, separadas das avaliações) ──
@@ -13070,7 +13148,7 @@ function integProfileBlock(p){
    Um toque cria o cadastro completo.
    ══════════════════════════════════════════════════════════════════ */
 
-var APP_VERSAO='2026-08-21b';
+var APP_VERSAO='2026-08-22a';
 /* Mostra a versão ao lado do indicador de salvamento, para conferir
    rapidamente se o arquivo publicado é o mais recente. */
 (function(){
@@ -13481,12 +13559,49 @@ function verAvaliacao(pid,cond,eid){
     if(k&&dados[k]!==undefined&&sp.length>1)sp[1].textContent=dados[k];
   });
 
-  verPreenchido(host, p, ev, cond);
-  host.remove();
-  curPid=_pid;curCond=_cond;curEid=_eid;
+  /* As imagens ficam no armazenamento local e podem ainda não estar em
+     memória — carrega antes de montar a visualização. */
+  function _mostrar(){
+    verPreenchido(host, p, ev, cond);
+    host.remove();
+    curPid=_pid;curCond=_cond;curEid=_eid;
+  }
+  if(typeof loadPhotos==='function' && !((typeof photoStore!=='undefined'&&photoStore[eid])||[]).length){
+    loadPhotos(eid,_mostrar);
+  } else _mostrar();
 }
 
 /* Abre a visualização. */
+/* Fotos da avaliação em foco. Elas não ficam nos campos do formulário —
+   moram no armazenamento de imagens — e por isso não apareciam aqui. */
+function vpFotos(){
+  var eid=(VP_ALVO&&VP_ALVO.ev&&VP_ALVO.ev.id)||(typeof curEid!=='undefined'?curEid:null);
+  if(!eid)return [];
+  var lista=(typeof photoStore!=='undefined'&&photoStore[eid])||[];
+  var rotulo={};
+  try{ ESCOLIOSE_VISTAS.forEach(function(v){rotulo[v.key]=v.icon+' '+v.label;}); }catch(e){}
+  var out=[];
+  lista.forEach(function(ph,i){
+    if(!ph||!ph.src||ph.src.length<=200)return;
+    out.push({src:ph.src, idx:out.length, real:i, eid:eid,
+      lb:(ph.key&&rotulo[ph.key])||ph.view||ph.label||('Foto '+(i+1))});
+  });
+  return out;
+}
+
+/* Abre a imagem ampliada, reaproveitando o visualizador do sistema. */
+function vpAbrirFoto(idx){
+  var f=vpFotos()[idx];
+  if(!f)return;
+  if(typeof viewPhoto==='function'){ viewPhoto(f.eid,f.real); return; }
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;'
+    +'align-items:center;justify-content:center;padding:18px;cursor:zoom-out';
+  ov.innerHTML='<img src="'+f.src+'" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">';
+  ov.onclick=function(){ov.remove();};
+  document.body.appendChild(ov);
+}
+
 function verPreenchido(raiz,pAlvo,evAlvo,condAlvo){
   VP_RAIZ=raiz||null; VP_ALVO={p:pAlvo,ev:evAlvo,cond:condAlvo};
   var secoes=vpColetar(VP_RAIZ);
@@ -13541,6 +13656,17 @@ function verPreenchido(raiz,pAlvo,evAlvo,condAlvo){
       h+='</div>';
     });
   }
+  var fts=vpFotos();
+  if(fts.length){
+    h+='<div class="vp-sec"><div class="vp-sec-t">📸 Imagens ('+fts.length+')</div><div class="vp-fotos">';
+    fts.forEach(function(f){
+      h+='<figure class="vp-foto" onclick="vpAbrirFoto('+f.idx+')">'
+        +'<img src="'+f.src+'" alt="'+esc(f.lb)+'">'
+        +'<figcaption>'+esc(f.lb)+'</figcaption></figure>';
+    });
+    h+='</div></div>';
+  }
+
   h+='<div class="ma" style="margin-top:16px">'
     +'<button class="btn" onclick="closeOv(\'vpModal\')" style="background:#ede8e0;color:var(--g6)">Fechar</button>'
     +'<button class="btn" onclick="vpImprimir()" style="background:var(--g6);color:#fff">🖨️ Imprimir</button>'
@@ -13566,6 +13692,11 @@ function vpTexto(){
   var linhas=[];
   if(p)linhas.push('PACIENTE: '+p.name);
   (_c.cad||vpCadastro(p)).forEach(function(i){ if(i.lb!=='Nome')linhas.push('• '+i.lb+': '+i.v); });
+  var ftsT=vpFotos();
+  if(ftsT.length){
+    linhas.push('','── IMAGENS ──');
+    ftsT.forEach(function(f){ linhas.push('• '+f.lb); });
+  }
   (_c.secoes||vpColetar()).forEach(function(s){
     var itens=s.itens.filter(function(i){return VP_MOSTRAR_CALC||!i.calc;});
     if(!itens.length)return;
@@ -13612,6 +13743,16 @@ function vpImprimir(){
     itens.forEach(function(i){h+='<tr><td class="k">'+esc(i.lb)+'</td><td>'+esc(i.v).replace(/\n/g,'<br>')+'</td></tr>';});
     h+='</table>';
   });
+  var ftsP=vpFotos();
+  if(ftsP.length){
+    h+='<h2>Imagens</h2><div style="display:flex;flex-wrap:wrap;gap:10px">';
+    ftsP.forEach(function(f){
+      h+='<div style="width:31%;text-align:center">'
+        +'<img src="'+f.src+'" style="width:100%;border:1px solid #ddd;border-radius:5px">'
+        +'<div style="font-size:9px;color:#666;margin-top:3px">'+esc(f.lb)+'</div></div>';
+    });
+    h+='</div>';
+  }
   h+='<div class="ft">Somente os campos preenchidos. Impresso em '+new Date().toLocaleString('pt-BR')+'.</div></body></html>';
   w.document.write(h);w.document.close();
   setTimeout(function(){w.print();},350);
